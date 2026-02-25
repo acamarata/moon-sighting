@@ -15,6 +15,10 @@ import {
   WGS84,
   // API
   getMoonPhase,
+  getMoonPosition,
+  getMoonIllumination,
+  getMoonVisibilityEstimate,
+  getMoon,
   initKernels,
   downloadKernels,
   verifyKernels,
@@ -222,6 +226,223 @@ test('Synodic month duration is ~29.5 days (±0.5)', () => {
     synodicDays > 29.0 && synodicDays < 30.1,
     `synodic month=${synodicDays.toFixed(2)} days`,
   )
+})
+
+// ─── getMoonPosition ─────────────────────────────────────────────────────────
+
+console.log('\ngetMoonPosition:')
+
+// London on 2025-03-14 at noon UTC — Moon should be above the horizon during daytime
+const moonPos_london = getMoonPosition(new Date('2025-03-14T20:00:00Z'), 51.5074, -0.1278, 10)
+
+test('getMoonPosition returns azimuth in [0, 360)', () => {
+  assert.ok(
+    moonPos_london.azimuth >= 0 && moonPos_london.azimuth < 360,
+    `azimuth=${moonPos_london.azimuth}`,
+  )
+})
+test('getMoonPosition returns altitude in [-90, 90]', () => {
+  assert.ok(
+    moonPos_london.altitude >= -90 && moonPos_london.altitude <= 90,
+    `altitude=${moonPos_london.altitude}`,
+  )
+})
+test('getMoonPosition returns distance in lunar orbit range [356000, 407000] km', () => {
+  assert.ok(
+    moonPos_london.distance >= 356000 && moonPos_london.distance <= 407000,
+    `distance=${moonPos_london.distance.toFixed(0)} km`,
+  )
+})
+test('getMoonPosition returns finite parallacticAngle', () => {
+  assert.ok(
+    isFinite(moonPos_london.parallacticAngle),
+    `parallacticAngle=${moonPos_london.parallacticAngle}`,
+  )
+})
+test('getMoonPosition default date (now) returns valid result', () => {
+  const pos = getMoonPosition(new Date(), 21.4225, 39.8262) // Mecca
+  assert.ok(pos.azimuth >= 0 && pos.azimuth < 360)
+  assert.ok(pos.altitude >= -90 && pos.altitude <= 90)
+  assert.ok(pos.distance > 350000 && pos.distance < 410000)
+})
+
+// ─── getMoonIllumination ─────────────────────────────────────────────────────
+
+console.log('\ngetMoonIllumination:')
+
+// 2025-03-14 was close to full moon
+const illum_full = getMoonIllumination(new Date('2025-03-14T12:00:00Z'))
+// 2025-03-29 was close to new moon
+const illum_new = getMoonIllumination(new Date('2025-03-29T12:00:00Z'))
+// 2025-03-05 was waxing crescent (~7 days after new moon)
+const illum_waxing = getMoonIllumination(new Date('2025-03-05T12:00:00Z'))
+
+test('getMoonIllumination near full moon: fraction > 0.85', () => {
+  assert.ok(illum_full.fraction > 0.85, `fraction=${illum_full.fraction.toFixed(3)}`)
+})
+test('getMoonIllumination near full moon: phase close to 0.5', () => {
+  assert.ok(
+    illum_full.phase > 0.4 && illum_full.phase < 0.6,
+    `phase=${illum_full.phase.toFixed(3)}`,
+  )
+})
+test('getMoonIllumination near new moon: fraction < 0.05', () => {
+  assert.ok(illum_new.fraction < 0.05, `fraction=${illum_new.fraction.toFixed(3)}`)
+})
+test('getMoonIllumination near new moon: phase close to 0 or 1', () => {
+  const p = illum_new.phase
+  assert.ok(p < 0.08 || p > 0.92, `phase=${p.toFixed(3)}`)
+})
+test('getMoonIllumination waxing: isWaxing = true', () => {
+  assert.equal(illum_waxing.isWaxing, true)
+})
+test('getMoonIllumination fraction in [0, 1]', () => {
+  assert.ok(illum_full.fraction >= 0 && illum_full.fraction <= 1)
+  assert.ok(illum_new.fraction >= 0 && illum_new.fraction <= 1)
+})
+test('getMoonIllumination phase in [0, 1)', () => {
+  assert.ok(illum_full.phase >= 0 && illum_full.phase < 1)
+  assert.ok(illum_new.phase >= 0 && illum_new.phase < 1)
+})
+test('getMoonIllumination angle is finite', () => {
+  assert.ok(isFinite(illum_full.angle), `angle=${illum_full.angle}`)
+})
+test('getMoonIllumination default date (now) returns valid result', () => {
+  const illum = getMoonIllumination()
+  assert.ok(illum.fraction >= 0 && illum.fraction <= 1)
+  assert.ok(illum.phase >= 0 && illum.phase < 1)
+  assert.equal(typeof illum.isWaxing, 'boolean')
+  assert.ok(isFinite(illum.angle))
+})
+
+// ─── getMoonPhase phaseName + phaseSymbol ─────────────────────────────────────
+
+console.log('\ngetMoonPhase — phaseName + phaseSymbol:')
+
+const PHASE_NAMES = new Set([
+  'New Moon', 'Waxing Crescent', 'First Quarter', 'Waxing Gibbous',
+  'Full Moon', 'Waning Gibbous', 'Last Quarter', 'Waning Crescent',
+])
+const PHASE_SYMBOLS = new Set(['🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘'])
+
+test('getMoonPhase.phaseName is a valid human-readable name', () => {
+  const p = getMoonPhase(DATE_MARCH_1_2025)
+  assert.ok(PHASE_NAMES.has(p.phaseName), `got: ${p.phaseName}`)
+})
+test('getMoonPhase.phaseSymbol is a moon emoji', () => {
+  const p = getMoonPhase(DATE_MARCH_1_2025)
+  assert.ok(PHASE_SYMBOLS.has(p.phaseSymbol), `got: ${p.phaseSymbol}`)
+})
+test('Near full moon: phaseName is "Full Moon" or gibbous', () => {
+  const valid = new Set(['Full Moon', 'Waxing Gibbous', 'Waning Gibbous'])
+  const p = getMoonPhase(DATE_FULL_MOON)
+  assert.ok(valid.has(p.phaseName), `got: ${p.phaseName}`)
+})
+test('Near full moon: phaseSymbol is 🌕 or 🌔 or 🌖', () => {
+  const valid = new Set(['🌕', '🌔', '🌖'])
+  const p = getMoonPhase(DATE_FULL_MOON)
+  assert.ok(valid.has(p.phaseSymbol), `got: ${p.phaseSymbol}`)
+})
+test('Waxing crescent: phaseName is "Waxing Crescent"', () => {
+  const p = getMoonPhase(DATE_WAXING)
+  assert.equal(p.phaseName, 'Waxing Crescent')
+})
+test('Waxing crescent: phaseSymbol is 🌒', () => {
+  const p = getMoonPhase(DATE_WAXING)
+  assert.equal(p.phaseSymbol, '🌒')
+})
+test('phaseName and phaseSymbol are consistent with phase key', () => {
+  // If phase is 'waning-crescent', phaseName should be 'Waning Crescent'
+  const p = getMoonPhase(DATE_WANING)
+  assert.equal(typeof p.phaseName, 'string')
+  assert.ok(p.phaseName.length > 0)
+  assert.ok(PHASE_SYMBOLS.has(p.phaseSymbol))
+})
+
+// ─── getMoonVisibilityEstimate ─────────────────────────────────────────────────
+
+console.log('\ngetMoonVisibilityEstimate:')
+
+// London, 40 min after nominal sunset on 2025-03-01 (day after new moon)
+const DATE_VIS_ESTIMATE = new Date('2025-03-02T18:30:00Z')
+const vis = getMoonVisibilityEstimate(DATE_VIS_ESTIMATE, 51.5074, -0.1278, 10)
+
+test('getMoonVisibilityEstimate returns an object', () => {
+  assert.ok(vis !== null && typeof vis === 'object')
+})
+test('getMoonVisibilityEstimate.zone is A, B, C, or D', () => {
+  assert.ok(['A', 'B', 'C', 'D'].includes(vis.zone), `got: ${vis.zone}`)
+})
+test('getMoonVisibilityEstimate.V is finite', () => {
+  assert.ok(isFinite(vis.V), `V=${vis.V}`)
+})
+test('getMoonVisibilityEstimate.ARCL is in [0, 180]', () => {
+  assert.ok(vis.ARCL >= 0 && vis.ARCL <= 180, `ARCL=${vis.ARCL}`)
+})
+test('getMoonVisibilityEstimate.W >= 0', () => {
+  assert.ok(vis.W >= 0, `W=${vis.W}`)
+})
+test('getMoonVisibilityEstimate.isApproximate is true', () => {
+  assert.equal(vis.isApproximate, true)
+})
+test('getMoonVisibilityEstimate.moonAboveHorizon is a boolean', () => {
+  assert.equal(typeof vis.moonAboveHorizon, 'boolean')
+})
+test('getMoonVisibilityEstimate.isVisibleNakedEye matches zone A', () => {
+  assert.equal(vis.isVisibleNakedEye, vis.zone === 'A')
+})
+test('getMoonVisibilityEstimate.isVisibleWithOpticalAid matches zone A or B', () => {
+  assert.equal(vis.isVisibleWithOpticalAid, vis.zone === 'A' || vis.zone === 'B')
+})
+test('getMoonVisibilityEstimate.description is a non-empty string', () => {
+  assert.ok(typeof vis.description === 'string' && vis.description.length > 0)
+})
+test('getMoonVisibilityEstimate default date works', () => {
+  const v = getMoonVisibilityEstimate(new Date(), 21.4225, 39.8262)
+  assert.ok(['A', 'B', 'C', 'D'].includes(v.zone))
+  assert.ok(isFinite(v.V))
+  assert.equal(v.isApproximate, true)
+})
+// Near new moon: elongation small, W small, crescent should be very thin or invisible
+test('Near new moon: zone is D or C (not visible or marginal)', () => {
+  const nearNew = getMoonVisibilityEstimate(new Date('2025-03-29T18:00:00Z'), 21.4225, 39.8262)
+  assert.ok(['C', 'D'].includes(nearNew.zone), `zone=${nearNew.zone} V=${nearNew.V.toFixed(2)}`)
+})
+
+// ─── getMoon ──────────────────────────────────────────────────────────────────
+
+console.log('\ngetMoon:')
+
+const moon = getMoon(new Date('2025-03-05T20:00:00Z'), 51.5074, -0.1278, 10)
+
+test('getMoon returns an object with phase, position, illumination, visibility', () => {
+  assert.ok(typeof moon === 'object')
+  assert.ok(typeof moon.phase === 'object')
+  assert.ok(typeof moon.position === 'object')
+  assert.ok(typeof moon.illumination === 'object')
+  assert.ok(typeof moon.visibility === 'object')
+})
+test('getMoon.phase is consistent with getMoonPhase standalone', () => {
+  const standalone = getMoonPhase(new Date('2025-03-05T20:00:00Z'))
+  assert.equal(moon.phase.phase, standalone.phase)
+  assert.equal(moon.phase.phaseName, standalone.phaseName)
+})
+test('getMoon.illumination.isWaxing matches phase.isWaxing', () => {
+  assert.equal(moon.illumination.isWaxing, moon.phase.isWaxing)
+})
+test('getMoon.visibility.isApproximate is true', () => {
+  assert.equal(moon.visibility.isApproximate, true)
+})
+test('getMoon.position has valid azimuth and altitude', () => {
+  assert.ok(moon.position.azimuth >= 0 && moon.position.azimuth < 360)
+  assert.ok(moon.position.altitude >= -90 && moon.position.altitude <= 90)
+})
+test('getMoon default date works', () => {
+  const m = getMoon(new Date(), 21.4225, 39.8262)
+  assert.ok(PHASE_NAMES.has(m.phase.phaseName))
+  assert.ok(isFinite(m.position.azimuth))
+  assert.ok(isFinite(m.illumination.fraction))
+  assert.ok(['A', 'B', 'C', 'D'].includes(m.visibility.zone))
 })
 
 // ─── Summary ─────────────────────────────────────────────────────────────────

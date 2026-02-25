@@ -16,7 +16,7 @@ It also computes moon phase data, rise/set times, and twilight periods for any l
 
 **Kernel not bundled.** The DE442S kernel is 31 MB. It is downloaded once to a local cache, verified by checksum, and reused. This keeps the npm package small.
 
-**Lite mode without kernel.** Moon phase, illumination, and next new/full moon work immediately, no kernel needed. These use Meeus approximations (accurate to ~1°).
+**Lite mode without kernel.** Five functions work immediately with no kernel: `getMoonPhase()` (phase, illumination, next events), `getMoonPosition()` (topocentric az/alt/distance), `getMoonIllumination()` (fraction, phase cycle, bright limb angle), `getMoonVisibilityEstimate()` (Odeh crescent estimate), and `getMoon()` (all four in one call). These use Meeus approximations (accurate to ~0.3–1°) and are a direct replacement for the equivalent `suncalc` moon functions.
 
 ## Pages
 

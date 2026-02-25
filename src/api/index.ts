@@ -20,10 +20,16 @@ import type {
   MoonSightingReport,
   MoonPhaseResult,
   MoonPhaseName,
+  MoonPosition,
+  MoonIlluminationResult,
+  MoonVisibilityEstimate,
+  MoonSnapshot,
   SunMoonEvents,
   KernelConfig,
+  OdehZone,
   Vec3,
 } from '../types.js'
+import { ODEH_THRESHOLDS, ODEH_DESCRIPTIONS } from '../types.js'
 import { SpkKernel } from '../spk/index.js'
 import {
   computeTimeScales,
@@ -42,7 +48,7 @@ import {
   geodeticToECEF,
   computeAzAlt,
 } from '../observer/index.js'
-import { itrsToGcrs } from '../frames/index.js'
+import { itrsToGcrs, computeERA } from '../frames/index.js'
 import {
   getSunMoonEvents as eventsGetSunMoonEvents,
   bestTimeHeuristic,
@@ -426,6 +432,19 @@ function buildNullReport(
   }
 }
 
+// ─── Phase display lookup ──────────────────────────────────────────────────────
+
+const PHASE_DISPLAY: Record<MoonPhaseName, { name: string; symbol: string }> = {
+  'new-moon':        { name: 'New Moon',        symbol: '🌑' },
+  'waxing-crescent': { name: 'Waxing Crescent', symbol: '🌒' },
+  'first-quarter':   { name: 'First Quarter',   symbol: '🌓' },
+  'waxing-gibbous':  { name: 'Waxing Gibbous',  symbol: '🌔' },
+  'full-moon':       { name: 'Full Moon',        symbol: '🌕' },
+  'waning-gibbous':  { name: 'Waning Gibbous',  symbol: '🌖' },
+  'last-quarter':    { name: 'Last Quarter',     symbol: '🌗' },
+  'waning-crescent': { name: 'Waning Crescent',  symbol: '🌘' },
+}
+
 /**
  * Compute the Moon's current phase, illumination, and next phase times.
  *
@@ -437,9 +456,11 @@ function buildNullReport(
  * @example
  * ```ts
  * const phase = getMoonPhase(new Date())
- * console.log(phase.phase)          // 'waxing-crescent'
- * console.log(phase.illumination)   // 14.3 (percent)
- * console.log(phase.nextFullMoon)   // Date object
+ * console.log(phase.phase)       // 'waxing-crescent'
+ * console.log(phase.phaseName)   // 'Waxing Crescent'
+ * console.log(phase.phaseSymbol) // '🌒'
+ * console.log(phase.illumination)// 14.3 (percent)
+ * console.log(phase.nextFullMoon)// Date object
  * ```
  */
 export function getMoonPhase(date = new Date()): MoonPhaseResult {
@@ -454,13 +475,16 @@ export function getMoonPhase(date = new Date()): MoonPhaseResult {
   const prevNewMoonJD = nearestNewMoon(ts.jdTT - 15)
   const age = (ts.jdTT - prevNewMoonJD) * 24
 
-  const phaseName = elongationToPhase(elongationDeg, isWaxing)
+  const phaseKey = elongationToPhase(elongationDeg, isWaxing)
+  const { name: phaseName, symbol: phaseSymbol } = PHASE_DISPLAY[phaseKey]
 
   const nextNewMoonJD  = nearestNewMoon(ts.jdTT + 15)
   const nextFullMoonJD = nearestFullMoon(ts.jdTT)
 
   return {
-    phase: phaseName,
+    phase: phaseKey,
+    phaseName,
+    phaseSymbol,
     illumination: illuminationPct,
     age,
     elongationDeg,
@@ -468,6 +492,224 @@ export function getMoonPhase(date = new Date()): MoonPhaseResult {
     nextNewMoon:  jdToJSDate(nextNewMoonJD),
     nextFullMoon: jdToJSDate(nextFullMoonJD),
     prevNewMoon:  jdToJSDate(prevNewMoonJD),
+  }
+}
+
+/**
+ * Compute the Moon's topocentric position (azimuth, altitude, distance) for an observer.
+ *
+ * Works WITHOUT a kernel (uses Meeus Ch. 47 approximation).
+ * Accuracy: azimuth/altitude ~0.3°, distance ~300 km.
+ * For precision crescent work, use getMoonSightingReport() with the DE442S kernel.
+ *
+ * @param date - Date and time to compute position for (default: now)
+ * @param lat - Observer geodetic latitude in degrees (north positive)
+ * @param lon - Observer longitude in degrees (east positive)
+ * @param elevation - Observer height above WGS84 ellipsoid in meters (default: 0)
+ * @returns Topocentric az/alt (degrees), distance (km), parallactic angle (radians)
+ *
+ * @example
+ * ```ts
+ * const pos = getMoonPosition(new Date(), 51.5, -0.1)
+ * console.log(pos.azimuth, pos.altitude)  // e.g. 212.4, 38.1
+ * ```
+ */
+export function getMoonPosition(
+  date: Date = new Date(),
+  lat: number,
+  lon: number,
+  elevation = 0,
+): MoonPosition {
+  const DEG = Math.PI / 180
+  const ts = computeTimeScales(date)
+  const { moonGCRS } = getMoonSunApproximate(ts.jdTT)
+
+  // Apparent az/alt with Bennett refraction — uses existing observer pipeline
+  const observer: Observer = { lat, lon, elevation }
+  const azAlt = computeAzAlt(moonGCRS, observer, ts, false)
+
+  // Distance in km
+  const distance = Math.sqrt(moonGCRS[0] ** 2 + moonGCRS[1] ** 2 + moonGCRS[2] ** 2)
+
+  // Equatorial coordinates for parallactic angle
+  const RA_moon  = Math.atan2(moonGCRS[1], moonGCRS[0])
+  const dec_moon = Math.asin(Math.max(-1, Math.min(1, moonGCRS[2] / distance)))
+
+  // Hour angle: ERA(UT1) + longitude − right ascension
+  const era = computeERA(ts.jdUT1)
+  const HA  = era + lon * DEG - RA_moon
+
+  // Parallactic angle: signed angle between zenith and north pole as seen from the Moon
+  const parallacticAngle = Math.atan2(
+    Math.sin(HA),
+    Math.cos(lat * DEG) * Math.tan(dec_moon) - Math.sin(lat * DEG) * Math.cos(HA),
+  )
+
+  return { azimuth: azAlt.azimuth, altitude: azAlt.altitude, distance, parallacticAngle }
+}
+
+/**
+ * Compute the Moon's illumination fraction, phase cycle position, and bright limb angle.
+ *
+ * Works WITHOUT a kernel (uses Meeus Ch. 47/48 approximation).
+ * Accuracy: illumination fraction ~0.5%, phase fraction ~0.003.
+ * Drop-in replacement for suncalc.getMoonIllumination() — same field names and conventions.
+ *
+ * @param date - Date to compute illumination for (default: now)
+ * @returns fraction (0-1), phase (0-1 cycle), angle (bright limb position angle, radians), isWaxing
+ *
+ * @example
+ * ```ts
+ * const illum = getMoonIllumination(new Date())
+ * console.log(illum.fraction)  // e.g. 0.43 (43% illuminated)
+ * console.log(illum.phase)     // e.g. 0.18 (waxing crescent territory)
+ * ```
+ */
+export function getMoonIllumination(date: Date = new Date()): MoonIlluminationResult {
+  const ts = computeTimeScales(date)
+  const { moonGCRS, sunGCRS } = getMoonSunApproximate(ts.jdTT)
+
+  const { illumination, elongationDeg, isWaxing } = computeIllumination(moonGCRS, sunGCRS)
+
+  // Phase fraction: 0 = new moon, 0.25 = first quarter, 0.5 = full moon, 0.75 = last quarter
+  const phase = isWaxing ? elongationDeg / 360 : 1 - elongationDeg / 360
+
+  // Position angle of the bright limb midpoint, measured eastward from north celestial pole.
+  // PA = atan2(cos(dec_sun) * sin(RA_sun - RA_moon),
+  //            sin(dec_sun) * cos(dec_moon) - cos(dec_sun) * sin(dec_moon) * cos(RA_sun - RA_moon))
+  const moonDist = Math.sqrt(moonGCRS[0] ** 2 + moonGCRS[1] ** 2 + moonGCRS[2] ** 2)
+  const sunDist  = Math.sqrt(sunGCRS[0]  ** 2 + sunGCRS[1]  ** 2 + sunGCRS[2]  ** 2)
+
+  const RA_moon  = Math.atan2(moonGCRS[1], moonGCRS[0])
+  const dec_moon = Math.asin(Math.max(-1, Math.min(1, moonGCRS[2] / moonDist)))
+  const RA_sun   = Math.atan2(sunGCRS[1],  sunGCRS[0])
+  const dec_sun  = Math.asin(Math.max(-1, Math.min(1, sunGCRS[2]  / sunDist)))
+
+  const dRA = RA_sun - RA_moon
+  const angle = Math.atan2(
+    Math.cos(dec_sun) * Math.sin(dRA),
+    Math.sin(dec_sun) * Math.cos(dec_moon) - Math.cos(dec_sun) * Math.sin(dec_moon) * Math.cos(dRA),
+  )
+
+  return { fraction: illumination, phase, angle, isWaxing }
+}
+
+/**
+ * Quick kernel-free crescent visibility estimate using the Odeh criterion.
+ *
+ * Computes approximate crescent geometry (ARCL, ARCV, W) from Meeus Ch. 47
+ * positions at the given observation time and applies the Odeh V-parameter formula.
+ * Accuracy is limited by the Meeus approximation (~0.3°) and the fact that
+ * "best time" is not computed — pass your estimated observation time.
+ *
+ * For precise crescent work, use getMoonSightingReport() with the DE442S kernel.
+ *
+ * @param date - Observation time (default: now). Use a post-sunset time for best results.
+ * @param lat - Observer geodetic latitude in degrees (north positive)
+ * @param lon - Observer longitude in degrees (east positive)
+ * @param elevation - Observer height above WGS84 ellipsoid in meters (default: 0)
+ * @returns MoonVisibilityEstimate with Odeh V, zone, and geometry values
+ *
+ * @example
+ * ```ts
+ * // Estimate crescent visibility at sunset + 40 min in Mecca
+ * const obs = new Date('2025-03-01T15:30:00Z')  // ~sunset + 40 min in Mecca
+ * const est = getMoonVisibilityEstimate(obs, 21.42, 39.83)
+ * console.log(est.zone)               // 'A' through 'D'
+ * console.log(est.isVisibleNakedEye)  // true/false
+ * ```
+ */
+export function getMoonVisibilityEstimate(
+  date: Date = new Date(),
+  lat: number,
+  lon: number,
+  elevation = 0,
+): MoonVisibilityEstimate {
+  const ts = computeTimeScales(date)
+  const { moonGCRS, sunGCRS } = getMoonSunApproximate(ts.jdTT)
+  const observer: Observer = { lat, lon, elevation }
+
+  // Airless positions — Odeh uses airless altitudes (no refraction)
+  const moonAirless = computeAzAlt(moonGCRS, observer, ts, true)
+  const sunAirless  = computeAzAlt(sunGCRS,  observer, ts, true)
+
+  // ARCL = elongation (geocentric, degrees)
+  const { elongationDeg } = computeIllumination(moonGCRS, sunGCRS)
+  const ARCL = elongationDeg
+
+  // ARCV = Moon airless altitude minus Sun airless altitude
+  const ARCV = moonAirless.altitude - sunAirless.altitude
+
+  // Topocentric Moon vector for crescent width
+  const obsECEF = geodeticToECEF(lat, lon, elevation)
+  const obsITRS: Vec3 = [obsECEF[0] / 1000, obsECEF[1] / 1000, obsECEF[2] / 1000]
+  const obsGCRS = itrsToGcrs(obsITRS, ts)
+  const moonTopo: Vec3 = [
+    moonGCRS[0] - obsGCRS[0],
+    moonGCRS[1] - obsGCRS[1],
+    moonGCRS[2] - obsGCRS[2],
+  ]
+
+  const { W } = computeCrescentWidth(moonTopo, ARCL)
+
+  // Odeh 2006: V = ARCV - f(W), where f(W) = arcv_minimum polynomial
+  const arcvMin = -0.1018 * W ** 3 + 0.7319 * W ** 2 - 6.3226 * W + 7.1651
+  const V = ARCV - arcvMin
+
+  const zone: OdehZone = V >= ODEH_THRESHOLDS.A ? 'A'
+    : V >= ODEH_THRESHOLDS.B ? 'B'
+    : V >= ODEH_THRESHOLDS.C ? 'C'
+    : 'D'
+
+  return {
+    V,
+    zone,
+    description: ODEH_DESCRIPTIONS[zone],
+    isVisibleNakedEye: zone === 'A',
+    isVisibleWithOpticalAid: zone === 'A' || zone === 'B',
+    ARCL,
+    ARCV,
+    W,
+    moonAboveHorizon: moonAirless.altitude > 0,
+    isApproximate: true,
+  }
+}
+
+/**
+ * Combined kernel-free moon snapshot for a time and location.
+ *
+ * Calls getMoonPhase(), getMoonPosition(), getMoonIllumination(), and
+ * getMoonVisibilityEstimate() in a single request. Convenient for dashboards
+ * and apps that need all four values together.
+ *
+ * Works WITHOUT a kernel (all Meeus-based approximations).
+ *
+ * @param date - Date and time (default: now)
+ * @param lat - Observer geodetic latitude in degrees (north positive)
+ * @param lon - Observer longitude in degrees (east positive)
+ * @param elevation - Observer height above WGS84 ellipsoid in meters (default: 0)
+ * @returns MoonSnapshot with phase, position, illumination, and visibility estimate
+ *
+ * @example
+ * ```ts
+ * const moon = getMoon(new Date(), 51.5, -0.1)
+ * console.log(moon.phase.phaseName)          // 'Waxing Crescent'
+ * console.log(moon.position.altitude)        // degrees above horizon
+ * console.log(moon.illumination.fraction)    // 0.0 to 1.0
+ * console.log(moon.visibility.zone)          // 'A' through 'D'
+ * ```
+ */
+export function getMoon(
+  date: Date = new Date(),
+  lat: number,
+  lon: number,
+  elevation = 0,
+): MoonSnapshot {
+  return {
+    phase:        getMoonPhase(date),
+    position:     getMoonPosition(date, lat, lon, elevation),
+    illumination: getMoonIllumination(date),
+    visibility:   getMoonVisibilityEstimate(date, lat, lon, elevation),
   }
 }
 

@@ -17,6 +17,50 @@ export interface AzAlt {
   altitude: number
 }
 
+// ─── Kernel-free moon results ─────────────────────────────────────────────────
+
+/**
+ * Topocentric moon position from getMoonPosition().
+ * Computed via Meeus Ch. 47 (no kernel required).
+ * Accuracy: azimuth/altitude ~0.3°, distance ~300 km.
+ */
+export interface MoonPosition {
+  /** Azimuth in degrees from North, measured clockwise (0 = N, 90 = E, 180 = S, 270 = W) */
+  azimuth: number
+  /** Apparent altitude in degrees above the horizon (atmospheric refraction applied) */
+  altitude: number
+  /** Distance from Earth center to Moon center, km */
+  distance: number
+  /**
+   * Parallactic angle in radians.
+   * The angle between the great circle through the Moon and zenith, and the great circle
+   * through the Moon and the north celestial pole. Positive east of the meridian.
+   */
+  parallacticAngle: number
+}
+
+/**
+ * Moon illumination from getMoonIllumination().
+ * Computed via Meeus Ch. 47/48 (no kernel required).
+ * Accuracy: fraction ~0.5%, phase fraction ~0.003.
+ */
+export interface MoonIlluminationResult {
+  /** Illuminated fraction of the Moon disk, 0 (new moon) to 1 (full moon) */
+  fraction: number
+  /**
+   * Phase cycle fraction in [0, 1):
+   *   0 = new moon, 0.25 = first quarter, 0.5 = full moon, 0.75 = last quarter
+   */
+  phase: number
+  /**
+   * Position angle of the midpoint of the bright limb, measured eastward from
+   * the north celestial pole, in radians. Matches the suncalc convention.
+   */
+  angle: number
+  /** True while elongation is increasing (new moon toward full moon) */
+  isWaxing: boolean
+}
+
 // ─── Time ────────────────────────────────────────────────────────────────────
 
 /** All relevant time scale values for a single moment */
@@ -182,6 +226,55 @@ export interface OdehResult {
   isVisibleWithOpticalAid: boolean
 }
 
+// ─── Kernel-free visibility estimate ─────────────────────────────────────────
+
+/**
+ * Kernel-free Odeh-based crescent visibility estimate from getMoonVisibilityEstimate().
+ * Computed via Meeus Ch. 47 approximation at the given observation time.
+ * For DE442S-quality results, use getMoonSightingReport().
+ */
+export interface MoonVisibilityEstimate {
+  /**
+   * Odeh V parameter: V = ARCV − f(W).
+   * Positive = crescent exceeds minimum visibility threshold.
+   */
+  V: number
+  /** Visibility zone A through D */
+  zone: OdehZone
+  /** Human-readable zone description */
+  description: string
+  /** True for zone A */
+  isVisibleNakedEye: boolean
+  /** True for zones A and B */
+  isVisibleWithOpticalAid: boolean
+  /** Arc of light (Sun-Moon elongation) in degrees */
+  ARCL: number
+  /** Arc of vision (Moon airless altitude minus Sun airless altitude) in degrees */
+  ARCV: number
+  /** Topocentric crescent width in arc minutes */
+  W: number
+  /** True when Moon is above the horizon at the given time */
+  moonAboveHorizon: boolean
+  /** Always true: computed via Meeus approximation, not DE442S */
+  isApproximate: true
+}
+
+/**
+ * Combined kernel-free moon snapshot from getMoon().
+ * Bundles phase, position, illumination, and a quick visibility estimate
+ * into a single call.
+ */
+export interface MoonSnapshot {
+  /** Phase name, illumination, age, and next events */
+  phase: MoonPhaseResult
+  /** Topocentric az/alt, distance, parallactic angle */
+  position: MoonPosition
+  /** Illumination fraction, phase cycle, bright limb angle, waxing/waning */
+  illumination: MoonIlluminationResult
+  /** Quick Odeh-based crescent visibility estimate */
+  visibility: MoonVisibilityEstimate
+}
+
 // ─── Moon phase ──────────────────────────────────────────────────────────────
 
 export type MoonPhaseName =
@@ -197,6 +290,10 @@ export type MoonPhaseName =
 export interface MoonPhaseResult {
   /** Named phase based on illumination and waxing/waning state */
   phase: MoonPhaseName
+  /** Human-readable phase name, e.g. "Waxing Crescent" */
+  phaseName: string
+  /** Moon phase emoji symbol, e.g. "🌒" */
+  phaseSymbol: string
   /** Illuminated fraction 0-100 (percent) */
   illumination: number
   /** Hours since last new moon */

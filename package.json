@@ -1,6 +1,6 @@
 {
   "name": "moon-sighting",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "High-accuracy lunar crescent visibility and moon sighting calculations using JPL DE442S ephemerides. Implements Yallop and Odeh criteria for Islamic crescent sighting workflows.",
   "author": "Aric Camarata",
   "license": "MIT",

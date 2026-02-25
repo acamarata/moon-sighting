@@ -103,19 +103,87 @@ Returns a complete moon sighting report.
 | `moonPosition` | `AzAlt` | Moon azimuth/altitude at best time |
 | `guidance` | `string` | Plain-language sighting instructions |
 
+### `getMoonPosition(date?, lat, lon, elevation?)`
+
+Compute the Moon's topocentric position. Works without a kernel. Uses Meeus Chapter 47 approximate positions (~0.3° accuracy).
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `date` | `Date?` | Date to evaluate (default: now) |
+| `lat` | `number` | Geodetic latitude, degrees (north positive) |
+| `lon` | `number` | Longitude, degrees (east positive) |
+| `elevation` | `number?` | Height above ellipsoid, meters (default: 0) |
+
+**Returns** `MoonPosition`:
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `azimuth` | `number` | Degrees from North, clockwise (0–360) |
+| `altitude` | `number` | Apparent altitude in degrees (refraction applied) |
+| `distance` | `number` | Distance from Earth center to Moon center, km |
+| `parallacticAngle` | `number` | Angle between zenith and north pole as seen from the Moon, radians |
+
+### `getMoonIllumination(date?)`
+
+Compute the Moon's illumination. Works without a kernel. Uses Meeus Chapter 47/48 (~0.5% illumination accuracy).
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `date` | `Date?` | Date to evaluate (default: now) |
+
+**Returns** `MoonIlluminationResult`:
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `fraction` | `number` | Illuminated fraction, 0 (new moon) to 1 (full moon) |
+| `phase` | `number` | Position in the 0–1 lunar cycle: 0=new, 0.25=first quarter, 0.5=full, 0.75=last quarter |
+| `angle` | `number` | Position angle of the bright limb midpoint, eastward from north, radians |
+| `isWaxing` | `boolean` | True when elongation is increasing (new moon toward full moon) |
+
 ### `getMoonPhase(date?)`
 
 Compute the Moon's current phase. Works without a kernel.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| `phase` | `string` | Phase name (e.g., `'waxing-crescent'`) |
+| `phase` | `string` | Phase key (e.g., `'waxing-crescent'`) |
+| `phaseName` | `string` | Display name (e.g., `'Waxing Crescent'`) |
+| `phaseSymbol` | `string` | Moon emoji (e.g., `'🌒'`) |
 | `illumination` | `number` | Illuminated fraction, 0–100 |
 | `age` | `number` | Hours since last new moon |
 | `isWaxing` | `boolean` | True when illumination is increasing |
 | `prevNewMoon` | `Date` | Time of previous new moon |
 | `nextNewMoon` | `Date` | Time of next new moon |
 | `nextFullMoon` | `Date` | Time of next full moon |
+
+### `getMoonVisibilityEstimate(date?, lat, lon, elevation?)`
+
+Quick kernel-free Odeh crescent visibility estimate. Pass an estimated post-sunset observation time. Returns V parameter, zone A–D, ARCL, ARCV, W, and `moonAboveHorizon`. For precise crescent work use `getMoonSightingReport()`.
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `zone` | `'A'`–`'D'` | Odeh visibility zone |
+| `V` | `number` | Odeh V parameter (positive = crescent exceeds threshold) |
+| `isVisibleNakedEye` | `boolean` | True for zone A |
+| `isVisibleWithOpticalAid` | `boolean` | True for zones A and B |
+| `ARCL` | `number` | Elongation, degrees |
+| `ARCV` | `number` | Moon alt − Sun alt (airless), degrees |
+| `W` | `number` | Crescent width, arc minutes |
+| `moonAboveHorizon` | `boolean` | Moon above horizon at given time |
+| `isApproximate` | `true` | Always true: Meeus approximation |
+
+### `getMoon(date?, lat, lon, elevation?)`
+
+Convenience wrapper returning phase, position, illumination, and visibility estimate in one call. Works without a kernel.
+
+```ts
+const moon = getMoon(new Date(), 51.5074, -0.1278, 10)
+moon.phase.phaseName       // 'Waxing Crescent'
+moon.phase.phaseSymbol     // '🌒'
+moon.position.altitude     // degrees above horizon
+moon.illumination.fraction // 0.0 to 1.0
+moon.visibility.zone       // 'A' through 'D'
+```
 
 ### `getSunMoonEvents(date, observer)`
 
@@ -160,6 +228,52 @@ Verify cached kernels by SHA-256 checksum.
 | B | V ≥ 2.00 | Visible with optical aid; may be naked eye |
 | C | V ≥ -0.96 | Visible with optical aid only |
 | D | V < -0.96 | Not visible even with optical aid |
+
+## Kernel-free utilities
+
+Five functions work without loading any kernel. They use Meeus Chapters 47 and 48. Use them for display, widgets, and any context where JPL-grade accuracy is not required.
+
+```ts
+import {
+  getMoonPhase, getMoonPosition, getMoonIllumination,
+  getMoonVisibilityEstimate, getMoon,
+} from 'moon-sighting'
+
+// Current phase with display name and emoji
+const phase = getMoonPhase()
+console.log(phase.phase)          // 'waxing-crescent'
+console.log(phase.phaseName)      // 'Waxing Crescent'
+console.log(phase.phaseSymbol)    // '🌒'
+console.log(phase.illumination)   // 14.3 (percent)
+console.log(phase.nextFullMoon)   // Date
+
+// Topocentric position (azimuth, altitude, distance)
+const pos = getMoonPosition(new Date(), 51.5074, -0.1278, 10)
+console.log(pos.azimuth)          // 214.7 (degrees from North)
+console.log(pos.altitude)         // 38.2  (degrees above horizon, refraction applied)
+console.log(pos.distance)         // 384400 (km)
+
+// Illumination fraction and phase angle
+const illum = getMoonIllumination()
+console.log(illum.fraction)       // 0.143 (0=new, 1=full)
+console.log(illum.phase)          // 0.09  (0–1 cycle position)
+console.log(illum.isWaxing)       // true
+
+// Quick Odeh crescent visibility estimate (pass a post-sunset time)
+const vis = getMoonVisibilityEstimate(new Date('2025-03-02T18:30:00Z'), 51.5074, -0.1278)
+console.log(vis.zone)             // 'A' through 'D'
+console.log(vis.V)                // Odeh V parameter
+console.log(vis.isVisibleNakedEye) // true/false
+
+// All four in a single call
+const moon = getMoon(new Date(), 51.5074, -0.1278, 10)
+console.log(moon.phase.phaseName)          // 'Waxing Crescent'
+console.log(moon.position.altitude)        // degrees
+console.log(moon.illumination.fraction)    // 0.0–1.0
+console.log(moon.visibility.zone)          // 'A'–'D'
+```
+
+These are a direct replacement for the equivalent `suncalc` moon functions, with no external dependencies.
 
 ## Architecture
 
@@ -216,6 +330,11 @@ npx moon-sighting benchmark
 import type {
   Observer,
   MoonSightingReport,
+  MoonPhaseResult,
+  MoonPosition,
+  MoonIlluminationResult,
+  MoonVisibilityEstimate,
+  MoonSnapshot,
   YallopCategory,
   OdehZone,
   KernelConfig,

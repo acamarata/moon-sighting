@@ -30,6 +30,7 @@ This downloads two files:
 - `naif0012.tls` (4 KB): leap-second table
 
 Default cache location:
+
 - Linux/macOS: `~/.cache/moon-sighting/`
 - Windows: `%LOCALAPPDATA%\moon-sighting\`
 
@@ -82,19 +83,40 @@ console.log(report.moonPosition)
 // { azimuth: 258.3, altitude: 7.9 }
 ```
 
-## Moon phase (no kernel needed)
+## Kernel-free functions
+
+Three functions work without a kernel. They use Meeus Chapters 47 and 48 and are suitable for any runtime, including browsers.
 
 ```ts
-import { getMoonPhase } from 'moon-sighting'
+import { getMoonPhase, getMoonPosition, getMoonIllumination } from 'moon-sighting'
 
+// Phase name, illumination percent, and next new/full moon dates
 const phase = getMoonPhase()
 console.log(phase.phase)         // 'waxing-crescent'
 console.log(phase.illumination)  // 23.4
 console.log(phase.age)           // 4.2  (hours since last new moon)
 console.log(phase.nextFullMoon)  // Date
 
-// For a specific date
+// Topocentric position: azimuth, altitude (refraction applied), distance
+// Accuracy: ~0.3°
+const pos = getMoonPosition(new Date(), 51.5074, -0.1278, 10)
+console.log(pos.azimuth)          // degrees from North, clockwise
+console.log(pos.altitude)         // degrees above horizon
+console.log(pos.distance)         // km from Earth center to Moon center
+console.log(pos.parallacticAngle) // radians
+
+// Illumination fraction and phase cycle position
+// Accuracy: ~0.5% on fraction
+const illum = getMoonIllumination()
+console.log(illum.fraction)  // 0–1 (0=new, 1=full)
+console.log(illum.phase)     // 0–1 cycle position (0=new, 0.5=full)
+console.log(illum.angle)     // bright limb position angle, radians
+console.log(illum.isWaxing)  // true when moving toward full moon
+
+// All three accept an optional Date for historical or future queries
 const past = getMoonPhase(new Date('2024-01-01'))
+const pastPos = getMoonPosition(new Date('2024-01-01'), 21.4225, 39.8262)
+const pastIllum = getMoonIllumination(new Date('2024-01-01'))
 ```
 
 ## Rise and set times
