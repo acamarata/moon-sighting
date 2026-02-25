@@ -122,7 +122,7 @@ This is why crescent sighting criteria use "airless" (refraction-free) altitudes
 | "Where to look" altitude output | Standard refraction |
 | Civil/nautical/astronomical twilight | Standard refraction |
 
-moon-calc computes both airless and apparent altitudes for each body position and uses the appropriate one for each purpose.
+moon-sighting computes both airless and apparent altitudes for each body position and uses the appropriate one for each purpose.
 
 ---
 

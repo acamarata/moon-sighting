@@ -1,5 +1,5 @@
 /**
- * moon-calc ESM test suite
+ * moon-sighting ESM test suite
  * Runs with: node test.mjs
  * All tests use plain assert — no test framework.
  */

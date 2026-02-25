@@ -1,12 +1,12 @@
 /**
- * moon-calc CLI
+ * moon-sighting CLI
  *
  * Commands:
- *   moon-calc download-kernels    Download DE442S and naif0012.tls to cache
- *   moon-calc verify-kernels      Verify cached kernels by SHA-256 checksum
- *   moon-calc sighting <lat> <lon> [date]   Print a sighting report
- *   moon-calc phase [date]        Print current moon phase
- *   moon-calc benchmark           Run performance benchmark
+ *   moon-sighting download-kernels    Download DE442S and naif0012.tls to cache
+ *   moon-sighting verify-kernels      Verify cached kernels by SHA-256 checksum
+ *   moon-sighting sighting <lat> <lon> [date]   Print a sighting report
+ *   moon-sighting phase [date]        Print current moon phase
+ *   moon-sighting benchmark           Run performance benchmark
  */
 
 import {
@@ -44,7 +44,7 @@ async function main() {
 }
 
 function printHelp() {
-  console.log(`moon-calc — Lunar crescent visibility calculator
+  console.log(`moon-sighting — Lunar crescent visibility calculator
 
 Commands:
   download-kernels              Download DE442S and naif0012.tls to cache
@@ -54,10 +54,10 @@ Commands:
   benchmark                     Run performance benchmark
 
 Examples:
-  moon-calc download-kernels
-  moon-calc sighting 51.5 -0.1 2025-03-29
-  moon-calc sighting 21.4 39.8  # Mecca
-  moon-calc phase 2025-03-01`)
+  moon-sighting download-kernels
+  moon-sighting sighting 51.5 -0.1 2025-03-29
+  moon-sighting sighting 21.4 39.8  # Mecca
+  moon-sighting phase 2025-03-01`)
 }
 
 async function cmdDownloadKernels() {
@@ -81,7 +81,7 @@ async function cmdSighting(cmdArgs: string[]) {
   const dateStr = cmdArgs[2] ?? new Date().toISOString().slice(0, 10)
 
   if (isNaN(lat) || isNaN(lon)) {
-    console.error('Usage: moon-calc sighting <lat> <lon> [YYYY-MM-DD]')
+    console.error('Usage: moon-sighting sighting <lat> <lon> [YYYY-MM-DD]')
     process.exit(1)
   }
 
@@ -142,7 +142,7 @@ function cmdPhase(dateStr?: string) {
 }
 
 async function cmdBenchmark() {
-  console.log('moon-calc benchmark\n')
+  console.log('moon-sighting benchmark\n')
 
   // Benchmark 1: getMoonPhase (no kernel needed)
   const N_PHASE = 10000

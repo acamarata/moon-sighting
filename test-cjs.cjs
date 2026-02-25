@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * moon-calc CJS test suite
+ * moon-sighting CJS test suite
  * Runs with: node test-cjs.cjs
  * Verifies the CommonJS build is functional.
  */

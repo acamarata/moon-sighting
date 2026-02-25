@@ -1,6 +1,6 @@
 # Validation
 
-moon-calc is validated at multiple levels: kernel parsing, ephemeris evaluation, frame transforms, and full sighting reports. The goal is to make each component independently verifiable against authoritative references.
+moon-sighting is validated at multiple levels: kernel parsing, ephemeris evaluation, frame transforms, and full sighting reports. The goal is to make each component independently verifiable against authoritative references.
 
 ## Validation philosophy
 
@@ -16,9 +16,9 @@ Crescent visibility criteria depend on a chain of computations, each of which ca
 
 ### SPICE (CSPICE / SpiceyPy)
 
-NASA NAIF's SPICE toolkit is the authoritative reference for reading JPL ephemerides. It is written in C (CSPICE) with Python bindings (SpiceyPy). Using the same kernel (`de442s.bsp`) and the same time/frame arguments, SPICE should produce positions that are bit-identical to moon-calc's output (to double-precision floating-point).
+NASA NAIF's SPICE toolkit is the authoritative reference for reading JPL ephemerides. It is written in C (CSPICE) with Python bindings (SpiceyPy). Using the same kernel (`de442s.bsp`) and the same time/frame arguments, SPICE should produce positions that are bit-identical to moon-sighting's output (to double-precision floating-point).
 
-Any deviation in the SPK Chebyshev evaluation from SPICE indicates a parsing or algorithm error in moon-calc.
+Any deviation in the SPK Chebyshev evaluation from SPICE indicates a parsing or algorithm error in moon-sighting.
 
 **How to compare:**
 ```python
@@ -32,7 +32,7 @@ state, lt = spice.spkezr('301', et, 'J2000', 'NONE', '399')
 print(state[:3])  # position in km
 ```
 
-The moon-calc equivalent:
+The moon-sighting equivalent:
 ```ts
 const kernel = SpkKernel.fromFile('de442s.bsp')
 const ts = computeTimeScales(new Date('2025-03-29T20:00:00Z'))
@@ -57,7 +57,7 @@ Go to https://ssd.jpl.nasa.gov/horizons/, select:
 - Time span: the date of interest
 - Output quantities: Observer az/alt, Illuminated fraction, Elongation
 
-Compare Horizons' output with moon-calc's topocentric az/alt. Differences of < 30 arcseconds indicate the frame transforms are correct.
+Compare Horizons' output with moon-sighting's topocentric az/alt. Differences of < 30 arcseconds indicate the frame transforms are correct.
 
 ## Acceptance thresholds
 
@@ -78,7 +78,7 @@ The test harness will:
 1. Load `de442s.bsp` and evaluate Moon/Sun states at 1000 randomly sampled times within 1849–2150.
 2. Compare each result against SPICE output for the same kernel, time, and frames.
 3. For 50 geographically diverse locations × 12 months, compute full sighting reports and compare ARCL, ARCV, DAZ, W, q, and V against reference implementations.
-4. For the same 50 locations, compare Horizons tabular output with moon-calc's az/alt at the same times.
+4. For the same 50 locations, compare Horizons tabular output with moon-sighting's az/alt at the same times.
 
 The suite is run in CI on major releases. Raw comparison data (SPICE reference outputs) is stored as CSV files in the test fixtures directory.
 

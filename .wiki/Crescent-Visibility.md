@@ -2,7 +2,7 @@
 
 The new crescent moon is visible when it has moved far enough from the Sun, climbed high enough above the horizon at sunset, and formed a wide enough arc to overcome sky brightness and atmospheric extinction. No criterion can guarantee a sighting. Real-world results depend on atmospheric clarity, observer acuity, and optical equipment.
 
-moon-calc implements two complementary published criteria and outputs both simultaneously, so applications can explain the prediction in terms of either model.
+moon-sighting implements two complementary published criteria and outputs both simultaneously, so applications can explain the prediction in terms of either model.
 
 ## The five geometric quantities
 
@@ -61,7 +61,7 @@ Category F corresponds to ARCL below roughly 7° (the Danjon limit), where the M
 
 ### W' vs W
 
-Yallop defines two variants of crescent width. The geocentric W uses the semi-diameter of the Moon and Sun at their geocentric distances. The topocentric W' (W-prime) applies a parallax-based correction because the Moon's apparent diameter changes by ~1% between the geocenter and a surface observer at typical latitudes. moon-calc computes W' directly from the topocentric state vector.
+Yallop defines two variants of crescent width. The geocentric W uses the semi-diameter of the Moon and Sun at their geocentric distances. The topocentric W' (W-prime) applies a parallax-based correction because the Moon's apparent diameter changes by ~1% between the geocenter and a surface observer at typical latitudes. moon-sighting computes W' directly from the topocentric state vector.
 
 ### Implementation notes
 
@@ -120,7 +120,7 @@ For a typical 90-minute lag this gives approximately 40 minutes after sunset, wh
 
 ### Optimized (optional)
 
-moon-calc can scan the interval from sunset to moonset, computing the Odeh V parameter at each step and finding the time that maximizes it. This handles high-latitude cases where the Moon's altitude changes quickly and the heuristic can be significantly off.
+moon-sighting can scan the interval from sunset to moonset, computing the Odeh V parameter at each step and finding the time that maximizes it. This handles high-latitude cases where the Moon's altitude changes quickly and the heuristic can be significantly off.
 
 ## Observation window
 

@@ -293,7 +293,7 @@ export type KernelSource =
   | { type: 'file'; path: string }
   | { type: 'buffer'; data: ArrayBuffer; name: string }
   | { type: 'url'; url: string }
-  | { type: 'auto' }  // auto-download from NAIF, cache in ~/.cache/moon-calc
+  | { type: 'auto' }  // auto-download from NAIF, cache in ~/.cache/moon-sighting
 
 export interface KernelConfig {
   /** Planetary SPK kernel — defaults to de442s.bsp via auto-download */
@@ -302,7 +302,7 @@ export interface KernelConfig {
   leapSeconds?: KernelSource
   /**
    * Directory for the download cache.
-   * Defaults to ~/.cache/moon-calc on POSIX, %LOCALAPPDATA%\moon-calc on Windows.
+   * Defaults to ~/.cache/moon-sighting on POSIX, %LOCALAPPDATA%\moon-sighting on Windows.
    */
   cacheDir?: string
   /**

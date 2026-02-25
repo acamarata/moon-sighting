@@ -67,7 +67,7 @@ The Earth's rotation pole (CIP) does not coincide exactly with the conventional 
 
 Typical magnitudes: ≤ 0.3 arcseconds. At the Earth's surface, this introduces errors of < 30 meters if ignored, negligible for crescent sighting work (Moon angular diameter ~0.5°).
 
-moon-calc defaults to xp = yp = 0. Supply current values from IERS Bulletin A for maximum accuracy.
+moon-sighting defaults to xp = yp = 0. Supply current values from IERS Bulletin A for maximum accuracy.
 
 ## IAU 2000A vs 2000B
 
@@ -79,7 +79,7 @@ moon-calc defaults to xp = yp = 0. Supply current values from IERS Bulletin A fo
 | Computation | ~2× slower | fast |
 | Suitable for | moon sighting | approximate work |
 
-For crescent sighting at the horizon where refraction dominates, 2000B is more than sufficient. moon-calc defaults to 2000A for correctness; 2000B will be available as a compile-time option for size-sensitive builds.
+For crescent sighting at the horizon where refraction dominates, 2000B is more than sufficient. moon-sighting defaults to 2000A for correctness; 2000B will be available as a compile-time option for size-sensitive builds.
 
 ## From GCRS to local alt/az
 

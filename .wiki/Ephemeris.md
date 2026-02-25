@@ -37,7 +37,7 @@ SPK (Spacecraft and Planet Kernel) files use the DAF (Double Precision Array Fil
 
 ### Endianness
 
-NAIF kernels are created on the platform that generated them (typically IEEE little-endian for modern kernels). The file record contains an endianness flag; moon-calc reads this and byte-swaps doubles as needed.
+NAIF kernels are created on the platform that generated them (typically IEEE little-endian for modern kernels). The file record contains an endianness flag; moon-sighting reads this and byte-swaps doubles as needed.
 
 ### Summary record navigation
 
@@ -68,7 +68,7 @@ Velocity is computed by differentiating the Chebyshev polynomial analytically (u
 
 ### Type 3: Chebyshev position + velocity
 
-Type 3 stores separate Chebyshev fits for position and velocity. The structure has 6 coefficient arrays (X, Y, Z for position; X, Y, Z for velocity). Used for some satellite ephemerides; moon-calc implements it for forward compatibility.
+Type 3 stores separate Chebyshev fits for position and velocity. The structure has 6 coefficient arrays (X, Y, Z for position; X, Y, Z for velocity). Used for some satellite ephemerides; moon-sighting implements it for forward compatibility.
 
 ## Chebyshev evaluation
 
@@ -84,7 +84,7 @@ for k = n downto 0:
 result = (b_0 - b_2) / 2  [for standard Clenshaw]
 ```
 
-For moon-calc's implementation (where the constant term c_0 appears differently), we use the SPICE convention:
+For moon-sighting's implementation (where the constant term c_0 appears differently), we use the SPICE convention:
 
 ```
 result = c_0 + x·b_1 - b_2
@@ -142,7 +142,7 @@ For batch evaluation (e.g., scanning 1000 times across a year for calendar gener
 
 ## Verification
 
-moon-calc's ephemeris evaluations can be verified against:
+moon-sighting's ephemeris evaluations can be verified against:
 
 1. **SPICE:** the reference implementation from NAIF. Using the same kernel and the same (target, center, frame, ET) arguments, SPICE should produce identical results (to floating-point precision) because both use the same binary data and the same Chebyshev algorithm.
 

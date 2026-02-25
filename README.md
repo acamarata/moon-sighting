@@ -1,7 +1,7 @@
-# moon-calc
+# moon-sighting
 
-[![npm version](https://img.shields.io/npm/v/moon-calc.svg)](https://www.npmjs.com/package/moon-calc)
-[![CI](https://github.com/acamarata/moon-calc/actions/workflows/ci.yml/badge.svg)](https://github.com/acamarata/moon-calc/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/moon-sighting.svg)](https://www.npmjs.com/package/moon-sighting)
+[![CI](https://github.com/acamarata/moon-sighting/actions/workflows/ci.yml/badge.svg)](https://github.com/acamarata/moon-sighting/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 High-accuracy lunar crescent visibility and moon sighting library for Node.js and browsers. Uses JPL DE442S ephemerides with full IERS Earth orientation for sub-arcsecond topocentric Moon and Sun positions.
@@ -11,13 +11,13 @@ Implements the Yallop (NAO TN 69) and Odeh (Experimental Astronomy 2006) crescen
 ## Installation
 
 ```bash
-npm install moon-calc
+npm install moon-sighting
 ```
 
 After installing, download the JPL ephemeris kernel (31 MB, one-time setup):
 
 ```bash
-npx moon-calc download-kernels
+npx moon-sighting download-kernels
 ```
 
 This fetches `de442s.bsp` and `naif0012.tls` from NASA's NAIF server and caches them locally. The download is verified by SHA-256 checksum.
@@ -25,7 +25,7 @@ This fetches `de442s.bsp` and `naif0012.tls` from NASA's NAIF server and caches 
 ## Quick start
 
 ```ts
-import { initKernels, getMoonSightingReport, getMoonPhase } from 'moon-calc'
+import { initKernels, getMoonSightingReport, getMoonPhase } from 'moon-sighting'
 
 // One-time setup: load the ephemeris kernel
 await initKernels()
@@ -177,26 +177,26 @@ src/
   cli/        Command-line interface
 ```
 
-See the [Architecture wiki page](https://github.com/acamarata/moon-calc/wiki/Architecture) for a full technical description.
+See the [Architecture wiki page](https://github.com/acamarata/moon-sighting/wiki/Architecture) for a full technical description.
 
 ## CLI
 
 ```bash
 # Setup (one-time)
-npx moon-calc download-kernels
+npx moon-sighting download-kernels
 
 # Sighting report
-npx moon-calc sighting 51.5 -0.1 2025-03-29
-npx moon-calc sighting 21.4 39.8  # Mecca
+npx moon-sighting sighting 51.5 -0.1 2025-03-29
+npx moon-sighting sighting 21.4 39.8  # Mecca
 
 # Moon phase
-npx moon-calc phase 2025-03-01
+npx moon-sighting phase 2025-03-01
 
 # Verify downloaded kernels
-npx moon-calc verify-kernels
+npx moon-sighting verify-kernels
 
 # Benchmark
-npx moon-calc benchmark
+npx moon-sighting benchmark
 ```
 
 ## Compatibility
@@ -206,8 +206,8 @@ npx moon-calc benchmark
 | Node.js 20+ | Full (all features) |
 | Node.js 22, 24 | Full |
 | Browser | Partial (no auto-download; supply kernel buffer) |
-| ESM | `import` from `moon-calc` |
-| CommonJS | `require('moon-calc')` |
+| ESM | `import` from `moon-sighting` |
+| CommonJS | `require('moon-sighting')` |
 | TypeScript | Full type definitions included |
 
 ## TypeScript
@@ -219,22 +219,22 @@ import type {
   YallopCategory,
   OdehZone,
   KernelConfig,
-} from 'moon-calc'
+} from 'moon-sighting'
 ```
 
 ## Documentation
 
-Full documentation is on the [GitHub Wiki](https://github.com/acamarata/moon-calc/wiki):
+Full documentation is on the [GitHub Wiki](https://github.com/acamarata/moon-sighting/wiki):
 
-- [Getting Started](https://github.com/acamarata/moon-calc/wiki/Getting-Started)
-- [API Reference](https://github.com/acamarata/moon-calc/wiki/API-Reference)
-- [Architecture](https://github.com/acamarata/moon-calc/wiki/Architecture)
-- [Crescent Visibility Criteria](https://github.com/acamarata/moon-calc/wiki/Crescent-Visibility)
-- [Ephemeris and Kernel Setup](https://github.com/acamarata/moon-calc/wiki/Ephemeris)
-- [Time Scales](https://github.com/acamarata/moon-calc/wiki/Time-Scales)
-- [Reference Frames](https://github.com/acamarata/moon-calc/wiki/Reference-Frames)
-- [Observer Model and Refraction](https://github.com/acamarata/moon-calc/wiki/Observer-Model)
-- [Validation](https://github.com/acamarata/moon-calc/wiki/Validation)
+- [Getting Started](https://github.com/acamarata/moon-sighting/wiki/Getting-Started)
+- [API Reference](https://github.com/acamarata/moon-sighting/wiki/API-Reference)
+- [Architecture](https://github.com/acamarata/moon-sighting/wiki/Architecture)
+- [Crescent Visibility Criteria](https://github.com/acamarata/moon-sighting/wiki/Crescent-Visibility)
+- [Ephemeris and Kernel Setup](https://github.com/acamarata/moon-sighting/wiki/Ephemeris)
+- [Time Scales](https://github.com/acamarata/moon-sighting/wiki/Time-Scales)
+- [Reference Frames](https://github.com/acamarata/moon-sighting/wiki/Reference-Frames)
+- [Observer Model and Refraction](https://github.com/acamarata/moon-sighting/wiki/Observer-Model)
+- [Validation](https://github.com/acamarata/moon-sighting/wiki/Validation)
 
 ## Related
 

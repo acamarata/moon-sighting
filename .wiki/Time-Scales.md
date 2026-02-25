@@ -1,6 +1,6 @@
 # Time Scales
 
-Getting time right is the most error-prone part of an astronomy library. moon-calc implements a complete conversion chain from the user's familiar UTC input to the internal TDB time argument required by the JPL ephemeris.
+Getting time right is the most error-prone part of an astronomy library. moon-sighting implements a complete conversion chain from the user's familiar UTC input to the internal TDB time argument required by the JPL ephemeris.
 
 ## The time scale chain
 
@@ -33,7 +33,7 @@ UTC is the international time standard, synchronized to TAI via occasional leap 
 
 TAI = UTC + ΔAT, where ΔAT is the cumulative leap second count. ΔAT grows in 1-second steps whenever the IERS determines that Earth's rotation has slowed enough. As of 2024, ΔAT = 37 seconds.
 
-moon-calc ships the complete leap-second table (through 2017) and parses the NAIF LSK kernel (`naif0012.tls`) to stay current when the user downloads it.
+moon-sighting ships the complete leap-second table (through 2017) and parses the NAIF LSK kernel (`naif0012.tls`) to stay current when the user downloads it.
 
 ## TT: Terrestrial Time
 
@@ -54,7 +54,7 @@ TDB − TT ≈ 0.001658 s × sin(g) + 0.000014 s × sin(2g)
 g = 357.53° + 0.9856003° × (JD_TT − 2451545.0)   (Sun's mean anomaly)
 ```
 
-For crescent sighting purposes this ~1 ms difference is negligible (Moon moves ~30 arcsec/second, so 1 ms → ~0.03 arcsec position error). moon-calc applies the correction anyway to be consistent with SPICE.
+For crescent sighting purposes this ~1 ms difference is negligible (Moon moves ~30 arcsec/second, so 1 ms → ~0.03 arcsec position error). moon-sighting applies the correction anyway to be consistent with SPICE.
 
 In the SPICE system, the internal time argument is called ET (Ephemeris Time) and is expressed as seconds past J2000.0 TDB:
 
@@ -102,7 +102,7 @@ The constant 2440587.5 is JD for 1970-01-01 00:00:00 UTC.
 
 ## Leap-second kernel
 
-The NAIF LSK (`naif0012.tls`) is a plain-text file in NAIF text kernel format. It contains the ΔAT table and the constants needed to compute TDB from TT. moon-calc parses this file when the user downloads kernels, ensuring the library always reflects the latest leap seconds. The hardcoded table in `time/index.ts` serves as a fallback when no LSK is provided.
+The NAIF LSK (`naif0012.tls`) is a plain-text file in NAIF text kernel format. It contains the ΔAT table and the constants needed to compute TDB from TT. moon-sighting parses this file when the user downloads kernels, ensuring the library always reflects the latest leap seconds. The hardcoded table in `time/index.ts` serves as a fallback when no LSK is provided.
 
 ---
 

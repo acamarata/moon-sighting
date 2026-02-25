@@ -11,17 +11,17 @@ Moon phase queries work in browsers and any runtime without a kernel or network 
 ## Install
 
 ```bash
-npm install moon-calc
+npm install moon-sighting
 # or
-pnpm add moon-calc
+pnpm add moon-sighting
 ```
 
 ## Download the kernel (one time)
 
-moon-calc uses the JPL DE442S planetary ephemeris. The binary kernel file is 31 MB and is not bundled with the npm package.
+moon-sighting uses the JPL DE442S planetary ephemeris. The binary kernel file is 31 MB and is not bundled with the npm package.
 
 ```bash
-npx moon-calc download-kernels
+npx moon-sighting download-kernels
 ```
 
 This downloads two files:
@@ -30,8 +30,8 @@ This downloads two files:
 - `naif0012.tls` (4 KB): leap-second table
 
 Default cache location:
-- Linux/macOS: `~/.cache/moon-calc/`
-- Windows: `%LOCALAPPDATA%\moon-calc\`
+- Linux/macOS: `~/.cache/moon-sighting/`
+- Windows: `%LOCALAPPDATA%\moon-sighting\`
 
 To use a custom cache directory:
 
@@ -42,13 +42,13 @@ await initKernels({ cacheDir: '/my/data/dir' })
 To verify the download afterward:
 
 ```bash
-npx moon-calc verify-kernels
+npx moon-sighting verify-kernels
 ```
 
 ## First sighting report
 
 ```ts
-import { initKernels, getMoonSightingReport } from 'moon-calc'
+import { initKernels, getMoonSightingReport } from 'moon-sighting'
 
 // Load the kernel once per process
 await initKernels()
@@ -85,7 +85,7 @@ console.log(report.moonPosition)
 ## Moon phase (no kernel needed)
 
 ```ts
-import { getMoonPhase } from 'moon-calc'
+import { getMoonPhase } from 'moon-sighting'
 
 const phase = getMoonPhase()
 console.log(phase.phase)         // 'waxing-crescent'
@@ -100,7 +100,7 @@ const past = getMoonPhase(new Date('2024-01-01'))
 ## Rise and set times
 
 ```ts
-import { initKernels, getSunMoonEvents } from 'moon-calc'
+import { initKernels, getSunMoonEvents } from 'moon-sighting'
 
 await initKernels()
 
@@ -163,19 +163,19 @@ All features are accessible from the command line:
 
 ```bash
 # Download kernels
-npx moon-calc download-kernels
+npx moon-sighting download-kernels
 
 # Sighting report
-npx moon-calc sighting 51.5 -0.1 2025-03-29
+npx moon-sighting sighting 51.5 -0.1 2025-03-29
 
 # Moon phase
-npx moon-calc phase 2025-03-01
+npx moon-sighting phase 2025-03-01
 
 # Verify kernel integrity
-npx moon-calc verify-kernels
+npx moon-sighting verify-kernels
 
 # Performance benchmark
-npx moon-calc benchmark
+npx moon-sighting benchmark
 ```
 
 ---

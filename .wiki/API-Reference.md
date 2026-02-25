@@ -16,7 +16,7 @@ async function initKernels(config?: KernelConfig): Promise<void>
 interface KernelConfig {
   planetary?: KernelSource    // DE442S source. Default: auto-download
   leapSeconds?: KernelSource  // LSK source. Default: auto-download
-  cacheDir?: string           // Cache dir. Default: ~/.cache/moon-calc
+  cacheDir?: string           // Cache dir. Default: ~/.cache/moon-sighting
   checksumOverride?: string   // SHA-256 override for de442s.bsp
 }
 

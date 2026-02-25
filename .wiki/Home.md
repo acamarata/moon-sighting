@@ -1,10 +1,10 @@
-# moon-calc
+# moon-sighting
 
 High-accuracy lunar crescent visibility and moon sighting calculations using JPL DE442S ephemerides.
 
 ## What this library does
 
-moon-calc computes whether the new crescent moon will be visible at a specific location on a specific date. It produces the geometric quantities used by astronomers and Islamic lunar calendar authorities worldwide, including the Yallop q-test and Odeh visibility zones.
+moon-sighting computes whether the new crescent moon will be visible at a specific location on a specific date. It produces the geometric quantities used by astronomers and Islamic lunar calendar authorities worldwide, including the Yallop q-test and Odeh visibility zones.
 
 It also computes moon phase data, rise/set times, and twilight periods for any location.
 
@@ -33,7 +33,7 @@ It also computes moon phase data, rise/set times, and twilight periods for any l
 ## Quick example
 
 ```ts
-import { initKernels, getMoonSightingReport } from 'moon-calc'
+import { initKernels, getMoonSightingReport } from 'moon-sighting'
 
 await initKernels()
 

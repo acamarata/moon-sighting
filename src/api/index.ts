@@ -69,9 +69,9 @@ function resolveCacheDir(override?: string): string {
   if (override) return override
   const { platform, env } = process
   if (platform === 'win32') {
-    return `${env['LOCALAPPDATA'] ?? env['APPDATA'] ?? 'C:\\Users\\Public\\AppData\\Local'}\\moon-calc`
+    return `${env['LOCALAPPDATA'] ?? env['APPDATA'] ?? 'C:\\Users\\Public\\AppData\\Local'}\\moon-sighting`
   }
-  return `${env['HOME'] ?? '/tmp'}/.cache/moon-calc`
+  return `${env['HOME'] ?? '/tmp'}/.cache/moon-sighting`
 }
 
 // ─── Download sources ─────────────────────────────────────────────────────────

@@ -1,12 +1,12 @@
 /**
- * moon-calc — High-accuracy lunar crescent visibility and moon sighting calculations.
+ * moon-sighting — High-accuracy lunar crescent visibility and moon sighting calculations.
  *
  * Uses JPL DE442S ephemerides with full IERS Earth orientation for precise
  * topocentric Sun/Moon positions. Implements the Yallop (NAO TN 69) and
  * Odeh (Experimental Astronomy 2006) crescent visibility criteria.
  *
  * Quick start:
- *   import { getMoonSightingReport } from 'moon-calc'
+ *   import { getMoonSightingReport } from 'moon-sighting'
  *
  *   const report = await getMoonSightingReport(new Date('2025-03-01'), {
  *     lat: 51.5, lon: -0.1, elevation: 20, name: 'London'
