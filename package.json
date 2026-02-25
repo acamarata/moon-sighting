@@ -1,0 +1,74 @@
+{
+  "name": "moon-calc",
+  "version": "1.0.0",
+  "description": "High-accuracy lunar crescent visibility and moon sighting calculations using JPL DE442S ephemerides. Implements Yallop and Odeh criteria for Islamic crescent sighting workflows.",
+  "author": "Aric Camarata",
+  "license": "MIT",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "bin": {
+    "moon-calc": "./dist/cli/index.cjs"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "pretest": "tsup",
+    "test": "node test.mjs && node test-cjs.cjs",
+    "prepublishOnly": "tsup",
+    "cli": "node dist/cli/index.cjs"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "tsup": "latest",
+    "typescript": "latest"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/acamarata/moon-calc.git"
+  },
+  "homepage": "https://github.com/acamarata/moon-calc#readme",
+  "bugs": {
+    "url": "https://github.com/acamarata/moon-calc/issues"
+  },
+  "keywords": [
+    "moon",
+    "lunar",
+    "crescent",
+    "moon-sighting",
+    "hilal",
+    "yallop",
+    "odeh",
+    "islamic",
+    "ephemeris",
+    "jpl",
+    "de442s",
+    "astronomy",
+    "moon-phase",
+    "visibility",
+    "sighting",
+    "ramadan",
+    "prayer-times"
+  ]
+}

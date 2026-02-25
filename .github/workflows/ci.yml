@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: pnpm install
+      - run: pnpm build
+      - run: node test.mjs
+      - run: node test-cjs.cjs
+
+  typecheck:
+    name: TypeScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install
+      - run: pnpm run typecheck
+
+  pack-check:
+    name: Pack check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install
+      - run: pnpm build
+      - name: Verify pack contents
+        run: |
+          npm pack --dry-run 2>&1 | tee pack-output.txt
+          # Verify expected files are present
+          grep -q "dist/index.cjs" pack-output.txt || (echo "Missing dist/index.cjs" && exit 1)
+          grep -q "dist/index.mjs" pack-output.txt || (echo "Missing dist/index.mjs" && exit 1)
+          grep -q "dist/index.d.ts" pack-output.txt || (echo "Missing dist/index.d.ts" && exit 1)
+          grep -q "README.md" pack-output.txt || (echo "Missing README.md" && exit 1)
+          # Verify no test files or .gitignore items are included
+          ! grep -q "test.mjs" pack-output.txt || (echo "test.mjs should not be in pack" && exit 1)
+          ! grep -q "node_modules" pack-output.txt || (echo "node_modules should not be in pack" && exit 1)
+          echo "Pack contents verified."
