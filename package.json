@@ -15,7 +15,7 @@
     }
   },
   "bin": {
-    "moon-sighting": "./dist/cli/index.cjs"
+    "moon-sighting": "dist/cli/index.cjs"
   },
   "sideEffects": false,
   "files": [
