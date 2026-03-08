@@ -80,6 +80,8 @@ jobs:
           grep -q "dist/index.d.ts" pack-output.txt || (echo "Missing dist/index.d.ts" && exit 1)
           grep -q "dist/index.d.mts" pack-output.txt || (echo "Missing dist/index.d.mts" && exit 1)
           grep -q "README.md" pack-output.txt || (echo "Missing README.md" && exit 1)
+          grep -q "CHANGELOG.md" pack-output.txt || (echo "Missing CHANGELOG.md" && exit 1)
+          grep -q "LICENSE" pack-output.txt || (echo "Missing LICENSE" && exit 1)
           ! grep -q "test.mjs" pack-output.txt || (echo "test.mjs should not be in pack" && exit 1)
           ! grep -q "node_modules" pack-output.txt || (echo "node_modules should not be in pack" && exit 1)
           echo "Pack contents verified."

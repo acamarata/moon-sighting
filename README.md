@@ -22,7 +22,7 @@ npx moon-sighting download-kernels
 
 This fetches `de442s.bsp` and `naif0012.tls` from NASA's NAIF server and caches them locally. The download is verified by SHA-256 checksum.
 
-## Quick start
+## Quick Start
 
 ```ts
 import { initKernels, getMoonSightingReport, getMoonPhase } from 'moon-sighting'
