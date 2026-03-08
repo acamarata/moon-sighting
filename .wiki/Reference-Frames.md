@@ -13,6 +13,7 @@ The IERS Conventions (2010) define the standard transformation:
 ```
 
 Where:
+
 - **GCRS** = Geocentric Celestial Reference System (essentially the inertial J2000 frame at Earth's center)
 - **ITRS** = International Terrestrial Reference System (Earth-fixed frame, rotates with the solid Earth)
 - **Q(t)** = celestial motion matrix (precession + nutation)
@@ -31,6 +32,7 @@ The IAU 2006 precession model and IAU 2000A nutation model together parameterize
 - **s:** CIO locator, a small angle that ensures continuity of the CIO position
 
 The CIP X,Y series has:
+
 - A polynomial part (degree 5 in T = Julian centuries from J2000.0)
 - 1,306 luni-solar nutation terms
 - 687 planetary nutation terms
@@ -71,13 +73,13 @@ moon-sighting defaults to xp = yp = 0. Supply current values from IERS Bulletin 
 
 ## IAU 2000A vs 2000B
 
-| Feature | 2000A | 2000B |
-|---------|-------|-------|
-| Luni-solar terms | 1,306 | 77 |
-| Planetary terms | 687 | 0 |
-| Max error | < 0.1 mas | < 1 mas |
-| Computation | ~2× slower | fast |
-| Suitable for | moon sighting | approximate work |
+| Feature          | 2000A         | 2000B            |
+| ---------------- | ------------- | ---------------- |
+| Luni-solar terms | 1,306         | 77               |
+| Planetary terms  | 687           | 0                |
+| Max error        | < 0.1 mas     | < 1 mas          |
+| Computation      | ~2× slower    | fast             |
+| Suitable for     | moon sighting | approximate work |
 
 For crescent sighting at the horizon where refraction dominates, 2000B is more than sufficient. moon-sighting defaults to 2000A for correctness; 2000B will be available as a compile-time option for size-sensitive builds.
 
@@ -96,13 +98,15 @@ See [Observer Model](Observer-Model) for the WGS84 and ENU computation details.
 ## Accuracy
 
 With user-supplied EOP (Earth orientation parameters from IERS Bulletin A):
+
 - Azimuth/altitude accuracy: < 0.1 arcsecond (dominated by nutation model error)
 
 With polynomial ΔT approximation (no user EOP):
+
 - Azimuth/altitude accuracy: typically < 5 arcseconds, occasionally up to ~30 arcseconds in pathological ΔT errors
 
 For comparison, the Moon's angular diameter is ~1800 arcseconds, and refraction uncertainty near the horizon is 600–900 arcseconds. The frame transform is not the limiting factor for crescent sighting.
 
 ---
 
-*Previous: [Time Scales](Time-Scales) | Next: [Observer Model](Observer-Model)*
+_Previous: [Time Scales](Time-Scales) | Next: [Observer Model](Observer-Model)_

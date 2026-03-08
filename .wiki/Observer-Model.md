@@ -5,6 +5,7 @@
 The library uses the WGS84 (World Geodetic System 1984) reference ellipsoid, which is the standard for GPS coordinates, Google Maps, and most modern mapping systems.
 
 Key constants:
+
 ```
 a = 6378137.0 m        (semi-major axis, equatorial radius)
 1/f = 298.257223563    (inverse flattening)
@@ -45,6 +46,7 @@ Up    = (cos φ cos λ, cos φ sin λ, sin φ)
 ```
 
 These are unit vectors. To convert a topocentric ECEF displacement Δ (in meters) to ENU:
+
 ```
 e = East · Δ
 n = North · Δ
@@ -67,6 +69,7 @@ Altitude is the angle above the horizontal plane: 0° = horizon, 90° = zenith, 
 The Moon's geocentric position (from the ephemeris) differs from its topocentric position (as seen by a surface observer) because the Moon is close enough that the baseline between Earth's center and the observer's surface position is significant. This is the diurnal parallax.
 
 The correction is simply:
+
 ```
 topocentric_direction = moon_ITRS − observer_ITRS
 ```
@@ -103,6 +106,7 @@ Standard conditions: P = 1013.25 mbar, T = 15°C. The correction factors adjust 
 ### Accuracy limits
 
 The Bennett formula is accurate to:
+
 - ~0.1 arcminute for h > 5°
 - ~0.5 arcminute for h = 2°–5°
 - ~1–2 arcminutes for h < 2°
@@ -114,16 +118,16 @@ This is why crescent sighting criteria use "airless" (refraction-free) altitudes
 
 ### When to apply refraction
 
-| Use case | Mode |
-|----------|------|
-| Yallop ARCV input | Airless |
-| Odeh ARCV input | Airless |
-| Sunset/moonset threshold | Standard refraction |
-| "Where to look" altitude output | Standard refraction |
+| Use case                             | Mode                |
+| ------------------------------------ | ------------------- |
+| Yallop ARCV input                    | Airless             |
+| Odeh ARCV input                      | Airless             |
+| Sunset/moonset threshold             | Standard refraction |
+| "Where to look" altitude output      | Standard refraction |
 | Civil/nautical/astronomical twilight | Standard refraction |
 
 moon-sighting computes both airless and apparent altitudes for each body position and uses the appropriate one for each purpose.
 
 ---
 
-*Previous: [Reference Frames](Reference-Frames) | Next: [Validation](Validation)*
+_Previous: [Reference Frames](Reference-Frames) | Next: [Validation](Validation)_

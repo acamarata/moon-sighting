@@ -48,14 +48,14 @@ This polynomial represents the minimum ARCV observed in historical crescent sigh
 
 ### Categories
 
-| Category | q range | Meaning |
-| -------- | ------- | ------- |
-| A | q > +0.216 | Easily visible to the naked eye |
-| B | q > −0.014 | Visible under perfect conditions |
-| C | q > −0.160 | May need optical aid to locate; naked eye possible |
-| D | q > −0.232 | Optical aid necessary; naked eye not possible |
-| E | q > −0.293 | Not visible even with telescope |
-| F | q ≤ −0.293 | Below Danjon limit; crescent cannot form |
+| Category | q range    | Meaning                                            |
+| -------- | ---------- | -------------------------------------------------- |
+| A        | q > +0.216 | Easily visible to the naked eye                    |
+| B        | q > −0.014 | Visible under perfect conditions                   |
+| C        | q > −0.160 | May need optical aid to locate; naked eye possible |
+| D        | q > −0.232 | Optical aid necessary; naked eye not possible      |
+| E        | q > −0.293 | Not visible even with telescope                    |
+| F        | q ≤ −0.293 | Below Danjon limit; crescent cannot form           |
 
 Category F corresponds to ARCL below roughly 7° (the Danjon limit), where the Moon is geometrically too close to the Sun for the crescent arc to sustain itself.
 
@@ -87,12 +87,12 @@ V = ARCV - (11.8371 - 6.3226·W + 0.7319·W² - 0.1018·W³)
 
 ### Zones
 
-| Zone | V range | Meaning |
-| ---- | ------- | ------- |
-| A | V ≥ 5.65 | Visible with naked eye |
-| B | V ≥ 2.00 | Visible with optical aid; may be naked eye under excellent conditions |
-| C | V ≥ −0.96 | Visible with optical aid only |
-| D | V < −0.96 | Not visible even with optical aid |
+| Zone | V range   | Meaning                                                               |
+| ---- | --------- | --------------------------------------------------------------------- |
+| A    | V ≥ 5.65  | Visible with naked eye                                                |
+| B    | V ≥ 2.00  | Visible with optical aid; may be naked eye under excellent conditions |
+| C    | V ≥ −0.96 | Visible with optical aid only                                         |
+| D    | V < −0.96 | Not visible even with optical aid                                     |
 
 ### Key differences from Yallop
 
@@ -146,4 +146,4 @@ This approach requires additional atmospheric inputs (aerosol optical depth, hum
 
 ---
 
-*Previous: [Architecture](Architecture) | Next: [Ephemeris](Ephemeris)*
+_Previous: [Architecture](Architecture) | Next: [Ephemeris](Ephemeris)_

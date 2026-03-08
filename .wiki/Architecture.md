@@ -123,17 +123,17 @@ Target: a full sighting report (sunset + moonset + best-time geometry + Yallop +
 
 A crescent sighting report's accuracy is limited by the worst source in the chain:
 
-| Source | Contribution |
-| ------ | ------------ |
-| DE442S position error | < 1 km (~0.001 arcsec at Moon distance) |
-| IERS Q·R·W transform (with user-supplied EOP) | < 1 mas |
-| IERS Q·R·W transform (polynomial ΔT approximation) | < 5 arcsec |
-| WGS84 observer position | < 1 m (negligible in angle) |
-| Bennett refraction (standard atmosphere) | < 1 arcmin for alt > 5° |
-| Bennett refraction (non-standard conditions) | up to 15 arcmin near horizon |
+| Source                                             | Contribution                            |
+| -------------------------------------------------- | --------------------------------------- |
+| DE442S position error                              | < 1 km (~0.001 arcsec at Moon distance) |
+| IERS Q·R·W transform (with user-supplied EOP)      | < 1 mas                                 |
+| IERS Q·R·W transform (polynomial ΔT approximation) | < 5 arcsec                              |
+| WGS84 observer position                            | < 1 m (negligible in angle)             |
+| Bennett refraction (standard atmosphere)           | < 1 arcmin for alt > 5°                 |
+| Bennett refraction (non-standard conditions)       | up to 15 arcmin near horizon            |
 
 In practice, refraction uncertainty dominates all other error sources for crescent sighting near the horizon.
 
 ---
 
-*Previous: [API Reference](API-Reference) | Next: [Crescent Visibility](Crescent-Visibility)*
+_Previous: [API Reference](API-Reference) | Next: [Crescent Visibility](Crescent-Visibility)_

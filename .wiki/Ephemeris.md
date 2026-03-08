@@ -60,6 +60,7 @@ Each record covers a fixed time interval and stores coefficients for X, Y, Z:
 ```
 
 The polynomial degree n is derived from RSIZE (record size in doubles):
+
 ```
 n = (RSIZE - 2) / 3 - 1
 ```
@@ -93,6 +94,7 @@ result = c_0 + x·b_1 - b_2
 This produces the position. Velocity requires the derivative d(result)/dt, computed via the Chebyshev derivative recurrence, not by finite differencing, which would lose accuracy.
 
 Transforming from normalized domain back to physical time:
+
 ```
 x = (et - MID) / RADIUS
 dx/dt = 1/RADIUS
@@ -152,4 +154,4 @@ See [Validation](Validation) for the test methodology.
 
 ---
 
-*Previous: [Crescent Visibility](Crescent-Visibility) | Next: [Time Scales](Time-Scales)*
+_Previous: [Crescent Visibility](Crescent-Visibility) | Next: [Time Scales](Time-Scales)_

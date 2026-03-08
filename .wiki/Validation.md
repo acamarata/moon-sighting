@@ -21,6 +21,7 @@ NASA NAIF's SPICE toolkit is the authoritative reference for reading JPL ephemer
 Any deviation in the SPK Chebyshev evaluation from SPICE indicates a parsing or algorithm error in moon-sighting.
 
 **How to compare:**
+
 ```python
 import spiceypy as spice
 spice.furnsh('de442s.bsp')
@@ -33,6 +34,7 @@ print(state[:3])  # position in km
 ```
 
 The moon-sighting equivalent:
+
 ```ts
 const kernel = SpkKernel.fromFile('de442s.bsp')
 const ts = computeTimeScales(new Date('2025-03-29T20:00:00Z'))
@@ -44,6 +46,7 @@ Expected agreement: < 1 meter (floating-point evaluation precision).
 ### JPL Horizons
 
 JPL Horizons is the online solar system ephemeris service. It uses the same JPL ephemerides and provides tabular output for:
+
 - Apparent RA/Dec and az/alt for any observer and time
 - Observer-centered quantities (elongation, illumination, phase angle)
 - Rise/transit/set times
@@ -52,6 +55,7 @@ Horizons uses SPICE internally, so it represents an independent end-to-end valid
 
 **How to use for validation:**
 Go to https://ssd.jpl.nasa.gov/horizons/, select:
+
 - Target body: Moon (or Sun)
 - Observer location: user-defined geodetic lat/lon/elevation
 - Time span: the date of interest
@@ -61,15 +65,15 @@ Compare Horizons' output with moon-sighting's topocentric az/alt. Differences of
 
 ## Acceptance thresholds
 
-| Quantity | Expected error vs SPICE | Notes |
-|----------|------------------------|-------|
-| Geocentric position | < 1 m (< 0.001 arcsec) | SPK parsing precision |
-| Topocentric az/alt (with EOP) | < 0.1 arcsec | Frame transform precision |
-| Topocentric az/alt (polynomial ΔT) | < 30 arcsec | ΔT polynomial error |
-| ARCL | < 1 arcsec | Derived from positions |
-| ARCV | < 30 arcsec | Dominated by ΔT uncertainty |
-| Yallop q | < 0.005 | q is dimensionless; <0.005 difference = same category in most cases |
-| Sunset/moonset | < 10 seconds | Root-finding convergence |
+| Quantity                           | Expected error vs SPICE | Notes                                                               |
+| ---------------------------------- | ----------------------- | ------------------------------------------------------------------- |
+| Geocentric position                | < 1 m (< 0.001 arcsec)  | SPK parsing precision                                               |
+| Topocentric az/alt (with EOP)      | < 0.1 arcsec            | Frame transform precision                                           |
+| Topocentric az/alt (polynomial ΔT) | < 30 arcsec             | ΔT polynomial error                                                 |
+| ARCL                               | < 1 arcsec              | Derived from positions                                              |
+| ARCV                               | < 30 arcsec             | Dominated by ΔT uncertainty                                         |
+| Yallop q                           | < 0.005                 | q is dimensionless; <0.005 difference = same category in most cases |
+| Sunset/moonset                     | < 10 seconds            | Root-finding convergence                                            |
 
 ## Validation suite
 
@@ -98,4 +102,4 @@ Be cautious: ICOP records include weather and observer acuity information that t
 
 ---
 
-*Previous: [Observer Model](Observer-Model) | Next: [API Reference](API-Reference)*
+_Previous: [Observer Model](Observer-Model) | Next: [API Reference](API-Reference)_

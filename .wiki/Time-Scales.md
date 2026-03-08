@@ -106,4 +106,4 @@ The NAIF LSK (`naif0012.tls`) is a plain-text file in NAIF text kernel format. I
 
 ---
 
-*Previous: [Ephemeris](Ephemeris) | Next: [Reference Frames](Reference-Frames)*
+_Previous: [Ephemeris](Ephemeris) | Next: [Reference Frames](Reference-Frames)_

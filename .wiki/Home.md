@@ -38,10 +38,12 @@ import { initKernels, getMoonSightingReport } from 'moon-sighting'
 await initKernels()
 
 const report = await getMoonSightingReport(new Date('2025-03-29'), {
-  lat: 51.5074, lon: -0.1278, elevation: 10
+  lat: 51.5074,
+  lon: -0.1278,
+  elevation: 10,
 })
 
-console.log(report.yallop.category)  // 'A'
+console.log(report.yallop.category) // 'A'
 console.log(report.guidance)
 ```
 

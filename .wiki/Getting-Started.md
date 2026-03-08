@@ -55,17 +55,17 @@ import { initKernels, getMoonSightingReport } from 'moon-sighting'
 await initKernels()
 
 const observer = {
-  lat: 51.5074,   // London
+  lat: 51.5074, // London
   lon: -0.1278,
-  elevation: 10,  // meters above WGS84 ellipsoid
+  elevation: 10, // meters above WGS84 ellipsoid
   name: 'London, UK',
 }
 
 const report = await getMoonSightingReport(new Date('2025-03-29'), observer)
 
 // Summary
-console.log(report.yallop.category)   // 'A' through 'F'
-console.log(report.odeh.zone)         // 'A' through 'D'
+console.log(report.yallop.category) // 'A' through 'F'
+console.log(report.odeh.zone) // 'A' through 'D'
 console.log(report.guidance)
 
 // Event times
@@ -92,26 +92,26 @@ import { getMoonPhase, getMoonPosition, getMoonIllumination } from 'moon-sightin
 
 // Phase name, illumination percent, and next new/full moon dates
 const phase = getMoonPhase()
-console.log(phase.phase)         // 'waxing-crescent'
-console.log(phase.illumination)  // 23.4
-console.log(phase.age)           // 4.2  (hours since last new moon)
-console.log(phase.nextFullMoon)  // Date
+console.log(phase.phase) // 'waxing-crescent'
+console.log(phase.illumination) // 23.4
+console.log(phase.age) // 4.2  (hours since last new moon)
+console.log(phase.nextFullMoon) // Date
 
 // Topocentric position: azimuth, altitude (refraction applied), distance
 // Accuracy: ~0.3°
 const pos = getMoonPosition(new Date(), 51.5074, -0.1278, 10)
-console.log(pos.azimuth)          // degrees from North, clockwise
-console.log(pos.altitude)         // degrees above horizon
-console.log(pos.distance)         // km from Earth center to Moon center
+console.log(pos.azimuth) // degrees from North, clockwise
+console.log(pos.altitude) // degrees above horizon
+console.log(pos.distance) // km from Earth center to Moon center
 console.log(pos.parallacticAngle) // radians
 
 // Illumination fraction and phase cycle position
 // Accuracy: ~0.5% on fraction
 const illum = getMoonIllumination()
-console.log(illum.fraction)  // 0–1 (0=new, 1=full)
-console.log(illum.phase)     // 0–1 cycle position (0=new, 0.5=full)
-console.log(illum.angle)     // bright limb position angle, radians
-console.log(illum.isWaxing)  // true when moving toward full moon
+console.log(illum.fraction) // 0–1 (0=new, 1=full)
+console.log(illum.phase) // 0–1 cycle position (0=new, 0.5=full)
+console.log(illum.angle) // bright limb position angle, radians
+console.log(illum.isWaxing) // true when moving toward full moon
 
 // All three accept an optional Date for historical or future queries
 const past = getMoonPhase(new Date('2024-01-01'))
@@ -127,7 +127,10 @@ import { initKernels, getSunMoonEvents } from 'moon-sighting'
 await initKernels()
 
 const events = await getSunMoonEvents(new Date('2025-03-29'), {
-  lat: 21.4225, lon: 39.8262, elevation: 300, name: 'Mecca'
+  lat: 21.4225,
+  lon: 39.8262,
+  elevation: 300,
+  name: 'Mecca',
 })
 
 console.log(events.sunsetUTC)
@@ -173,7 +176,7 @@ await initKernels({
 // IERS Bulletin A value for UT1-UTC (current, as of 2025-03)
 await getMoonSightingReport(date, {
   ...observer,
-  ut1utc: 0.0341,  // seconds, from IERS Bulletin A
+  ut1utc: 0.0341, // seconds, from IERS Bulletin A
 })
 ```
 
@@ -202,4 +205,4 @@ npx moon-sighting benchmark
 
 ---
 
-*Previous: [Home](Home) | Next: [API Reference](API-Reference)*
+_Previous: [Home](Home) | Next: [API Reference](API-Reference)_
