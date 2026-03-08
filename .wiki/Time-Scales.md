@@ -8,21 +8,21 @@ Getting time right is the most error-prone part of an astronomy library. moon-si
 User input (Date / ISO string)
     │
     ▼
-UTC — Coordinated Universal Time
+UTC: Coordinated Universal Time
     │ + ΔAT (leap seconds, integer steps)
     ▼
-TAI — International Atomic Time
+TAI: International Atomic Time
     │ + 32.184 s (exact, by definition)
     ▼
-TT  — Terrestrial Time (formerly ET)
+TT : Terrestrial Time (formerly ET)
     │ + periodic correction (~1.7 ms max)
     ▼
-TDB — Barycentric Dynamical Time  ← used by JPL DE442S
+TDB: Barycentric Dynamical Time  ← used by JPL DE442S
 
 Also needed:
 UTC + (UT1 - UTC)                 ← from IERS Bulletin A
     ▼
-UT1 — Universal Time 1            ← used for Earth Rotation Angle
+UT1: Universal Time 1            ← used for Earth Rotation Angle
 ```
 
 ## UTC: Coordinated Universal Time

@@ -7,15 +7,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- `getMoonPosition(date, lat, lon, elevation?)` — topocentric Moon azimuth, altitude, distance,
+- `getMoonPosition(date, lat, lon, elevation?)`: topocentric Moon azimuth, altitude, distance,
   and parallactic angle via Meeus Ch. 47 (no kernel required, ~0.3° accuracy)
-- `getMoonIllumination(date)` — illumination fraction, phase cycle position, bright limb
+- `getMoonIllumination(date)`: illumination fraction, phase cycle position, bright limb
   position angle, and waxing/waning flag via Meeus Ch. 47/48 (no kernel required)
-- `getMoonVisibilityEstimate(date, lat, lon, elevation?)` — quick kernel-free Odeh crescent
+- `getMoonVisibilityEstimate(date, lat, lon, elevation?)`: quick kernel-free Odeh crescent
   visibility estimate using Meeus positions; returns V parameter, zone (A-D), ARCL, ARCV, W
-- `getMoon(date, lat, lon, elevation?)` — combined convenience wrapper returning phase,
+- `getMoon(date, lat, lon, elevation?)`: combined convenience wrapper returning phase,
   position, illumination, and visibility estimate in a single call
-- `phaseName` and `phaseSymbol` fields on `MoonPhaseResult` — human-readable name
+- `phaseName` and `phaseSymbol` fields on `MoonPhaseResult`: human-readable name
   (e.g. "Waxing Crescent") and moon phase emoji (e.g. "🌒")
 - `MoonPosition`, `MoonIlluminationResult`, `MoonVisibilityEstimate`, and `MoonSnapshot`
   TypeScript types
