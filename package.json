@@ -36,7 +36,7 @@
     "build": "tsup",
     "typecheck": "tsc --noEmit",
     "pretest": "tsup",
-    "test": "node --test test.mjs test-cjs.cjs",
+    "test": "node --test test.mjs && node --test test-cjs.cjs",
     "lint": "eslint src/",
     "format": "prettier --write src/",
     "format:check": "prettier --check src/",
