@@ -31,11 +31,7 @@ import type {
 } from '../types.js'
 import { ODEH_THRESHOLDS, ODEH_DESCRIPTIONS } from '../types.js'
 import { SpkKernel } from '../spk/index.js'
-import {
-  computeTimeScales,
-  jdTTtoET,
-  J2000,
-} from '../time/index.js'
+import { computeTimeScales, jdTTtoET, jdToDate, J2000 } from '../time/index.js'
 import {
   getMoonGeocentricState,
   getSunGeocentricState,
@@ -44,10 +40,7 @@ import {
   getMoonSunApproximate,
   nearestNewMoon,
 } from '../bodies/index.js'
-import {
-  geodeticToECEF,
-  computeAzAlt,
-} from '../observer/index.js'
+import { geodeticToECEF, computeAzAlt } from '../observer/index.js'
 import { itrsToGcrs, computeERA } from '../frames/index.js'
 import {
   getSunMoonEvents as eventsGetSunMoonEvents,
@@ -60,7 +53,34 @@ import {
   computeYallop,
   computeOdeh,
   buildGuidanceText,
+  arcvMinimum,
 } from '../visibility/index.js'
+import { DEG2RAD } from '../math/index.js'
+
+// ─── Input validation ─────────────────────────────────────────────────────────
+
+function validateDate(date: Date, label: string): void {
+  if (!(date instanceof Date) || isNaN(date.getTime())) {
+    throw new RangeError(`${label}: expected a valid Date instance`)
+  }
+}
+
+function validateLatitude(lat: number, label: string): void {
+  if (!isFinite(lat) || lat < -90 || lat > 90) {
+    throw new RangeError(`${label}: latitude must be a finite number in [-90, 90], got ${lat}`)
+  }
+}
+
+function validateLongitude(lon: number, label: string): void {
+  if (!isFinite(lon) || lon < -180 || lon > 180) {
+    throw new RangeError(`${label}: longitude must be a finite number in [-180, 180], got ${lon}`)
+  }
+}
+
+function validateObserver(observer: Observer, label: string): void {
+  validateLatitude(observer.lat, label)
+  validateLongitude(observer.lon, label)
+}
 
 // ─── Module-level kernel singleton ─────────────────────────────────────────────
 
@@ -83,7 +103,7 @@ function resolveCacheDir(override?: string): string {
 // ─── Download sources ─────────────────────────────────────────────────────────
 
 const NAIF_DE442S_URL = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/de442s.bsp'
-const NAIF_LSK_URL    = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/lsk/naif0012.tls'
+const NAIF_LSK_URL = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/lsk/naif0012.tls'
 
 // ─── Kernel lifecycle ─────────────────────────────────────────────────────────
 
@@ -109,7 +129,8 @@ export async function initKernels(config?: KernelConfig): Promise<void> {
     buffer = source.data
   } else if (source.type === 'url') {
     const res = await fetch(source.url)
-    if (!res.ok) throw new Error(`Failed to fetch kernel from ${source.url}: ${res.status} ${res.statusText}`)
+    if (!res.ok)
+      throw new Error(`Failed to fetch kernel from ${source.url}: ${res.status} ${res.statusText}`)
     buffer = await res.arrayBuffer()
   } else {
     // auto: download to local cache, then load
@@ -146,7 +167,7 @@ export async function downloadKernels(config?: KernelConfig): Promise<{
 
   await mkdir(cacheDir, { recursive: true })
 
-  const planetaryPath  = join(cacheDir, 'de442s.bsp')
+  const planetaryPath = join(cacheDir, 'de442s.bsp')
   const leapSecondsPath = join(cacheDir, 'naif0012.tls')
 
   if (!existsSync(planetaryPath)) {
@@ -206,7 +227,7 @@ export async function verifyKernels(config?: KernelConfig): Promise<{
   const { join } = await import('node:path')
   const errors: string[] = []
 
-  const planetaryPath  = join(cacheDir, 'de442s.bsp')
+  const planetaryPath = join(cacheDir, 'de442s.bsp')
   const leapSecondsPath = join(cacheDir, 'naif0012.tls')
 
   if (!existsSync(planetaryPath)) {
@@ -251,7 +272,8 @@ async function resolveKernel(config?: KernelConfig): Promise<SpkKernel> {
 
   // auto-init as last resort
   await initKernels(config)
-  if (!activeKernel) throw new Error('Kernel failed to initialize. Call initKernels() before computing.')
+  if (!activeKernel)
+    throw new Error('Kernel failed to initialize. Call initKernels() before computing.')
   return activeKernel
 }
 
@@ -286,6 +308,8 @@ export async function getMoonSightingReport(
   observer: Observer,
   options?: SightingOptions,
 ): Promise<MoonSightingReport> {
+  validateDate(date, 'getMoonSightingReport')
+  validateObserver(observer, 'getMoonSightingReport')
   const kernel = await resolveKernel(options?.kernels)
 
   // Event times (sunset, moonset, twilight, rise)
@@ -321,7 +345,7 @@ export async function getMoonSightingReport(
 
   // Body positions in GCRS (geocentric)
   const moonGCRS = getMoonGeocentricState(kernel, et).position
-  const sunGCRS  = getSunGeocentricState(kernel, et).position
+  const sunGCRS = getSunGeocentricState(kernel, et).position
 
   // Observer ITRS position (km) from geodetic coordinates
   const obsECEF = geodeticToECEF(observer.lat, observer.lon, observer.elevation)
@@ -333,7 +357,7 @@ export async function getMoonSightingReport(
 
   // Airless alt/az — required by Yallop/Odeh criteria
   const moonAirless = computeAzAlt(moonGCRS, observer, ts, true)
-  const sunAirless  = computeAzAlt(sunGCRS,  observer, ts, true)
+  const sunAirless = computeAzAlt(sunGCRS, observer, ts, true)
   // Apparent alt/az (with refraction) — for guidance text
   const moonApparent = computeAzAlt(moonGCRS, observer, ts, false)
 
@@ -349,11 +373,7 @@ export async function getMoonSightingReport(
     moonGCRS[1] - obsGCRS[1],
     moonGCRS[2] - obsGCRS[2],
   ]
-  const sunTopo: Vec3 = [
-    sunGCRS[0] - obsGCRS[0],
-    sunGCRS[1] - obsGCRS[1],
-    sunGCRS[2] - obsGCRS[2],
-  ]
+  const sunTopo: Vec3 = [sunGCRS[0] - obsGCRS[0], sunGCRS[1] - obsGCRS[1], sunGCRS[2] - obsGCRS[2]]
 
   const geometry = computeCrescentGeometry(
     moonAirless,
@@ -366,7 +386,7 @@ export async function getMoonSightingReport(
 
   const { Wprime } = computeCrescentWidth(moonTopo, geometry.ARCL)
   const yallop = computeYallop(geometry, Wprime)
-  const odeh   = computeOdeh(geometry)
+  const odeh = computeOdeh(geometry)
 
   const moonAboveHorizon = moonAirless.altitude > 0
   const sightingPossible = moonAboveHorizon && lagMinutes > 0
@@ -413,7 +433,7 @@ function buildNullReport(
   return {
     date,
     observer,
-    sunsetUTC:  events.sunsetUTC,
+    sunsetUTC: events.sunsetUTC,
     moonsetUTC: events.moonsetUTC,
     lagMinutes: null,
     bestTimeUTC: null,
@@ -425,7 +445,8 @@ function buildNullReport(
     geometry: null,
     yallop: null,
     odeh: null,
-    guidance: 'Sighting not possible: sunset or moonset could not be determined for this date and location.',
+    guidance:
+      'Sighting not possible: sunset or moonset could not be determined for this date and location.',
     ephemerisSource: source,
     moonAboveHorizon: null,
     sightingPossible,
@@ -435,14 +456,14 @@ function buildNullReport(
 // ─── Phase display lookup ──────────────────────────────────────────────────────
 
 const PHASE_DISPLAY: Record<MoonPhaseName, { name: string; symbol: string }> = {
-  'new-moon':        { name: 'New Moon',        symbol: '🌑' },
+  'new-moon': { name: 'New Moon', symbol: '🌑' },
   'waxing-crescent': { name: 'Waxing Crescent', symbol: '🌒' },
-  'first-quarter':   { name: 'First Quarter',   symbol: '🌓' },
-  'waxing-gibbous':  { name: 'Waxing Gibbous',  symbol: '🌔' },
-  'full-moon':       { name: 'Full Moon',        symbol: '🌕' },
-  'waning-gibbous':  { name: 'Waning Gibbous',  symbol: '🌖' },
-  'last-quarter':    { name: 'Last Quarter',     symbol: '🌗' },
-  'waning-crescent': { name: 'Waning Crescent',  symbol: '🌘' },
+  'first-quarter': { name: 'First Quarter', symbol: '🌓' },
+  'waxing-gibbous': { name: 'Waxing Gibbous', symbol: '🌔' },
+  'full-moon': { name: 'Full Moon', symbol: '🌕' },
+  'waning-gibbous': { name: 'Waning Gibbous', symbol: '🌖' },
+  'last-quarter': { name: 'Last Quarter', symbol: '🌗' },
+  'waning-crescent': { name: 'Waning Crescent', symbol: '🌘' },
 }
 
 /**
@@ -464,6 +485,7 @@ const PHASE_DISPLAY: Record<MoonPhaseName, { name: string; symbol: string }> = {
  * ```
  */
 export function getMoonPhase(date = new Date()): MoonPhaseResult {
+  validateDate(date, 'getMoonPhase')
   const ts = computeTimeScales(date)
   const { moonGCRS, sunGCRS } = getMoonSunApproximate(ts.jdTT)
 
@@ -478,7 +500,7 @@ export function getMoonPhase(date = new Date()): MoonPhaseResult {
   const phaseKey = elongationToPhase(elongationDeg, isWaxing)
   const { name: phaseName, symbol: phaseSymbol } = PHASE_DISPLAY[phaseKey]
 
-  const nextNewMoonJD  = nearestNewMoon(ts.jdTT + 15)
+  const nextNewMoonJD = nearestNewMoon(ts.jdTT + 15)
   const nextFullMoonJD = nearestFullMoon(ts.jdTT)
 
   return {
@@ -489,9 +511,9 @@ export function getMoonPhase(date = new Date()): MoonPhaseResult {
     age,
     elongationDeg,
     isWaxing,
-    nextNewMoon:  jdToJSDate(nextNewMoonJD),
-    nextFullMoon: jdToJSDate(nextFullMoonJD),
-    prevNewMoon:  jdToJSDate(prevNewMoonJD),
+    nextNewMoon: jdToDate(nextNewMoonJD),
+    nextFullMoon: jdToDate(nextFullMoonJD),
+    prevNewMoon: jdToDate(prevNewMoonJD),
   }
 }
 
@@ -520,7 +542,9 @@ export function getMoonPosition(
   lon: number,
   elevation = 0,
 ): MoonPosition {
-  const DEG = Math.PI / 180
+  validateDate(date, 'getMoonPosition')
+  validateLatitude(lat, 'getMoonPosition')
+  validateLongitude(lon, 'getMoonPosition')
   const ts = computeTimeScales(date)
   const { moonGCRS } = getMoonSunApproximate(ts.jdTT)
 
@@ -532,17 +556,17 @@ export function getMoonPosition(
   const distance = Math.sqrt(moonGCRS[0] ** 2 + moonGCRS[1] ** 2 + moonGCRS[2] ** 2)
 
   // Equatorial coordinates for parallactic angle
-  const RA_moon  = Math.atan2(moonGCRS[1], moonGCRS[0])
+  const RA_moon = Math.atan2(moonGCRS[1], moonGCRS[0])
   const dec_moon = Math.asin(Math.max(-1, Math.min(1, moonGCRS[2] / distance)))
 
   // Hour angle: ERA(UT1) + longitude − right ascension
   const era = computeERA(ts.jdUT1)
-  const HA  = era + lon * DEG - RA_moon
+  const HA = era + lon * DEG2RAD - RA_moon
 
   // Parallactic angle: signed angle between zenith and north pole as seen from the Moon
   const parallacticAngle = Math.atan2(
     Math.sin(HA),
-    Math.cos(lat * DEG) * Math.tan(dec_moon) - Math.sin(lat * DEG) * Math.cos(HA),
+    Math.cos(lat * DEG2RAD) * Math.tan(dec_moon) - Math.sin(lat * DEG2RAD) * Math.cos(HA),
   )
 
   return { azimuth: azAlt.azimuth, altitude: azAlt.altitude, distance, parallacticAngle }
@@ -566,6 +590,7 @@ export function getMoonPosition(
  * ```
  */
 export function getMoonIllumination(date: Date = new Date()): MoonIlluminationResult {
+  validateDate(date, 'getMoonIllumination')
   const ts = computeTimeScales(date)
   const { moonGCRS, sunGCRS } = getMoonSunApproximate(ts.jdTT)
 
@@ -578,12 +603,12 @@ export function getMoonIllumination(date: Date = new Date()): MoonIlluminationRe
   // PA = atan2(cos(dec_sun) * sin(RA_sun - RA_moon),
   //            sin(dec_sun) * cos(dec_moon) - cos(dec_sun) * sin(dec_moon) * cos(RA_sun - RA_moon))
   const moonDist = Math.sqrt(moonGCRS[0] ** 2 + moonGCRS[1] ** 2 + moonGCRS[2] ** 2)
-  const sunDist  = Math.sqrt(sunGCRS[0]  ** 2 + sunGCRS[1]  ** 2 + sunGCRS[2]  ** 2)
+  const sunDist = Math.sqrt(sunGCRS[0] ** 2 + sunGCRS[1] ** 2 + sunGCRS[2] ** 2)
 
-  const RA_moon  = Math.atan2(moonGCRS[1], moonGCRS[0])
+  const RA_moon = Math.atan2(moonGCRS[1], moonGCRS[0])
   const dec_moon = Math.asin(Math.max(-1, Math.min(1, moonGCRS[2] / moonDist)))
-  const RA_sun   = Math.atan2(sunGCRS[1],  sunGCRS[0])
-  const dec_sun  = Math.asin(Math.max(-1, Math.min(1, sunGCRS[2]  / sunDist)))
+  const RA_sun = Math.atan2(sunGCRS[1], sunGCRS[0])
+  const dec_sun = Math.asin(Math.max(-1, Math.min(1, sunGCRS[2] / sunDist)))
 
   const dRA = RA_sun - RA_moon
   const angle = Math.atan2(
@@ -625,13 +650,16 @@ export function getMoonVisibilityEstimate(
   lon: number,
   elevation = 0,
 ): MoonVisibilityEstimate {
+  validateDate(date, 'getMoonVisibilityEstimate')
+  validateLatitude(lat, 'getMoonVisibilityEstimate')
+  validateLongitude(lon, 'getMoonVisibilityEstimate')
   const ts = computeTimeScales(date)
   const { moonGCRS, sunGCRS } = getMoonSunApproximate(ts.jdTT)
   const observer: Observer = { lat, lon, elevation }
 
   // Airless positions — Odeh uses airless altitudes (no refraction)
   const moonAirless = computeAzAlt(moonGCRS, observer, ts, true)
-  const sunAirless  = computeAzAlt(sunGCRS,  observer, ts, true)
+  const sunAirless = computeAzAlt(sunGCRS, observer, ts, true)
 
   // ARCL = elongation (geocentric, degrees)
   const { elongationDeg } = computeIllumination(moonGCRS, sunGCRS)
@@ -652,14 +680,11 @@ export function getMoonVisibilityEstimate(
 
   const { W } = computeCrescentWidth(moonTopo, ARCL)
 
-  // Odeh 2006: V = ARCV - f(W), where f(W) = arcv_minimum polynomial
-  const arcvMin = -0.1018 * W ** 3 + 0.7319 * W ** 2 - 6.3226 * W + 7.1651
-  const V = ARCV - arcvMin
+  // Odeh 2006: V = ARCV - arcv_minimum(W)
+  const V = ARCV - arcvMinimum(W)
 
-  const zone: OdehZone = V >= ODEH_THRESHOLDS.A ? 'A'
-    : V >= ODEH_THRESHOLDS.B ? 'B'
-    : V >= ODEH_THRESHOLDS.C ? 'C'
-    : 'D'
+  const zone: OdehZone =
+    V >= ODEH_THRESHOLDS.A ? 'A' : V >= ODEH_THRESHOLDS.B ? 'B' : V >= ODEH_THRESHOLDS.C ? 'C' : 'D'
 
   return {
     V,
@@ -705,20 +730,18 @@ export function getMoon(
   lon: number,
   elevation = 0,
 ): MoonSnapshot {
+  validateDate(date, 'getMoon')
+  validateLatitude(lat, 'getMoon')
+  validateLongitude(lon, 'getMoon')
   return {
-    phase:        getMoonPhase(date),
-    position:     getMoonPosition(date, lat, lon, elevation),
+    phase: getMoonPhase(date),
+    position: getMoonPosition(date, lat, lon, elevation),
     illumination: getMoonIllumination(date),
-    visibility:   getMoonVisibilityEstimate(date, lat, lon, elevation),
+    visibility: getMoonVisibilityEstimate(date, lat, lon, elevation),
   }
 }
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
-
-/** Convert JD to a UTC Date. */
-function jdToJSDate(jd: number): Date {
-  return new Date((jd - 2440587.5) * 86400000)
-}
 
 /**
  * Approximate the nearest full moon JD using Meeus Ch. 49 (full moon k = n + 0.5).
@@ -740,46 +763,46 @@ function nearestFullMoon(jdTT: number): number {
 /** Full moon JDE for a half-integer k (Meeus Ch. 49, Table 49.A). */
 function fullMoonJDE(k: number): number {
   const T = k / 1236.85
-  const DEG = Math.PI / 180
 
-  let JDE = 2451550.09766
-    + 29.530588861 * k
-    + 0.00015437 * T * T
-    - 0.000000150 * T * T * T
-    + 0.00000000073 * T * T * T * T
+  let JDE =
+    2451550.09766 +
+    29.530588861 * k +
+    0.00015437 * T * T -
+    0.00000015 * T * T * T +
+    0.00000000073 * T * T * T * T
 
-  const M  = (2.5534 + 29.10535670 * k - 0.0000014 * T * T) * DEG
-  const Mp = (201.5643 + 385.81693528 * k + 0.0107582 * T * T) * DEG
-  const Fc = (160.7108 + 390.67050284 * k - 0.0016118 * T * T) * DEG
-  const Om = (124.7746 - 1.56375588 * k + 0.0020672 * T * T) * DEG
-  const E  = 1 - 0.002516 * T - 0.0000074 * T * T
+  const M = (2.5534 + 29.1053567 * k - 0.0000014 * T * T) * DEG2RAD
+  const Mp = (201.5643 + 385.81693528 * k + 0.0107582 * T * T) * DEG2RAD
+  const Fc = (160.7108 + 390.67050284 * k - 0.0016118 * T * T) * DEG2RAD
+  const Om = (124.7746 - 1.56375588 * k + 0.0020672 * T * T) * DEG2RAD
+  const E = 1 - 0.002516 * T - 0.0000074 * T * T
 
   JDE +=
-    -0.40614 * Math.sin(Mp)
-    + 0.17302 * E * Math.sin(M)
-    + 0.01614 * Math.sin(2 * Mp)
-    + 0.01043 * Math.sin(2 * Fc)
-    + 0.00734 * E * Math.sin(Mp - M)
-    - 0.00515 * E * Math.sin(Mp + M)
-    + 0.00209 * E * E * Math.sin(2 * M)
-    - 0.00111 * Math.sin(Mp - 2 * Fc)
-    - 0.00057 * Math.sin(Mp + 2 * Fc)
-    + 0.00056 * E * Math.sin(2 * Mp + M)
-    - 0.00042 * Math.sin(3 * Mp)
-    + 0.00042 * E * Math.sin(M + 2 * Fc)
-    + 0.00038 * E * Math.sin(M - 2 * Fc)
-    - 0.00024 * E * Math.sin(2 * Mp - M)
-    - 0.00017 * Math.sin(Om)
-    - 0.00007 * Math.sin(Mp + 2 * M)
-    + 0.00004 * Math.sin(2 * Mp - 2 * Fc)
-    + 0.00004 * Math.sin(3 * M)
-    + 0.00003 * Math.sin(Mp + M - 2 * Fc)
-    + 0.00003 * Math.sin(2 * Mp + 2 * Fc)
-    - 0.00003 * Math.sin(Mp + M + 2 * Fc)
-    + 0.00003 * Math.sin(Mp - M + 2 * Fc)
-    - 0.00002 * Math.sin(Mp - M - 2 * Fc)
-    - 0.00002 * Math.sin(3 * Mp + M)
-    + 0.00002 * Math.sin(4 * Mp)
+    -0.40614 * Math.sin(Mp) +
+    0.17302 * E * Math.sin(M) +
+    0.01614 * Math.sin(2 * Mp) +
+    0.01043 * Math.sin(2 * Fc) +
+    0.00734 * E * Math.sin(Mp - M) -
+    0.00515 * E * Math.sin(Mp + M) +
+    0.00209 * E * E * Math.sin(2 * M) -
+    0.00111 * Math.sin(Mp - 2 * Fc) -
+    0.00057 * Math.sin(Mp + 2 * Fc) +
+    0.00056 * E * Math.sin(2 * Mp + M) -
+    0.00042 * Math.sin(3 * Mp) +
+    0.00042 * E * Math.sin(M + 2 * Fc) +
+    0.00038 * E * Math.sin(M - 2 * Fc) -
+    0.00024 * E * Math.sin(2 * Mp - M) -
+    0.00017 * Math.sin(Om) -
+    0.00007 * Math.sin(Mp + 2 * M) +
+    0.00004 * Math.sin(2 * Mp - 2 * Fc) +
+    0.00004 * Math.sin(3 * M) +
+    0.00003 * Math.sin(Mp + M - 2 * Fc) +
+    0.00003 * Math.sin(2 * Mp + 2 * Fc) -
+    0.00003 * Math.sin(Mp + M + 2 * Fc) +
+    0.00003 * Math.sin(Mp - M + 2 * Fc) -
+    0.00002 * Math.sin(Mp - M - 2 * Fc) -
+    0.00002 * Math.sin(3 * Mp + M) +
+    0.00002 * Math.sin(4 * Mp)
 
   return JDE
 }
@@ -790,10 +813,10 @@ function fullMoonJDE(k: number): number {
  */
 function elongationToPhase(elongationDeg: number, isWaxing: boolean): MoonPhaseName {
   const e = elongationDeg
-  if (e < 5)   return 'new-moon'
+  if (e < 5) return 'new-moon'
   if (e > 175) return 'full-moon'
-  if (e < 85)  return isWaxing ? 'waxing-crescent' : 'waning-crescent'
-  if (e < 95)  return isWaxing ? 'first-quarter'   : 'last-quarter'
+  if (e < 85) return isWaxing ? 'waxing-crescent' : 'waning-crescent'
+  if (e < 95) return isWaxing ? 'first-quarter' : 'last-quarter'
   return isWaxing ? 'waxing-gibbous' : 'waning-gibbous'
 }
 
@@ -812,6 +835,8 @@ export async function getSunMoonEvents(
   observer: Observer,
   options?: Pick<SightingOptions, 'kernels'>,
 ): Promise<SunMoonEvents> {
+  validateDate(date, 'getSunMoonEvents')
+  validateObserver(observer, 'getSunMoonEvents')
   const kernel = await resolveKernel(options?.kernels)
   return eventsGetSunMoonEvents(date, observer, kernel)
 }

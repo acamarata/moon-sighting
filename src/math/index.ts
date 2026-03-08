@@ -36,11 +36,7 @@ export function vnorm(a: Vec3): number {
 
 /** Cross product */
 export function vcross(a: Vec3, b: Vec3): Vec3 {
-  return [
-    a[1] * b[2] - a[2] * b[1],
-    a[2] * b[0] - a[0] * b[2],
-    a[0] * b[1] - a[1] * b[0],
-  ]
+  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
 }
 
 /** Unit vector (normalized) */
@@ -59,11 +55,7 @@ export function angularSep(a: Vec3, b: Vec3): number {
 // ─── 3×3 matrix operations ────────────────────────────────────────────────────
 
 /** 3×3 matrix stored row-major as a 9-element tuple */
-export type Mat3 = [
-  number, number, number,
-  number, number, number,
-  number, number, number,
-]
+export type Mat3 = [number, number, number, number, number, number, number, number, number]
 
 /** Multiply 3×3 matrix by 3-vector */
 export function mvmul(m: Mat3, v: Vec3): Vec3 {
@@ -77,15 +69,15 @@ export function mvmul(m: Mat3, v: Vec3): Vec3 {
 /** Multiply two 3×3 matrices */
 export function mmmul(a: Mat3, b: Mat3): Mat3 {
   return [
-    a[0]*b[0] + a[1]*b[3] + a[2]*b[6],
-    a[0]*b[1] + a[1]*b[4] + a[2]*b[7],
-    a[0]*b[2] + a[1]*b[5] + a[2]*b[8],
-    a[3]*b[0] + a[4]*b[3] + a[5]*b[6],
-    a[3]*b[1] + a[4]*b[4] + a[5]*b[7],
-    a[3]*b[2] + a[4]*b[5] + a[5]*b[8],
-    a[6]*b[0] + a[7]*b[3] + a[8]*b[6],
-    a[6]*b[1] + a[7]*b[4] + a[8]*b[7],
-    a[6]*b[2] + a[7]*b[5] + a[8]*b[8],
+    a[0] * b[0] + a[1] * b[3] + a[2] * b[6],
+    a[0] * b[1] + a[1] * b[4] + a[2] * b[7],
+    a[0] * b[2] + a[1] * b[5] + a[2] * b[8],
+    a[3] * b[0] + a[4] * b[3] + a[5] * b[6],
+    a[3] * b[1] + a[4] * b[4] + a[5] * b[7],
+    a[3] * b[2] + a[4] * b[5] + a[5] * b[8],
+    a[6] * b[0] + a[7] * b[3] + a[8] * b[6],
+    a[6] * b[1] + a[7] * b[4] + a[8] * b[7],
+    a[6] * b[2] + a[7] * b[5] + a[8] * b[8],
   ]
 }
 
@@ -173,14 +165,18 @@ export function chebyshevEvalWithDerivative(
   if (n === 1) return [coeffs[0], 0]
 
   const x2 = 2 * x
-  let b2 = 0; let b1 = 0
-  let db2 = 0; let db1 = 0
+  let b2 = 0
+  let b1 = 0
+  let db2 = 0
+  let db1 = 0
 
   for (let k = n - 1; k >= 1; k--) {
     const b0 = coeffs[k] + x2 * b1 - b2
     const db0 = 2 * b1 + x2 * db1 - db2
-    b2 = b1; b1 = b0
-    db2 = db1; db1 = db0
+    b2 = b1
+    b1 = b0
+    db2 = db1
+    db1 = db0
   }
 
   const value = coeffs[0] + x * b1 - b2
@@ -227,7 +223,7 @@ export function brentRoot(
   let c = a
   let fc = fa
   let mflag = true
-  let s = 0
+  let s: number
   let d = 0
 
   for (let i = 0; i < maxIter; i++) {
@@ -289,12 +285,7 @@ export function brentRoot(
  * @param steps - Number of initial subdivision steps (default 48 for 30-min resolution over a day)
  * @returns Array of root locations
  */
-export function findRoots(
-  f: (t: number) => number,
-  a: number,
-  b: number,
-  steps = 48,
-): number[] {
+export function findRoots(f: (t: number) => number, a: number, b: number, steps = 48): number[] {
   const dt = (b - a) / steps
   const roots: number[] = []
   let tPrev = a

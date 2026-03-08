@@ -22,7 +22,8 @@
 import type { Vec3, Observer, SunMoonEvents, TimeScales } from '../types.js'
 import type { SpkKernel } from '../spk/index.js'
 import { NAIF_IDS } from '../spk/index.js'
-import { brentRoot } from '../math/index.js'
+import { brentRoot, vdot, vnorm } from '../math/index.js'
+import { arcvMinimum } from '../visibility/index.js'
 import {
   J2000,
   SECONDS_PER_DAY,
@@ -33,7 +34,11 @@ import {
   getDeltaAT,
   TT_MINUS_TAI,
 } from '../time/index.js'
-import { getMoonGeocentricState, getSunGeocentricState, computeCrescentWidth } from '../bodies/index.js'
+import {
+  getMoonGeocentricState,
+  getSunGeocentricState,
+  computeCrescentWidth,
+} from '../bodies/index.js'
 import { geodeticToECEF, computeAzAlt } from '../observer/index.js'
 import { itrsToGcrs } from '../frames/index.js'
 
@@ -51,7 +56,7 @@ export const SUN_ALTITUDE_THRESHOLD = -0.8333
  * Accounts for: standard refraction at horizon (34') + lunar semi-diameter (~16')
  * Note: Moon's SD varies with distance (14.7'–16.8'). Use 0.2725° as mean.
  */
-export const MOON_ALTITUDE_THRESHOLD = -0.8333  // refined per actual distance in implementation
+export const MOON_ALTITUDE_THRESHOLD = -0.8333 // refined per actual distance in implementation
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
@@ -130,7 +135,7 @@ export function findAltitudeCrossing(
 
   const f = (et: number) => altitudeMinusThreshold(kernel, naifId, observer, et, threshold)
 
-  const STEP_S = 600  // 10-minute coarse sampling
+  const STEP_S = 600 // 10-minute coarse sampling
   const nSteps = Math.ceil((endET - startET) / STEP_S)
 
   let prevET = startET
@@ -140,11 +145,11 @@ export function findAltitudeCrossing(
     const currET = Math.min(startET + i * STEP_S, endET)
     const currF = f(currET)
 
-    const isRisingCross  = rising  && prevF < 0 && currF >= 0
+    const isRisingCross = rising && prevF < 0 && currF >= 0
     const isSettingCross = !rising && prevF >= 0 && currF < 0
 
     if (isRisingCross || isSettingCross) {
-      const etCross = brentRoot(f, prevET, currET, 0.5)  // 0.5s precision
+      const etCross = brentRoot(f, prevET, currET, 0.5) // 0.5s precision
       if (etCross !== null) {
         const tsCross = etToTS(etCross)
         return tsCross.utc
@@ -169,45 +174,90 @@ export function findAltitudeCrossing(
  * @param kernel - DE442S kernel
  * @returns SunMoonEvents with all event times in UTC, or null if event doesn't occur
  */
-export function getSunMoonEvents(
-  date: Date,
-  observer: Observer,
-  kernel: SpkKernel,
-): SunMoonEvents {
+export function getSunMoonEvents(date: Date, observer: Observer, kernel: SpkKernel): SunMoonEvents {
   // Anchor search at UTC midnight of the input date
   const midnight = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
   const jdMidnight = dateToJD(midnight)
   // Approximate ET at midnight
-  const etStart = jdTTtoET(jdMidnight + 70.0 / SECONDS_PER_DAY)  // rough TT≈UTC+70s
-  const etEnd   = etStart + 28 * 3600  // 28-hour window
+  const etStart = jdTTtoET(jdMidnight + 70.0 / SECONDS_PER_DAY) // rough TT≈UTC+70s
+  const etEnd = etStart + 28 * 3600 // 28-hour window
 
   const ts0 = computeTimeScales(midnight)
 
   // Sun events
   const sunriseUTC = findAltitudeCrossing(
-    kernel, NAIF_IDS.SUN, observer, ts0, etStart, etEnd, SUN_ALTITUDE_THRESHOLD, true,
+    kernel,
+    NAIF_IDS.SUN,
+    observer,
+    ts0,
+    etStart,
+    etEnd,
+    SUN_ALTITUDE_THRESHOLD,
+    true,
   )
   const sunsetUTC = findAltitudeCrossing(
-    kernel, NAIF_IDS.SUN, observer, ts0, etStart, etEnd, SUN_ALTITUDE_THRESHOLD, false,
+    kernel,
+    NAIF_IDS.SUN,
+    observer,
+    ts0,
+    etStart,
+    etEnd,
+    SUN_ALTITUDE_THRESHOLD,
+    false,
   )
 
   // Twilight events (Sun setting below -6°, -12°, -18°)
   const civilTwilightEndUTC = findAltitudeCrossing(
-    kernel, NAIF_IDS.SUN, observer, ts0, etStart, etEnd, -6, false,
+    kernel,
+    NAIF_IDS.SUN,
+    observer,
+    ts0,
+    etStart,
+    etEnd,
+    -6,
+    false,
   )
   const nauticalTwilightEndUTC = findAltitudeCrossing(
-    kernel, NAIF_IDS.SUN, observer, ts0, etStart, etEnd, -12, false,
+    kernel,
+    NAIF_IDS.SUN,
+    observer,
+    ts0,
+    etStart,
+    etEnd,
+    -12,
+    false,
   )
   const astronomicalTwilightEndUTC = findAltitudeCrossing(
-    kernel, NAIF_IDS.SUN, observer, ts0, etStart, etEnd, -18, false,
+    kernel,
+    NAIF_IDS.SUN,
+    observer,
+    ts0,
+    etStart,
+    etEnd,
+    -18,
+    false,
   )
 
   // Moon events
   const moonriseUTC = findAltitudeCrossing(
-    kernel, NAIF_IDS.MOON, observer, ts0, etStart, etEnd, MOON_ALTITUDE_THRESHOLD, true,
+    kernel,
+    NAIF_IDS.MOON,
+    observer,
+    ts0,
+    etStart,
+    etEnd,
+    MOON_ALTITUDE_THRESHOLD,
+    true,
   )
   const moonsetUTC = findAltitudeCrossing(
-    kernel, NAIF_IDS.MOON, observer, ts0, etStart, etEnd, MOON_ALTITUDE_THRESHOLD, false,
+    kernel,
+    NAIF_IDS.MOON,
+    observer,
+    ts0,
+    etStart,
+    etEnd,
+    MOON_ALTITUDE_THRESHOLD,
+    false,
   )
 
   return {
@@ -241,7 +291,7 @@ export function bestTimeHeuristic(
   moonsetUTC: Date,
 ): { bestTimeUTC: Date; lagMinutes: number } | null {
   const lagMs = moonsetUTC.getTime() - sunsetUTC.getTime()
-  if (lagMs <= 0) return null  // Moon sets before Sun — no sighting possible
+  if (lagMs <= 0) return null // Moon sets before Sun — no sighting possible
 
   const lagMinutes = lagMs / 60000
   const bestTimeMs = sunsetUTC.getTime() + (4 / 9) * lagMs
@@ -250,14 +300,6 @@ export function bestTimeHeuristic(
     bestTimeUTC: new Date(bestTimeMs),
     lagMinutes,
   }
-}
-
-/**
- * Odeh arcv minimum polynomial (Odeh 2006, Eq. 1).
- * Returns the minimum ARCV needed for visibility at crescent width W (arc minutes).
- */
-function odehArcvMin(W: number): number {
-  return 11.8371 - 6.3226 * W + 0.7319 * W * W - 0.1018 * W * W * W
 }
 
 /**
@@ -290,9 +332,6 @@ export function bestTimeOptimized(
   const obsECEF = geodeticToECEF(observer.lat, observer.lon, observer.elevation)
   const obsITRS: Vec3 = [obsECEF[0] / 1000, obsECEF[1] / 1000, obsECEF[2] / 1000]
 
-  const dot = (a: Vec3, b: Vec3) => a[0]*b[0] + a[1]*b[1] + a[2]*b[2]
-  const norm = (v: Vec3) => Math.sqrt(dot(v, v))
-
   let bestTimeUTC = sunsetUTC
   let maxV = -Infinity
 
@@ -302,14 +341,14 @@ export function bestTimeOptimized(
     const et = jdTTtoET(ts.jdTT)
 
     const moonGCRS = getMoonGeocentricState(kernel, et).position
-    const sunGCRS  = getSunGeocentricState(kernel, et).position
+    const sunGCRS = getSunGeocentricState(kernel, et).position
 
     // Convert observer ITRS → GCRS at this timestep (Earth rotation changes per step)
     const obsGCRS = itrsToGcrs(obsITRS, ts)
 
     // Airless altitudes via the full pipeline
     const moonAzAlt = computeAzAlt(moonGCRS, observer, ts, true)
-    const sunAzAlt  = computeAzAlt(sunGCRS,  observer, ts, true)
+    const sunAzAlt = computeAzAlt(sunGCRS, observer, ts, true)
 
     const ARCV = moonAzAlt.altitude - sunAzAlt.altitude
 
@@ -324,11 +363,11 @@ export function bestTimeOptimized(
       sunGCRS[1] - obsGCRS[1],
       sunGCRS[2] - obsGCRS[2],
     ]
-    const cosARCL = dot(moonTopo, sunTopo) / (norm(moonTopo) * norm(sunTopo))
+    const cosARCL = vdot(moonTopo, sunTopo) / (vnorm(moonTopo) * vnorm(sunTopo))
     const ARCL = Math.acos(Math.max(-1, Math.min(1, cosARCL))) * (180 / Math.PI)
 
     const { W } = computeCrescentWidth(moonTopo, ARCL)
-    const V = ARCV - odehArcvMin(W)
+    const V = ARCV - arcvMinimum(W)
 
     if (V > maxV) {
       maxV = V
@@ -347,13 +386,7 @@ export function bestTimeOptimized(
  * @param windowMinutes - Half-width of window in minutes (default 20)
  * @returns [start, end] UTC Date pair
  */
-export function computeObservationWindow(
-  bestTimeUTC: Date,
-  windowMinutes = 20,
-): [Date, Date] {
+export function computeObservationWindow(bestTimeUTC: Date, windowMinutes = 20): [Date, Date] {
   const windowMs = windowMinutes * 60000
-  return [
-    new Date(bestTimeUTC.getTime() - windowMs),
-    new Date(bestTimeUTC.getTime() + windowMs),
-  ]
+  return [new Date(bestTimeUTC.getTime() - windowMs), new Date(bestTimeUTC.getTime() + windowMs)]
 }

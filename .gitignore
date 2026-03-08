@@ -1,7 +1,10 @@
 node_modules/
 dist/
+build/
+out/
 *.tgz
 *.log
+*.tsbuildinfo
 .DS_Store
 .env
 .env.*
@@ -11,8 +14,28 @@ dist/
 *.bsp
 *.tls
 
+# PnP
+.pnp
+.pnp.js
+
+# Coverage
+coverage/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
 # AI agent directories
 .claude/
 .cursor/
-.aider/
+.copilot/
+.aider*
 .continue/
+.codex/
+.gemini/
+.vscode/*
+.aider/
+.aider.chat.history.md
+.windsurf/
+.codeium/

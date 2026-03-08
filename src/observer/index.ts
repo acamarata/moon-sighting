@@ -21,6 +21,7 @@
 import type { Vec3, Observer, AzAlt, TimeScales } from '../types.js'
 import { WGS84 } from '../types.js'
 import { gcrsToItrs } from '../frames/index.js'
+import { vdot } from '../math/index.js'
 
 // ─── Geodetic ↔ ECEF ─────────────────────────────────────────────────────────
 
@@ -93,12 +94,14 @@ export function ecefToGeodetic(ecef: Vec3): { lat: number; lon: number; h: numbe
 export function computeENUBasis(lat: number, lon: number): { east: Vec3; north: Vec3; up: Vec3 } {
   const phi = (lat * Math.PI) / 180
   const lam = (lon * Math.PI) / 180
-  const sinPhi = Math.sin(phi), cosPhi = Math.cos(phi)
-  const sinLam = Math.sin(lam), cosLam = Math.cos(lam)
+  const sinPhi = Math.sin(phi),
+    cosPhi = Math.cos(phi)
+  const sinLam = Math.sin(lam),
+    cosLam = Math.cos(lam)
 
   const east: Vec3 = [-sinLam, cosLam, 0]
   const north: Vec3 = [-sinPhi * cosLam, -sinPhi * sinLam, cosPhi]
-  const up: Vec3    = [ cosPhi * cosLam,  cosPhi * sinLam, sinPhi]
+  const up: Vec3 = [cosPhi * cosLam, cosPhi * sinLam, sinPhi]
 
   return { east, north, up }
 }
@@ -114,8 +117,7 @@ export function computeENUBasis(lat: number, lon: number): { east: Vec3; north: 
  */
 export function ecefToENU(ecefDelta: Vec3, lat: number, lon: number): Vec3 {
   const { east, north, up } = computeENUBasis(lat, lon)
-  const dot = (a: Vec3, b: Vec3) => a[0]*b[0] + a[1]*b[1] + a[2]*b[2]
-  return [dot(ecefDelta, east), dot(ecefDelta, north), dot(ecefDelta, up)]
+  return [vdot(ecefDelta, east), vdot(ecefDelta, north), vdot(ecefDelta, up)]
 }
 
 /**
@@ -185,7 +187,6 @@ export function computeAzAlt(
   ts: TimeScales,
   airless: boolean,
 ): AzAlt {
-
   // 1. Convert body position from GCRS to ITRS (km)
   const bodyITRS = gcrsToItrs(bodyGCRS, ts)
 
@@ -194,11 +195,7 @@ export function computeAzAlt(
   const obsITRS: Vec3 = [obsECEF[0] / 1000, obsECEF[1] / 1000, obsECEF[2] / 1000]
 
   // 3. Displacement vector from observer to body in ITRS (km — magnitude doesn't matter)
-  const delta: Vec3 = [
-    bodyITRS[0] - obsITRS[0],
-    bodyITRS[1] - obsITRS[1],
-    bodyITRS[2] - obsITRS[2],
-  ]
+  const delta: Vec3 = [bodyITRS[0] - obsITRS[0], bodyITRS[1] - obsITRS[1], bodyITRS[2] - obsITRS[2]]
 
   // 4. Project onto local ENU basis at the observer's location
   const enu = ecefToENU(delta, observer.lat, observer.lon)
@@ -208,11 +205,7 @@ export function computeAzAlt(
 
   // 6. Refraction correction
   if (!airless) {
-    azAlt.altitude = applyRefraction(
-      azAlt.altitude,
-      observer.pressure,
-      observer.temperature,
-    )
+    azAlt.altitude = applyRefraction(azAlt.altitude, observer.pressure, observer.temperature)
   }
 
   return azAlt
@@ -261,11 +254,7 @@ export function bennettRefraction(
  * Apply refraction correction to an airless altitude.
  * Returns the apparent (observed) altitude.
  */
-export function applyRefraction(
-  airlessAlt: number,
-  pressure = 1013.25,
-  temperature = 15,
-): number {
+export function applyRefraction(airlessAlt: number, pressure = 1013.25, temperature = 15): number {
   return airlessAlt + bennettRefraction(airlessAlt, pressure, temperature)
 }
 

@@ -100,7 +100,9 @@ async function cmdSighting(cmdArgs: string[]) {
   console.log(`Sunset:    ${fmtDate(report.sunsetUTC)}`)
   console.log(`Moonset:   ${fmtDate(report.moonsetUTC)}`)
   console.log(`Best time: ${fmtDate(report.bestTimeUTC)}`)
-  console.log(`Lag:       ${report.lagMinutes !== null ? Math.round(report.lagMinutes) + ' min' : 'N/A'}`)
+  console.log(
+    `Lag:       ${report.lagMinutes !== null ? Math.round(report.lagMinutes) + ' min' : 'N/A'}`,
+  )
   console.log('')
 
   if (report.geometry) {
@@ -151,7 +153,9 @@ async function cmdBenchmark() {
     getMoonPhase(new Date(Date.UTC(2025, 2, 1 + (i % 28))))
   }
   const phaseMs = performance.now() - phaseStart
-  console.log(`getMoonPhase × ${N_PHASE}: ${phaseMs.toFixed(1)} ms  (${(phaseMs / N_PHASE * 1000).toFixed(1)} µs/call)`)
+  console.log(
+    `getMoonPhase × ${N_PHASE}: ${phaseMs.toFixed(1)} ms  (${((phaseMs / N_PHASE) * 1000).toFixed(1)} µs/call)`,
+  )
 
   // Benchmark 2: kernel load
   const loadStart = performance.now()
@@ -170,10 +174,13 @@ async function cmdBenchmark() {
 /** Format a nullable Date as a short UTC string. */
 function fmtDate(d: Date | null): string {
   if (!d) return 'N/A'
-  return d.toISOString().replace('T', ' ').replace(/\.\d+Z$/, ' UTC')
+  return d
+    .toISOString()
+    .replace('T', ' ')
+    .replace(/\.\d+Z$/, ' UTC')
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error(err instanceof Error ? err.message : String(err))
   process.exit(1)
 })

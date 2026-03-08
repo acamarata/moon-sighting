@@ -31,10 +31,10 @@ import { chebyshevEvalWithDerivative } from '../math/index.js'
 
 /** NAIF integer body IDs used in DE442S segment chaining */
 export const NAIF_IDS = {
-  SSB: 0,              // Solar System Barycenter
+  SSB: 0, // Solar System Barycenter
   MERCURY_BARYCENTER: 1,
   VENUS_BARYCENTER: 2,
-  EMB: 3,              // Earth-Moon Barycenter
+  EMB: 3, // Earth-Moon Barycenter
   MARS_BARYCENTER: 4,
   JUPITER_BARYCENTER: 5,
   SATURN_BARYCENTER: 6,
@@ -107,7 +107,7 @@ export class SpkKernel {
   private findSeg(target: number, center: number, et: number): SpkSegment | null {
     const candidates = this.index.get(`${target}:${center}`)
     if (!candidates) return null
-    return candidates.find(s => et >= s.startET && et <= s.endET) ?? null
+    return candidates.find((s) => et >= s.startET && et <= s.endET) ?? null
   }
 
   private getChained(target: number, center: number, et: number): StateVector {
@@ -174,7 +174,12 @@ export class SpkKernel {
 // ─── DAF parsing ──────────────────────────────────────────────────────────────
 
 function parseDafFileRecord(buffer: ArrayBuffer): {
-  nd: number; ni: number; fward: number; bward: number; free: number; le: boolean
+  nd: number
+  ni: number
+  fward: number
+  bward: number
+  free: number
+  le: boolean
 } {
   const dv = new DataView(buffer)
 
@@ -214,7 +219,7 @@ function parseSummaryRecords(
     const nextRecord = dv.getFloat64(recOffset, le)
     const nSummaries = Math.round(dv.getFloat64(recOffset + 16, le))
 
-    let offset = recOffset + 24  // skip 3 control doubles (24 bytes)
+    let offset = recOffset + 24 // skip 3 control doubles (24 bytes)
 
     for (let i = 0; i < nSummaries; i++) {
       if (offset + summaryBytes > buffer.byteLength) break
@@ -383,8 +388,18 @@ export function parseLsk(text: string): ReadonlyArray<readonly [number, number]>
 
   const block = match[1]
   const months: Record<string, number> = {
-    JAN: 1, FEB: 2, MAR: 3, APR: 4, MAY: 5, JUN: 6,
-    JUL: 7, AUG: 8, SEP: 9, OCT: 10, NOV: 11, DEC: 12,
+    JAN: 1,
+    FEB: 2,
+    MAR: 3,
+    APR: 4,
+    MAY: 5,
+    JUN: 6,
+    JUL: 7,
+    AUG: 8,
+    SEP: 9,
+    OCT: 10,
+    NOV: 11,
+    DEC: 12,
   }
 
   const pairRe = /(-?\d+(?:\.\d+)?)\s*,\s*@(\d{4})-([A-Z]{3})-(\d{1,2})/g
@@ -400,8 +415,14 @@ export function parseLsk(text: string): ReadonlyArray<readonly [number, number]>
     const a = Math.floor((14 - month) / 12)
     const y = year + 4800 - a
     const mo = month + 12 * a - 3
-    const jdNoon = day + Math.floor((153 * mo + 2) / 5) + 365 * y +
-      Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045
+    const jdNoon =
+      day +
+      Math.floor((153 * mo + 2) / 5) +
+      365 * y +
+      Math.floor(y / 4) -
+      Math.floor(y / 100) +
+      Math.floor(y / 400) -
+      32045
     // Midnight = JD - 0.5
     results.push([jdNoon - 0.5, deltaAT])
   }

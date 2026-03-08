@@ -238,7 +238,10 @@ export function buildGuidanceText(
   lagMinutes: number,
 ): string {
   const direction = azimuthToCardinal(moonAz)
-  const timeStr = bestTimeUTC.toISOString().replace('T', ' ').replace(/\.\d+Z$/, ' UTC')
+  const timeStr = bestTimeUTC
+    .toISOString()
+    .replace('T', ' ')
+    .replace(/\.\d+Z$/, ' UTC')
   const lagStr = `${Math.round(lagMinutes)} min after sunset`
 
   let visibility: string
@@ -263,8 +266,24 @@ export function buildGuidanceText(
 
 /** Convert azimuth degrees to a cardinal/intercardinal direction label */
 function azimuthToCardinal(az: number): string {
-  const dirs = ['North', 'NNE', 'NE', 'ENE', 'East', 'ESE', 'SE', 'SSE',
-    'South', 'SSW', 'SW', 'WSW', 'West', 'WNW', 'NW', 'NNW']
+  const dirs = [
+    'North',
+    'NNE',
+    'NE',
+    'ENE',
+    'East',
+    'ESE',
+    'SE',
+    'SSE',
+    'South',
+    'SSW',
+    'SW',
+    'WSW',
+    'West',
+    'WNW',
+    'NW',
+    'NNW',
+  ]
   const idx = Math.round(az / 22.5) % 16
   return dirs[(idx + 16) % 16]
 }

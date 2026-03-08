@@ -5,8 +5,8 @@ export type Vec3 = [number, number, number]
 
 /** Position + velocity state vector from the ephemeris */
 export interface StateVector {
-  position: Vec3  // km, in the frame determined by context
-  velocity: Vec3  // km/s
+  position: Vec3 // km, in the frame determined by context
+  velocity: Vec3 // km/s
 }
 
 /** Azimuth + altitude in degrees */
@@ -154,7 +154,7 @@ export type YallopCategory = 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
 export const YALLOP_THRESHOLDS = {
   A: 0.216,
   B: -0.014,
-  C: -0.160,
+  C: -0.16,
   D: -0.232,
   E: -0.293,
 } as const
@@ -199,7 +199,7 @@ export type OdehZone = 'A' | 'B' | 'C' | 'D'
  */
 export const ODEH_THRESHOLDS = {
   A: 5.65,
-  B: 2.00,
+  B: 2.0,
   C: -0.96,
 } as const
 
@@ -390,7 +390,7 @@ export type KernelSource =
   | { type: 'file'; path: string }
   | { type: 'buffer'; data: ArrayBuffer; name: string }
   | { type: 'url'; url: string }
-  | { type: 'auto' }  // auto-download from NAIF, cache in ~/.cache/moon-sighting
+  | { type: 'auto' } // auto-download from NAIF, cache in ~/.cache/moon-sighting
 
 export interface KernelConfig {
   /** Planetary SPK kernel — defaults to de442s.bsp via auto-download */
@@ -434,9 +434,13 @@ export const WGS84 = {
   /** Flattening */
   f: 1 / 298.257223563,
   /** Semi-minor axis in meters */
-  get b() { return this.a * (1 - this.f) },
+  get b() {
+    return this.a * (1 - this.f)
+  },
   /** First eccentricity squared */
-  get e2() { return 2 * this.f - this.f * this.f },
+  get e2() {
+    return 2 * this.f - this.f * this.f
+  },
 } as const
 
 // ─── Internal ephemeris types ─────────────────────────────────────────────────
