@@ -415,3 +415,18 @@ describe('Input validation', () => {
     assert.throws(() => getMoon(new Date(), 0, 200), /longitude/)
   })
 })
+
+describe('kernel-backed sighting pipeline', () => {
+  it('computes London sunset and moonset for 2025-03-29', async () => {
+    await initKernels()
+
+    const observer = { lat: 51.5, lon: -0.1, elevation: 0 }
+    const report = await getMoonSightingReport(new Date('2025-03-29T00:00:00Z'), observer)
+
+    assert.ok(report.sunsetUTC instanceof Date, `report.sunsetUTC=${report.sunsetUTC}`)
+    assert.ok(report.moonsetUTC instanceof Date, `report.moonsetUTC=${report.moonsetUTC}`)
+    assert.ok(report.bestTimeUTC instanceof Date, `report.bestTimeUTC=${report.bestTimeUTC}`)
+    assert.equal(report.yallop?.category, 'F')
+    assert.equal(report.odeh?.zone, 'D')
+  })
+})
