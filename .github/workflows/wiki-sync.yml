@@ -4,11 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      - '.wiki/**'
+      - '.github/wiki/**'
 
 jobs:
   sync:
-    name: Sync .wiki/ to GitHub Wiki
+    name: Sync .github/wiki/ to GitHub Wiki
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
