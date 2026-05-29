@@ -1,4 +1,4 @@
-name: Sync Wiki
+name: Wiki Sync
 
 on:
   push:
@@ -6,18 +6,20 @@ on:
     paths:
       - '.github/wiki/**'
 
+permissions:
+  contents: write
+
 jobs:
   sync:
-    name: Sync .github/wiki/ to GitHub Wiki
+    name: Sync wiki to GitHub Wiki
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Sync wiki pages
-        uses: newrelic/wiki-sync-action@v1.0.1
+      - name: Sync .github/wiki/ to GitHub Wiki
+        uses: Andrew-Chen-Wang/github-wiki-action@v4
         with:
-          source: .wiki
-          destination: wiki
-          token: ${{ secrets.GITHUB_TOKEN }}
-          gitAuthorName: github-actions[bot]
-          gitAuthorEmail: 41898282+github-actions[bot]@users.noreply.github.com
+          path: .github/wiki/
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
