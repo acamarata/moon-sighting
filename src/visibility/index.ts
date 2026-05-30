@@ -285,5 +285,5 @@ function azimuthToCardinal(az: number): string {
     'NNW',
   ]
   const idx = Math.round(az / 22.5) % 16
-  return dirs[(idx + 16) % 16]
+  return dirs[(idx + 16) % 16]! // dirs has 16 elements; (idx+16)%16 is always 0..15
 }

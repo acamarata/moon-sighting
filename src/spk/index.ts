@@ -386,7 +386,7 @@ export function parseLsk(text: string): ReadonlyArray<readonly [number, number]>
   const match = text.match(/DELTET\/DELTA_AT\s*=\s*\(\s*([\s\S]*?)\)/m)
   if (!match) return results
 
-  const block = match[1]
+  const block = match[1]! // regex has one capture group; match[1] is present when match succeeds
   const months: Record<string, number> = {
     JAN: 1,
     FEB: 2,
@@ -406,10 +406,11 @@ export function parseLsk(text: string): ReadonlyArray<readonly [number, number]>
   let m: RegExpExecArray | null
 
   while ((m = pairRe.exec(block)) !== null) {
-    const deltaAT = parseFloat(m[1])
-    const year = parseInt(m[2])
-    const month = months[m[3]] ?? 1
-    const day = parseInt(m[4])
+    // m[1]..m[4] are capture groups; regex guarantees they are present when exec matches
+    const deltaAT = parseFloat(m[1]!)
+    const year = parseInt(m[2]!)
+    const month = months[m[3]!] ?? 1
+    const day = parseInt(m[4]!)
 
     // Gregorian to JD (noon = integer JD)
     const a = Math.floor((14 - month) / 12)

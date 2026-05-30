@@ -130,7 +130,7 @@ export function rotZ(theta: number): Mat3 {
 export function chebyshevEval(coeffs: Float64Array, x: number): number {
   const n = coeffs.length
   if (n === 0) return 0
-  if (n === 1) return coeffs[0]
+  if (n === 1) return coeffs[0]! // Float64Array length checked above; index 0 is valid
 
   // Double-x for Clenshaw efficiency
   const x2 = 2 * x
@@ -138,12 +138,12 @@ export function chebyshevEval(coeffs: Float64Array, x: number): number {
   let b1 = 0
 
   for (let k = n - 1; k >= 1; k--) {
-    const b0 = coeffs[k] + x2 * b1 - b2
+    const b0 = coeffs[k]! + x2 * b1 - b2 // k in [1, n-1]; all valid indices
     b2 = b1
     b1 = b0
   }
 
-  return coeffs[0] + x * b1 - b2
+  return coeffs[0]! + x * b1 - b2 // index 0 valid; n >= 2 at this point
 }
 
 /**
@@ -162,7 +162,7 @@ export function chebyshevEvalWithDerivative(
 ): [number, number] {
   const n = coeffs.length
   if (n === 0) return [0, 0]
-  if (n === 1) return [coeffs[0], 0]
+  if (n === 1) return [coeffs[0]!, 0] // length checked; index 0 valid
 
   const x2 = 2 * x
   let b2 = 0
@@ -171,7 +171,7 @@ export function chebyshevEvalWithDerivative(
   let db1 = 0
 
   for (let k = n - 1; k >= 1; k--) {
-    const b0 = coeffs[k] + x2 * b1 - b2
+    const b0 = coeffs[k]! + x2 * b1 - b2 // k in [1, n-1]; all valid indices
     const db0 = 2 * b1 + x2 * db1 - db2
     b2 = b1
     b1 = b0
@@ -179,7 +179,7 @@ export function chebyshevEvalWithDerivative(
     db1 = db0
   }
 
-  const value = coeffs[0] + x * b1 - b2
+  const value = coeffs[0]! + x * b1 - b2 // index 0 valid; n >= 2 at this point
   const dvalue = b1 + x * db1 - db2
   // Scale derivative from normalized domain back to seconds
   return [value, dvalue / radius]
@@ -300,7 +300,7 @@ export function findRoots(f: (t: number) => number, a: number, b: number, steps 
       const root = brentRoot(f, tPrev, t, 1e-9, 64)
       if (root !== null) {
         // Deduplicate roots that are too close together
-        if (roots.length === 0 || Math.abs(root - roots[roots.length - 1]) > 1e-6) {
+        if (roots.length === 0 || Math.abs(root - roots[roots.length - 1]!) > 1e-6) { // length > 0 checked via ||
           roots.push(root)
         }
       }
