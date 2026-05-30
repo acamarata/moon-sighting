@@ -1,96 +1,83 @@
 # Basic Usage Examples
 
-## Basic crescent visibility check
+## Crescent visibility report with JPL kernel
 
 ```typescript
-import { visibility } from 'moon-sighting';
+import { initKernels, getMoonSightingReport } from 'moon-sighting'
 
-const result = visibility({
-  date: new Date(2023, 2, 22),  // March 22, 2023 (month is 0-indexed)
-  lat: 21.39,
-  lng: 39.86,
-  elevation: 277,
-});
+// One-time kernel setup (downloads ~31 MB from NASA NAIF on first run)
+await initKernels()
 
-console.log(result.visible);    // true or false
-console.log(result.q?.toFixed(3));  // Yallop q-value, e.g. '0.216'
+// Full sighting report for London, 29 March 2025
+const report = await getMoonSightingReport(new Date('2025-03-29'), {
+  lat: 51.5074,
+  lon: -0.1278,
+  elevation: 10
+})
+
+console.log(report.yallop.category)   // 'A' — easily visible to the naked eye
+console.log(report.odeh.zone)         // 'A' — visible with naked eye
+console.log(report.bestTimeUTC)       // Date: optimal observation window
+console.log(report.guidance)
+// "Best time to look: 2025-03-29 20:14 UTC (73 min after sunset).
+//  Look West at 8° above the horizon. Yallop: A. Odeh: A."
 ```
 
-## Use Odeh criterion
+## Quick kernel-free visibility estimate
+
+No kernel download required. Uses the Meeus approximation (~0.3° accuracy).
 
 ```typescript
-import { visibility } from 'moon-sighting';
+import { getMoonVisibilityEstimate } from 'moon-sighting'
 
-const result = visibility({
-  date: new Date(2023, 2, 22),
-  lat: 40.0,
-  lng: -75.0,
-  elevation: 100,
-  criterion: 'odeh',
-});
+// Estimate at approximately sunset + 40 min in Mecca
+const obs = new Date('2025-03-02T15:30:00Z')
+const est = getMoonVisibilityEstimate(obs, 21.42, 39.83, 277)
 
-console.log(result.visible);    // true or false
-console.log(result.category);   // Odeh category string
+console.log(est.zone)               // 'A' through 'D'
+console.log(est.V)                  // Odeh V parameter
+console.log(est.isVisibleNakedEye)  // true/false
+console.log(est.ARCL, est.ARCV, est.W)
 ```
 
-## Check visibility from multiple cities
+## Check from multiple cities
 
 ```typescript
-import { visibility } from 'moon-sighting';
+import { initKernels, getMoonSightingReport } from 'moon-sighting'
 
-const newMoonDate = new Date(2023, 2, 22);
+await initKernels()
 
 const cities = [
-  { name: 'Mecca',    lat: 21.39, lng: 39.86, elevation: 277 },
-  { name: 'London',   lat: 51.51, lng: -0.13, elevation: 11  },
-  { name: 'New York', lat: 40.71, lng: -74.00, elevation: 10 },
-  { name: 'Karachi',  lat: 24.86, lng: 67.01, elevation: 13  },
-];
+  { name: 'Mecca',    lat: 21.42, lon: 39.83, elevation: 277 },
+  { name: 'London',   lat: 51.51, lon: -0.13, elevation: 11  },
+  { name: 'New York', lat: 40.71, lon: -74.00, elevation: 10 },
+  { name: 'Karachi',  lat: 24.86, lon: 67.01, elevation: 13  },
+]
 
+const date = new Date('2025-03-29')
 for (const city of cities) {
-  const r = visibility({ ...city, date: newMoonDate });
-  console.log(`${city.name}: ${r.visible ? 'visible' : 'not visible'} (q=${r.q?.toFixed(3)})`);
+  const r = await getMoonSightingReport(date, city)
+  const cat = r.yallop?.category ?? 'N/A'
+  console.log(`${city.name}: Yallop=${cat} sighting=${r.sightingPossible}`)
 }
 ```
 
-## Scan multiple nights for first visibility
+## Moon phase and position (no kernel)
 
 ```typescript
-import { visibility } from 'moon-sighting';
+import { getMoonPhase, getMoonPosition, getMoon } from 'moon-sighting'
 
-function findFirstVisible(observer: { lat: number; lng: number; elevation: number }, startDate: Date, maxDays = 5) {
-  for (let i = 0; i < maxDays; i++) {
-    const date = new Date(startDate);
-    date.setDate(startDate.getDate() + i);
-    const r = visibility({ ...observer, date });
-    if (r.visible) {
-      return { date, result: r };
-    }
-  }
-  return null;
-}
+const date = new Date('2025-03-04')
 
-const observer = { lat: 21.39, lng: 39.86, elevation: 277 };
-const startDate = new Date(2023, 2, 21);  // March 21, 2023
+const phase = getMoonPhase(date)
+console.log(phase.phaseName)      // 'Waxing Crescent'
+console.log(phase.phaseSymbol)    // '🌒'
+console.log(phase.illumination)   // percent
 
-const firstVisible = findFirstVisible(observer, startDate);
-if (firstVisible) {
-  console.log('First visible:', firstVisible.date.toDateString());
-  console.log('q-value:', firstVisible.result.q?.toFixed(3));
-}
-```
+const pos = getMoonPosition(date, 51.5, -0.1, 10)
+console.log(pos.azimuth, pos.altitude)  // e.g. 247.3, 22.8
 
-## CJS usage
-
-```javascript
-const { visibility } = require('moon-sighting');
-
-const result = visibility({
-  date: new Date(2023, 2, 22),
-  lat: 21.39,
-  lng: 39.86,
-  elevation: 277,
-});
-
-console.log(result.visible);
+// Or everything in one call
+const moon = getMoon(date, 51.5, -0.1)
+console.log(moon.phase.phaseName, moon.visibility.zone)
 ```

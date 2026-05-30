@@ -7,6 +7,19 @@
 
 **Examples**
 - [Basic Usage](examples/basic-usage)
+- [Ramadan Crescent Prediction](examples/ramadan-crescent)
+
+**API Reference**
+- [getMoonSightingReport](api/getMoonSightingReport)
+- [getMoonPhase](api/getMoonPhase)
+- [getMoonPosition](api/getMoonPosition)
+- [getMoonIllumination](api/getMoonIllumination)
+- [getMoonVisibilityEstimate](api/getMoonVisibilityEstimate)
+- [getMoon](api/getMoon)
+- [getSunMoonEvents](api/getSunMoonEvents)
+- [initKernels](api/initKernels)
+- [downloadKernels](api/downloadKernels)
+- [verifyKernels](api/verifyKernels)
 
 **Domain Reference**
 - [Crescent Visibility](Crescent-Visibility)
@@ -17,7 +30,7 @@
 - [Validation](Validation)
 
 **Package Reference**
-- [API Reference](API-Reference)
+- [Full API Reference](API-Reference)
 - [Architecture](Architecture)
 - [Benchmarks](benchmarks/index)
 

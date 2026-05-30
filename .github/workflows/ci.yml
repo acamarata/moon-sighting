@@ -81,3 +81,25 @@ jobs:
           ! grep -q "test.mjs" pack-output.txt || (echo "test.mjs should not be in pack" && exit 1)
           ! grep -q "node_modules" pack-output.txt || (echo "node_modules should not be in pack" && exit 1)
           echo "Pack contents verified."
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Coverage
+        run: pnpm run coverage
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false

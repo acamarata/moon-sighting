@@ -140,6 +140,7 @@ export interface CrescentGeometry {
 // ─── Yallop q-test ───────────────────────────────────────────────────────────
 
 /** Yallop q-test visibility category (NAO Technical Note 69) */
+/** Yallop visibility category (A = easily visible, F = below Danjon limit). */
 export type YallopCategory = 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
 
 /**
@@ -159,6 +160,10 @@ export const YALLOP_THRESHOLDS = {
   E: -0.293,
 } as const
 
+/**
+ * Human-readable descriptions for each Yallop visibility category (A–F).
+ * Sourced from Yallop (NAO TN 69, 1997).
+ */
 export const YALLOP_DESCRIPTIONS: Record<YallopCategory, string> = {
   A: 'Easily visible to the naked eye',
   B: 'Visible under perfect conditions',
@@ -188,6 +193,7 @@ export interface YallopResult {
 // ─── Odeh criterion ──────────────────────────────────────────────────────────
 
 /** Odeh visibility zone (Experimental Astronomy 2006) */
+/** Odeh visibility zone (A = naked eye visible, D = not visible with any aid). */
 export type OdehZone = 'A' | 'B' | 'C' | 'D'
 
 /**
@@ -203,6 +209,10 @@ export const ODEH_THRESHOLDS = {
   C: -0.96,
 } as const
 
+/**
+ * Human-readable descriptions for each Odeh visibility zone (A–D).
+ * Sourced from Odeh (Experimental Astronomy, 2006).
+ */
 export const ODEH_DESCRIPTIONS: Record<OdehZone, string> = {
   A: 'Visible with naked eye',
   B: 'Visible with optical aid; may be seen with naked eye under excellent conditions',
