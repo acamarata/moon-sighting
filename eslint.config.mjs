@@ -1,12 +1,16 @@
-import eslint from '@eslint/js'
-import tseslint from 'typescript-eslint'
-import prettier from 'eslint-config-prettier'
+import tsParser from '@typescript-eslint/parser';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
+import eslintConfigPrettier from 'eslint-config-prettier';
+import { typescript } from '@acamarata/eslint-config';
 
-export default tseslint.config(
-  eslint.configs.recommended,
-  ...tseslint.configs.recommended,
-  prettier,
+export default [
+  {
+    plugins: { '@typescript-eslint': tsPlugin },
+    languageOptions: { parser: tsParser },
+  },
+  ...typescript,
+  eslintConfigPrettier,
   {
     ignores: ['dist/', 'node_modules/', 'test.mjs', 'test-cjs.cjs'],
   },
-)
+];

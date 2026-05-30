@@ -42,6 +42,9 @@
     "coverage": "c8 --reporter=lcov --reporter=text node --test"
   },
   "devDependencies": {
+    "@acamarata/eslint-config": "^0.1.0",
+    "@acamarata/prettier-config": "^0.1.0",
+    "@acamarata/tsconfig": "^0.1.0",
     "@eslint/js": "^10.0.1",
     "@types/node": "^25.3.0",
     "eslint": "^10.0.3",
@@ -83,5 +86,6 @@
     "prayer-times"
   ],
   "type": "module",
-  "packageManager": "pnpm@10.11.1"
+  "packageManager": "pnpm@10.11.1",
+  "prettier": "@acamarata/prettier-config"
 }
