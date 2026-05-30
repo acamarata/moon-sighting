@@ -6,7 +6,7 @@
 
 # Interface: MoonVisibilityEstimate
 
-Defined in: [types.ts:246](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L246)
+Defined in: [types.ts:246](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L246)
 
 Kernel-free Odeh-based crescent visibility estimate from getMoonVisibilityEstimate().
 Computed via Meeus Ch. 47 approximation at the given observation time.
@@ -18,7 +18,7 @@ For DE442S-quality results, use getMoonSightingReport().
 
 > **ARCL**: `number`
 
-Defined in: [types.ts:261](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L261)
+Defined in: [types.ts:261](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L261)
 
 Arc of light (Sun-Moon elongation) in degrees
 
@@ -28,7 +28,7 @@ Arc of light (Sun-Moon elongation) in degrees
 
 > **ARCV**: `number`
 
-Defined in: [types.ts:263](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L263)
+Defined in: [types.ts:263](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L263)
 
 Arc of vision (Moon airless altitude minus Sun airless altitude) in degrees
 
@@ -38,7 +38,7 @@ Arc of vision (Moon airless altitude minus Sun airless altitude) in degrees
 
 > **description**: `string`
 
-Defined in: [types.ts:255](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L255)
+Defined in: [types.ts:255](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L255)
 
 Human-readable zone description
 
@@ -48,7 +48,7 @@ Human-readable zone description
 
 > **isApproximate**: `true`
 
-Defined in: [types.ts:269](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L269)
+Defined in: [types.ts:269](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L269)
 
 Always true: computed via Meeus approximation, not DE442S
 
@@ -58,7 +58,7 @@ Always true: computed via Meeus approximation, not DE442S
 
 > **isVisibleNakedEye**: `boolean`
 
-Defined in: [types.ts:257](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L257)
+Defined in: [types.ts:257](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L257)
 
 True for zone A
 
@@ -68,7 +68,7 @@ True for zone A
 
 > **isVisibleWithOpticalAid**: `boolean`
 
-Defined in: [types.ts:259](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L259)
+Defined in: [types.ts:259](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L259)
 
 True for zones A and B
 
@@ -78,7 +78,7 @@ True for zones A and B
 
 > **moonAboveHorizon**: `boolean`
 
-Defined in: [types.ts:267](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L267)
+Defined in: [types.ts:267](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L267)
 
 True when Moon is above the horizon at the given time
 
@@ -88,7 +88,7 @@ True when Moon is above the horizon at the given time
 
 > **V**: `number`
 
-Defined in: [types.ts:251](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L251)
+Defined in: [types.ts:251](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L251)
 
 Odeh V parameter: V = ARCV − f(W).
 Positive = crescent exceeds minimum visibility threshold.
@@ -99,7 +99,7 @@ Positive = crescent exceeds minimum visibility threshold.
 
 > **W**: `number`
 
-Defined in: [types.ts:265](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L265)
+Defined in: [types.ts:265](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L265)
 
 Topocentric crescent width in arc minutes
 
@@ -109,6 +109,6 @@ Topocentric crescent width in arc minutes
 
 > **zone**: [`OdehZone`](../type-aliases/OdehZone.md)
 
-Defined in: [types.ts:253](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L253)
+Defined in: [types.ts:253](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L253)
 
 Visibility zone A through D

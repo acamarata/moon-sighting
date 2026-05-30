@@ -8,7 +8,7 @@
 
 > **getMoonSightingReport**(`date`, `observer`, `options?`): `Promise`\<[`MoonSightingReport`](../interfaces/MoonSightingReport.md)\>
 
-Defined in: [api/index.ts:306](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/api/index.ts#L306)
+Defined in: [api/index.ts:306](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/api/index.ts#L306)
 
 Compute a complete moon sighting report for a date and location.
 

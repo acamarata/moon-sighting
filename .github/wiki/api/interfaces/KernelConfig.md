@@ -6,7 +6,7 @@
 
 # Interface: KernelConfig
 
-Defined in: [types.ts:405](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L405)
+Defined in: [types.ts:405](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L405)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [types.ts:405](https://github.com/acamarata/moon-sighting/blob/89fb4
 
 > `optional` **cacheDir?**: `string`
 
-Defined in: [types.ts:414](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L414)
+Defined in: [types.ts:414](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L414)
 
 Directory for the download cache.
 Defaults to ~/.cache/moon-sighting on POSIX, %LOCALAPPDATA%\moon-sighting on Windows.
@@ -25,7 +25,7 @@ Defaults to ~/.cache/moon-sighting on POSIX, %LOCALAPPDATA%\moon-sighting on Win
 
 > `optional` **checksumOverride?**: `string`
 
-Defined in: [types.ts:419](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L419)
+Defined in: [types.ts:419](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L419)
 
 SHA-256 checksum of de442s.bsp for download verification.
 Bundled default matches the NAIF distribution as of 2024.
@@ -36,7 +36,7 @@ Bundled default matches the NAIF distribution as of 2024.
 
 > `optional` **leapSeconds?**: [`KernelSource`](../type-aliases/KernelSource.md)
 
-Defined in: [types.ts:409](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L409)
+Defined in: [types.ts:409](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L409)
 
 Leap-second kernel — defaults to naif0012.tls via auto-download
 
@@ -46,6 +46,6 @@ Leap-second kernel — defaults to naif0012.tls via auto-download
 
 > `optional` **planetary?**: [`KernelSource`](../type-aliases/KernelSource.md)
 
-Defined in: [types.ts:407](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L407)
+Defined in: [types.ts:407](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L407)
 
 Planetary SPK kernel — defaults to de442s.bsp via auto-download

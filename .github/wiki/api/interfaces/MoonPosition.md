@@ -6,7 +6,7 @@
 
 # Interface: MoonPosition
 
-Defined in: [types.ts:27](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L27)
+Defined in: [types.ts:27](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L27)
 
 Topocentric moon position from getMoonPosition().
 Computed via Meeus Ch. 47 (no kernel required).
@@ -18,7 +18,7 @@ Accuracy: azimuth/altitude ~0.3°, distance ~300 km.
 
 > **altitude**: `number`
 
-Defined in: [types.ts:31](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L31)
+Defined in: [types.ts:31](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L31)
 
 Apparent altitude in degrees above the horizon (atmospheric refraction applied)
 
@@ -28,7 +28,7 @@ Apparent altitude in degrees above the horizon (atmospheric refraction applied)
 
 > **azimuth**: `number`
 
-Defined in: [types.ts:29](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L29)
+Defined in: [types.ts:29](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L29)
 
 Azimuth in degrees from North, measured clockwise (0 = N, 90 = E, 180 = S, 270 = W)
 
@@ -38,7 +38,7 @@ Azimuth in degrees from North, measured clockwise (0 = N, 90 = E, 180 = S, 270 =
 
 > **distance**: `number`
 
-Defined in: [types.ts:33](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L33)
+Defined in: [types.ts:33](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L33)
 
 Distance from Earth center to Moon center, km
 
@@ -48,7 +48,7 @@ Distance from Earth center to Moon center, km
 
 > **parallacticAngle**: `number`
 
-Defined in: [types.ts:39](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L39)
+Defined in: [types.ts:39](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L39)
 
 Parallactic angle in radians.
 The angle between the great circle through the Moon and zenith, and the great circle

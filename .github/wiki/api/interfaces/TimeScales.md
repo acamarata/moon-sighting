@@ -6,7 +6,7 @@
 
 # Interface: TimeScales
 
-Defined in: [types.ts:67](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L67)
+Defined in: [types.ts:67](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L67)
 
 All relevant time scale values for a single moment
 
@@ -16,7 +16,7 @@ All relevant time scale values for a single moment
 
 > **deltaAT**: `number`
 
-Defined in: [types.ts:80](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L80)
+Defined in: [types.ts:80](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L80)
 
 TAI - UTC in seconds (leap seconds count)
 
@@ -26,7 +26,7 @@ TAI - UTC in seconds (leap seconds count)
 
 > **deltaT**: `number`
 
-Defined in: [types.ts:78](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L78)
+Defined in: [types.ts:78](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L78)
 
 TT - UT1 in seconds (delta-T)
 
@@ -36,7 +36,7 @@ TT - UT1 in seconds (delta-T)
 
 > **jdTDB**: `number`
 
-Defined in: [types.ts:74](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L74)
+Defined in: [types.ts:74](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L74)
 
 Julian Date in Barycentric Dynamical Time (used by JPL ephemerides)
 
@@ -46,7 +46,7 @@ Julian Date in Barycentric Dynamical Time (used by JPL ephemerides)
 
 > **jdTT**: `number`
 
-Defined in: [types.ts:72](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L72)
+Defined in: [types.ts:72](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L72)
 
 Julian Date in Terrestrial Time (TT = TAI + 32.184s)
 
@@ -56,7 +56,7 @@ Julian Date in Terrestrial Time (TT = TAI + 32.184s)
 
 > **jdUT1**: `number`
 
-Defined in: [types.ts:76](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L76)
+Defined in: [types.ts:76](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L76)
 
 Julian Date in UT1 (Earth rotation time)
 
@@ -66,7 +66,7 @@ Julian Date in UT1 (Earth rotation time)
 
 > **jdUTC**: `number`
 
-Defined in: [types.ts:70](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L70)
+Defined in: [types.ts:70](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L70)
 
 Julian Date in UTC
 
@@ -76,4 +76,4 @@ Julian Date in UTC
 
 > **utc**: `Date`
 
-Defined in: [types.ts:68](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L68)
+Defined in: [types.ts:68](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L68)

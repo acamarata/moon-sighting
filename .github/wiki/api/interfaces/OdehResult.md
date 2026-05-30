@@ -6,7 +6,7 @@
 
 # Interface: OdehResult
 
-Defined in: [types.ts:223](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L223)
+Defined in: [types.ts:223](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L223)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [types.ts:223](https://github.com/acamarata/moon-sighting/blob/89fb4
 
 > **description**: `string`
 
-Defined in: [types.ts:232](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L232)
+Defined in: [types.ts:232](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L232)
 
 Human-readable interpretation
 
@@ -24,7 +24,7 @@ Human-readable interpretation
 
 > **isVisibleNakedEye**: `boolean`
 
-Defined in: [types.ts:234](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L234)
+Defined in: [types.ts:234](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L234)
 
 True for zone A
 
@@ -34,7 +34,7 @@ True for zone A
 
 > **isVisibleWithOpticalAid**: `boolean`
 
-Defined in: [types.ts:236](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L236)
+Defined in: [types.ts:236](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L236)
 
 True for zones A and B
 
@@ -44,7 +44,7 @@ True for zones A and B
 
 > **V**: `number`
 
-Defined in: [types.ts:228](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L228)
+Defined in: [types.ts:228](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L228)
 
 Continuous visibility parameter V = ARCV - (arcv_minimum(W)).
 Positive = crescent exceeds minimum visibility threshold.
@@ -55,6 +55,6 @@ Positive = crescent exceeds minimum visibility threshold.
 
 > **zone**: [`OdehZone`](../type-aliases/OdehZone.md)
 
-Defined in: [types.ts:230](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L230)
+Defined in: [types.ts:230](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L230)
 
 Visibility zone A through D

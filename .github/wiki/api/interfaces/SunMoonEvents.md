@@ -6,7 +6,7 @@
 
 # Interface: SunMoonEvents
 
-Defined in: [types.ts:325](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L325)
+Defined in: [types.ts:325](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L325)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [types.ts:325](https://github.com/acamarata/moon-sighting/blob/89fb4
 
 > **astronomicalTwilightEndUTC**: `Date` \| `null`
 
-Defined in: [types.ts:339](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L339)
+Defined in: [types.ts:339](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L339)
 
 UTC time when astronomical twilight ends (Sun at -18°)
 
@@ -24,7 +24,7 @@ UTC time when astronomical twilight ends (Sun at -18°)
 
 > **civilTwilightEndUTC**: `Date` \| `null`
 
-Defined in: [types.ts:335](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L335)
+Defined in: [types.ts:335](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L335)
 
 UTC time when civil twilight ends (Sun at -6°)
 
@@ -34,7 +34,7 @@ UTC time when civil twilight ends (Sun at -6°)
 
 > **moonriseUTC**: `Date` \| `null`
 
-Defined in: [types.ts:333](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L333)
+Defined in: [types.ts:333](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L333)
 
 UTC time of moonrise
 
@@ -44,7 +44,7 @@ UTC time of moonrise
 
 > **moonsetUTC**: `Date` \| `null`
 
-Defined in: [types.ts:329](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L329)
+Defined in: [types.ts:329](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L329)
 
 UTC time of moonset for the given date at the observer's location
 
@@ -54,7 +54,7 @@ UTC time of moonset for the given date at the observer's location
 
 > **nauticalTwilightEndUTC**: `Date` \| `null`
 
-Defined in: [types.ts:337](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L337)
+Defined in: [types.ts:337](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L337)
 
 UTC time when nautical twilight ends (Sun at -12°)
 
@@ -64,7 +64,7 @@ UTC time when nautical twilight ends (Sun at -12°)
 
 > **sunriseUTC**: `Date` \| `null`
 
-Defined in: [types.ts:331](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L331)
+Defined in: [types.ts:331](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L331)
 
 UTC time of sunrise
 
@@ -74,6 +74,6 @@ UTC time of sunrise
 
 > **sunsetUTC**: `Date` \| `null`
 
-Defined in: [types.ts:327](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L327)
+Defined in: [types.ts:327](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L327)
 
 UTC time of sunset for the given date at the observer's location

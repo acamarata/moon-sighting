@@ -6,7 +6,7 @@
 
 # Interface: CrescentGeometry
 
-Defined in: [types.ts:118](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L118)
+Defined in: [types.ts:118](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L118)
 
 The five geometric quantities used by all major crescent visibility criteria.
 All values computed at best time (T_b) unless noted.
@@ -17,7 +17,7 @@ All values computed at best time (T_b) unless noted.
 
 > **ARCL**: `number`
 
-Defined in: [types.ts:120](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L120)
+Defined in: [types.ts:120](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L120)
 
 Arc of light: topocentric Sun-Moon angular separation (elongation), degrees
 
@@ -27,7 +27,7 @@ Arc of light: topocentric Sun-Moon angular separation (elongation), degrees
 
 > **ARCV**: `number`
 
-Defined in: [types.ts:125](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L125)
+Defined in: [types.ts:125](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L125)
 
 Arc of vision: Moon airless altitude minus Sun airless altitude, degrees.
 Used as the primary visibility discriminant in both Yallop and Odeh.
@@ -38,7 +38,7 @@ Used as the primary visibility discriminant in both Yallop and Odeh.
 
 > **DAZ**: `number`
 
-Defined in: [types.ts:130](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L130)
+Defined in: [types.ts:130](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L130)
 
 Relative azimuth: Sun azimuth minus Moon azimuth, normalized to [-180, 180], degrees.
 Positive = Moon north of Sun.
@@ -49,7 +49,7 @@ Positive = Moon north of Sun.
 
 > **lag**: `number`
 
-Defined in: [types.ts:137](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L137)
+Defined in: [types.ts:137](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L137)
 
 Moonset minus sunset in minutes. Negative = Moon sets before Sun (no sighting possible).
 
@@ -59,7 +59,7 @@ Moonset minus sunset in minutes. Negative = Moon sets before Sun (no sighting po
 
 > **W**: `number`
 
-Defined in: [types.ts:135](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L135)
+Defined in: [types.ts:135](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L135)
 
 Topocentric crescent width in arc minutes.
 Used directly in Odeh's polynomial V expression.

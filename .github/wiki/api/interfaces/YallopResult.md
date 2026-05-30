@@ -6,7 +6,7 @@
 
 # Interface: YallopResult
 
-Defined in: [types.ts:176](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L176)
+Defined in: [types.ts:176](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L176)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [types.ts:176](https://github.com/acamarata/moon-sighting/blob/89fb4
 
 > **category**: [`YallopCategory`](../type-aliases/YallopCategory.md)
 
-Defined in: [types.ts:180](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L180)
+Defined in: [types.ts:180](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L180)
 
 Visibility category A through F
 
@@ -24,7 +24,7 @@ Visibility category A through F
 
 > **description**: `string`
 
-Defined in: [types.ts:182](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L182)
+Defined in: [types.ts:182](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L182)
 
 Human-readable interpretation
 
@@ -34,7 +34,7 @@ Human-readable interpretation
 
 > **isBelowDanjonLimit**: `boolean`
 
-Defined in: [types.ts:188](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L188)
+Defined in: [types.ts:188](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L188)
 
 True for category F
 
@@ -44,7 +44,7 @@ True for category F
 
 > **isVisibleNakedEye**: `boolean`
 
-Defined in: [types.ts:184](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L184)
+Defined in: [types.ts:184](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L184)
 
 True for categories A and B
 
@@ -54,7 +54,7 @@ True for categories A and B
 
 > **q**: `number`
 
-Defined in: [types.ts:178](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L178)
+Defined in: [types.ts:178](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L178)
 
 The continuous q parameter (higher = more visible)
 
@@ -64,7 +64,7 @@ The continuous q parameter (higher = more visible)
 
 > **requiresOpticalAid**: `boolean`
 
-Defined in: [types.ts:186](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L186)
+Defined in: [types.ts:186](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L186)
 
 True for categories C and D
 
@@ -74,6 +74,6 @@ True for categories C and D
 
 > **Wprime**: `number`
 
-Defined in: [types.ts:190](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L190)
+Defined in: [types.ts:190](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L190)
 
 Topocentric crescent width W' used in the q formula, arc minutes

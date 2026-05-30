@@ -6,7 +6,7 @@
 
 # Interface: SightingOptions
 
-Defined in: [types.ts:424](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L424)
+Defined in: [types.ts:424](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L424)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [types.ts:424](https://github.com/acamarata/moon-sighting/blob/89fb4
 
 > `optional` **bestTimeMethod?**: `"heuristic"` \| `"optimized"`
 
-Defined in: [types.ts:433](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L433)
+Defined in: [types.ts:433](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L433)
 
 Best-time computation method.
 'heuristic'  — T_b = T_sunset + 4/9 * Lag (Odeh/Yallop approximation, fast)
@@ -27,6 +27,6 @@ Default: 'heuristic'
 
 > `optional` **kernels?**: [`KernelConfig`](KernelConfig.md)
 
-Defined in: [types.ts:426](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L426)
+Defined in: [types.ts:426](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L426)
 
 Kernel acquisition configuration. Defaults to auto-download.

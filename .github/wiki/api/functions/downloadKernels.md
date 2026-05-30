@@ -8,7 +8,7 @@
 
 > **downloadKernels**(`config?`): `Promise`\<\{ `leapSecondsPath`: `string`; `planetaryPath`: `string`; \}\>
 
-Defined in: [api/index.ts:159](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/api/index.ts#L159)
+Defined in: [api/index.ts:159](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/api/index.ts#L159)
 
 Download the DE442S planetary kernel and naif0012.tls leap-second kernel
 to the local cache directory. Verifies the download by SHA-256 checksum

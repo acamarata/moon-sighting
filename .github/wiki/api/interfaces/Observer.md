@@ -6,7 +6,7 @@
 
 # Interface: Observer
 
-Defined in: [types.ts:86](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L86)
+Defined in: [types.ts:86](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L86)
 
 Observer location and environmental parameters
 
@@ -16,7 +16,7 @@ Observer location and environmental parameters
 
 > `optional` **deltaT?**: `number`
 
-Defined in: [types.ts:100](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L100)
+Defined in: [types.ts:100](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L100)
 
 Override TT - UT1 in seconds.
 When provided, used directly. Otherwise the built-in polynomial is used.
@@ -28,7 +28,7 @@ For maximum accuracy, supply the current IERS value (typically within ±0.9s).
 
 > **elevation**: `number`
 
-Defined in: [types.ts:92](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L92)
+Defined in: [types.ts:92](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L92)
 
 Height above WGS84 ellipsoid in meters
 
@@ -38,7 +38,7 @@ Height above WGS84 ellipsoid in meters
 
 > **lat**: `number`
 
-Defined in: [types.ts:88](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L88)
+Defined in: [types.ts:88](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L88)
 
 Geodetic latitude in degrees (north positive)
 
@@ -48,7 +48,7 @@ Geodetic latitude in degrees (north positive)
 
 > **lon**: `number`
 
-Defined in: [types.ts:90](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L90)
+Defined in: [types.ts:90](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L90)
 
 Longitude in degrees (east positive)
 
@@ -58,7 +58,7 @@ Longitude in degrees (east positive)
 
 > `optional` **name?**: `string`
 
-Defined in: [types.ts:94](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L94)
+Defined in: [types.ts:94](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L94)
 
 Optional label for the location
 
@@ -68,7 +68,7 @@ Optional label for the location
 
 > `optional` **pressure?**: `number`
 
-Defined in: [types.ts:107](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L107)
+Defined in: [types.ts:107](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L107)
 
 Atmospheric pressure in millibars (default 1013.25)
 
@@ -78,7 +78,7 @@ Atmospheric pressure in millibars (default 1013.25)
 
 > `optional` **temperature?**: `number`
 
-Defined in: [types.ts:109](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L109)
+Defined in: [types.ts:109](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L109)
 
 Ambient temperature in Celsius (default 15)
 
@@ -88,7 +88,7 @@ Ambient temperature in Celsius (default 15)
 
 > `optional` **ut1utc?**: `number`
 
-Defined in: [types.ts:105](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/types.ts#L105)
+Defined in: [types.ts:105](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/types.ts#L105)
 
 Override UT1 - UTC in seconds (from IERS Bulletin A).
 Takes precedence over deltaT when both are provided.

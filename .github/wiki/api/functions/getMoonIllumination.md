@@ -8,7 +8,7 @@
 
 > **getMoonIllumination**(`date?`): [`MoonIlluminationResult`](../interfaces/MoonIlluminationResult.md)
 
-Defined in: [api/index.ts:592](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/api/index.ts#L592)
+Defined in: [api/index.ts:592](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/api/index.ts#L592)
 
 Compute the Moon's illumination fraction, phase cycle position, and bright limb angle.
 

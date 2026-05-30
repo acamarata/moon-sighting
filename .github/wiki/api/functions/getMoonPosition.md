@@ -8,7 +8,7 @@
 
 > **getMoonPosition**(`date?`, `lat`, `lon`, `elevation?`): [`MoonPosition`](../interfaces/MoonPosition.md)
 
-Defined in: [api/index.ts:539](https://github.com/acamarata/moon-sighting/blob/89fb490051d0263a7d41c954161fb945f1569805/src/api/index.ts#L539)
+Defined in: [api/index.ts:539](https://github.com/acamarata/moon-sighting/blob/2992dcee216cb24cc74542f6e8d5a6f4f0d16e05/src/api/index.ts#L539)
 
 Compute the Moon's topocentric position (azimuth, altitude, distance) for an observer.
 
