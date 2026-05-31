@@ -30,15 +30,15 @@ import type {
   YallopCategory,
   OdehResult,
   OdehZone,
-} from '../types.js'
+} from "../types.js";
 import {
   YALLOP_THRESHOLDS,
   YALLOP_DESCRIPTIONS,
   ODEH_THRESHOLDS,
   ODEH_DESCRIPTIONS,
-} from '../types.js'
-import { angularSep } from '../math/index.js'
-import { computeCrescentWidth } from '../bodies/index.js'
+} from "../types.js";
+import { angularSep } from "../math/index.js";
+import { computeCrescentWidth } from "../bodies/index.js";
 
 // ─── Shared polynomial ────────────────────────────────────────────────────────
 
@@ -56,7 +56,7 @@ import { computeCrescentWidth } from '../bodies/index.js'
  * @returns Minimum ARCV required for detection, in degrees
  */
 export function arcvMinimum(W: number): number {
-  return 11.8371 - 6.3226 * W + 0.7319 * W * W - 0.1018 * W * W * W
+  return 11.8371 - 6.3226 * W + 0.7319 * W * W - 0.1018 * W * W * W;
 }
 
 // ─── Yallop q-test ────────────────────────────────────────────────────────────
@@ -74,7 +74,7 @@ export function arcvMinimum(W: number): number {
  * @returns q parameter (continuous)
  */
 export function computeYallopQ(ARCV: number, Wprime: number): number {
-  return (ARCV - arcvMinimum(Wprime)) / 10
+  return (ARCV - arcvMinimum(Wprime)) / 10;
 }
 
 /**
@@ -89,12 +89,12 @@ export function computeYallopQ(ARCV: number, Wprime: number): number {
  *   F: q <= -0.293
  */
 export function yallopCategory(q: number): YallopCategory {
-  if (q > YALLOP_THRESHOLDS.A) return 'A'
-  if (q > YALLOP_THRESHOLDS.B) return 'B'
-  if (q > YALLOP_THRESHOLDS.C) return 'C'
-  if (q > YALLOP_THRESHOLDS.D) return 'D'
-  if (q > YALLOP_THRESHOLDS.E) return 'E'
-  return 'F'
+  if (q > YALLOP_THRESHOLDS.A) return "A";
+  if (q > YALLOP_THRESHOLDS.B) return "B";
+  if (q > YALLOP_THRESHOLDS.C) return "C";
+  if (q > YALLOP_THRESHOLDS.D) return "D";
+  if (q > YALLOP_THRESHOLDS.E) return "E";
+  return "F";
 }
 
 /**
@@ -104,18 +104,18 @@ export function yallopCategory(q: number): YallopCategory {
  * @param Wprime - Topocentric crescent width in arc minutes (may differ from geometry.W)
  */
 export function computeYallop(geometry: CrescentGeometry, Wprime: number): YallopResult {
-  const q = computeYallopQ(geometry.ARCV, Wprime)
-  const category = yallopCategory(q)
+  const q = computeYallopQ(geometry.ARCV, Wprime);
+  const category = yallopCategory(q);
 
   return {
     q,
     category,
     description: YALLOP_DESCRIPTIONS[category],
-    isVisibleNakedEye: category === 'A' || category === 'B',
-    requiresOpticalAid: category === 'C' || category === 'D',
-    isBelowDanjonLimit: category === 'F',
+    isVisibleNakedEye: category === "A" || category === "B",
+    requiresOpticalAid: category === "C" || category === "D",
+    isBelowDanjonLimit: category === "F",
     Wprime,
-  }
+  };
 }
 
 // ─── Odeh criterion ───────────────────────────────────────────────────────────
@@ -135,7 +135,7 @@ export function computeYallop(geometry: CrescentGeometry, Wprime: number): Yallo
  * @param W - Topocentric crescent width in arc minutes
  */
 export function computeOdehV(ARCV: number, W: number): number {
-  return ARCV - arcvMinimum(W)
+  return ARCV - arcvMinimum(W);
 }
 
 /**
@@ -148,10 +148,10 @@ export function computeOdehV(ARCV: number, W: number): number {
  *   D: V <  -0.96  — Not visible even with optical aid
  */
 export function odehZone(V: number): OdehZone {
-  if (V >= ODEH_THRESHOLDS.A) return 'A'
-  if (V >= ODEH_THRESHOLDS.B) return 'B'
-  if (V >= ODEH_THRESHOLDS.C) return 'C'
-  return 'D'
+  if (V >= ODEH_THRESHOLDS.A) return "A";
+  if (V >= ODEH_THRESHOLDS.B) return "B";
+  if (V >= ODEH_THRESHOLDS.C) return "C";
+  return "D";
 }
 
 /**
@@ -159,16 +159,16 @@ export function odehZone(V: number): OdehZone {
  * Uses geometry.W directly as the Odeh topocentric crescent width.
  */
 export function computeOdeh(geometry: CrescentGeometry): OdehResult {
-  const V = computeOdehV(geometry.ARCV, geometry.W)
-  const zone = odehZone(V)
+  const V = computeOdehV(geometry.ARCV, geometry.W);
+  const zone = odehZone(V);
 
   return {
     V,
     zone,
     description: ODEH_DESCRIPTIONS[zone],
-    isVisibleNakedEye: zone === 'A',
-    isVisibleWithOpticalAid: zone === 'A' || zone === 'B',
-  }
+    isVisibleNakedEye: zone === "A",
+    isVisibleWithOpticalAid: zone === "A" || zone === "B",
+  };
 }
 
 // ─── Geometry computation ─────────────────────────────────────────────────────
@@ -190,30 +190,30 @@ export function computeOdeh(geometry: CrescentGeometry): OdehResult {
 export function computeCrescentGeometry(
   moonAirlessAzAlt: { azimuth: number; altitude: number },
   sunAirlessAzAlt: { azimuth: number; altitude: number },
-  moonGCRS: import('../types.js').Vec3,
-  sunGCRS: import('../types.js').Vec3,
+  moonGCRS: import("../types.js").Vec3,
+  sunGCRS: import("../types.js").Vec3,
   sunsetUTC: Date,
   moonsetUTC: Date,
 ): CrescentGeometry {
   // ARCV: airless arc of vision (Moon altitude minus Sun altitude)
-  const ARCV = moonAirlessAzAlt.altitude - sunAirlessAzAlt.altitude
+  const ARCV = moonAirlessAzAlt.altitude - sunAirlessAzAlt.altitude;
 
   // DAZ: Sun azimuth minus Moon azimuth, normalized to (−180, 180]
-  let DAZ = sunAirlessAzAlt.azimuth - moonAirlessAzAlt.azimuth
-  if (DAZ > 180) DAZ -= 360
-  if (DAZ < -180) DAZ += 360
+  let DAZ = sunAirlessAzAlt.azimuth - moonAirlessAzAlt.azimuth;
+  if (DAZ > 180) DAZ -= 360;
+  if (DAZ < -180) DAZ += 360;
 
   // ARCL: topocentric Sun-Moon angular separation in degrees
   // angularSep returns radians; both vectors must be topocentric for accurate ARCL
-  const ARCL = angularSep(moonGCRS, sunGCRS) * (180 / Math.PI)
+  const ARCL = angularSep(moonGCRS, sunGCRS) * (180 / Math.PI);
 
   // W: topocentric crescent width in arc minutes
-  const { W } = computeCrescentWidth(moonGCRS, ARCL)
+  const { W } = computeCrescentWidth(moonGCRS, ARCL);
 
   // lag: moonset minus sunset in minutes (negative = Moon sets before Sun)
-  const lag = (moonsetUTC.getTime() - sunsetUTC.getTime()) / 60000
+  const lag = (moonsetUTC.getTime() - sunsetUTC.getTime()) / 60000;
 
-  return { ARCL, ARCV, DAZ, W, lag }
+  return { ARCL, ARCV, DAZ, W, lag };
 }
 
 // ─── Guidance text ────────────────────────────────────────────────────────────
@@ -237,22 +237,22 @@ export function buildGuidanceText(
   bestTimeUTC: Date,
   lagMinutes: number,
 ): string {
-  const direction = azimuthToCardinal(moonAz)
+  const direction = azimuthToCardinal(moonAz);
   const timeStr = bestTimeUTC
     .toISOString()
-    .replace('T', ' ')
-    .replace(/\.\d+Z$/, ' UTC')
-  const lagStr = `${Math.round(lagMinutes)} min after sunset`
+    .replace("T", " ")
+    .replace(/\.\d+Z$/, " UTC");
+  const lagStr = `${Math.round(lagMinutes)} min after sunset`;
 
-  let visibility: string
+  let visibility: string;
   if (yallop.isVisibleNakedEye && odeh.isVisibleNakedEye) {
-    visibility = 'should be visible to the naked eye'
+    visibility = "should be visible to the naked eye";
   } else if (odeh.isVisibleWithOpticalAid) {
-    visibility = 'may require binoculars or a telescope to spot'
+    visibility = "may require binoculars or a telescope to spot";
   } else if (yallop.isBelowDanjonLimit) {
-    visibility = 'is too close to the Sun to form a visible crescent (below Danjon limit)'
+    visibility = "is too close to the Sun to form a visible crescent (below Danjon limit)";
   } else {
-    visibility = 'is not expected to be visible even with optical aid'
+    visibility = "is not expected to be visible even with optical aid";
   }
 
   return (
@@ -261,29 +261,29 @@ export function buildGuidanceText(
     `The crescent ${visibility}. ` +
     `Yallop: ${yallop.category} (${yallop.description}). ` +
     `Odeh: ${odeh.zone} (${odeh.description}).`
-  )
+  );
 }
 
 /** Convert azimuth degrees to a cardinal/intercardinal direction label */
 function azimuthToCardinal(az: number): string {
   const dirs = [
-    'North',
-    'NNE',
-    'NE',
-    'ENE',
-    'East',
-    'ESE',
-    'SE',
-    'SSE',
-    'South',
-    'SSW',
-    'SW',
-    'WSW',
-    'West',
-    'WNW',
-    'NW',
-    'NNW',
-  ]
-  const idx = Math.round(az / 22.5) % 16
-  return dirs[(idx + 16) % 16]! // dirs has 16 elements; (idx+16)%16 is always 0..15
+    "North",
+    "NNE",
+    "NE",
+    "ENE",
+    "East",
+    "ESE",
+    "SE",
+    "SSE",
+    "South",
+    "SSW",
+    "SW",
+    "WSW",
+    "West",
+    "WNW",
+    "NW",
+    "NNW",
+  ];
+  const idx = Math.round(az / 22.5) % 16;
+  return dirs[(idx + 16) % 16]!; // dirs has 16 elements; (idx+16)%16 is always 0..15
 }

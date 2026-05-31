@@ -1,20 +1,20 @@
 // ─── Primitive geometry ──────────────────────────────────────────────────────
 
 /** 3-element position or velocity vector in km or km/s */
-export type Vec3 = [number, number, number]
+export type Vec3 = [number, number, number];
 
 /** Position + velocity state vector from the ephemeris */
 export interface StateVector {
-  position: Vec3 // km, in the frame determined by context
-  velocity: Vec3 // km/s
+  position: Vec3; // km, in the frame determined by context
+  velocity: Vec3; // km/s
 }
 
 /** Azimuth + altitude in degrees */
 export interface AzAlt {
   /** Degrees from North, measured clockwise (0 = N, 90 = E, 180 = S, 270 = W) */
-  azimuth: number
+  azimuth: number;
   /** Degrees above the horizon (negative = below) */
-  altitude: number
+  altitude: number;
 }
 
 // ─── Kernel-free moon results ─────────────────────────────────────────────────
@@ -26,17 +26,17 @@ export interface AzAlt {
  */
 export interface MoonPosition {
   /** Azimuth in degrees from North, measured clockwise (0 = N, 90 = E, 180 = S, 270 = W) */
-  azimuth: number
+  azimuth: number;
   /** Apparent altitude in degrees above the horizon (atmospheric refraction applied) */
-  altitude: number
+  altitude: number;
   /** Distance from Earth center to Moon center, km */
-  distance: number
+  distance: number;
   /**
    * Parallactic angle in radians.
    * The angle between the great circle through the Moon and zenith, and the great circle
    * through the Moon and the north celestial pole. Positive east of the meridian.
    */
-  parallacticAngle: number
+  parallacticAngle: number;
 }
 
 /**
@@ -46,38 +46,38 @@ export interface MoonPosition {
  */
 export interface MoonIlluminationResult {
   /** Illuminated fraction of the Moon disk, 0 (new moon) to 1 (full moon) */
-  fraction: number
+  fraction: number;
   /**
    * Phase cycle fraction in [0, 1):
    *   0 = new moon, 0.25 = first quarter, 0.5 = full moon, 0.75 = last quarter
    */
-  phase: number
+  phase: number;
   /**
    * Position angle of the midpoint of the bright limb, measured eastward from
    * the north celestial pole, in radians. Matches the suncalc convention.
    */
-  angle: number
+  angle: number;
   /** True while elongation is increasing (new moon toward full moon) */
-  isWaxing: boolean
+  isWaxing: boolean;
 }
 
 // ─── Time ────────────────────────────────────────────────────────────────────
 
 /** All relevant time scale values for a single moment */
 export interface TimeScales {
-  utc: Date
+  utc: Date;
   /** Julian Date in UTC */
-  jdUTC: number
+  jdUTC: number;
   /** Julian Date in Terrestrial Time (TT = TAI + 32.184s) */
-  jdTT: number
+  jdTT: number;
   /** Julian Date in Barycentric Dynamical Time (used by JPL ephemerides) */
-  jdTDB: number
+  jdTDB: number;
   /** Julian Date in UT1 (Earth rotation time) */
-  jdUT1: number
+  jdUT1: number;
   /** TT - UT1 in seconds (delta-T) */
-  deltaT: number
+  deltaT: number;
   /** TAI - UTC in seconds (leap seconds count) */
-  deltaAT: number
+  deltaAT: number;
 }
 
 // ─── Observer ────────────────────────────────────────────────────────────────
@@ -85,28 +85,28 @@ export interface TimeScales {
 /** Observer location and environmental parameters */
 export interface Observer {
   /** Geodetic latitude in degrees (north positive) */
-  lat: number
+  lat: number;
   /** Longitude in degrees (east positive) */
-  lon: number
+  lon: number;
   /** Height above WGS84 ellipsoid in meters */
-  elevation: number
+  elevation: number;
   /** Optional label for the location */
-  name?: string
+  name?: string;
   /**
    * Override TT - UT1 in seconds.
    * When provided, used directly. Otherwise the built-in polynomial is used.
    * For maximum accuracy, supply the current IERS value (typically within ±0.9s).
    */
-  deltaT?: number
+  deltaT?: number;
   /**
    * Override UT1 - UTC in seconds (from IERS Bulletin A).
    * Takes precedence over deltaT when both are provided.
    */
-  ut1utc?: number
+  ut1utc?: number;
   /** Atmospheric pressure in millibars (default 1013.25) */
-  pressure?: number
+  pressure?: number;
   /** Ambient temperature in Celsius (default 15) */
-  temperature?: number
+  temperature?: number;
 }
 
 // ─── Crescent geometry ───────────────────────────────────────────────────────
@@ -117,31 +117,31 @@ export interface Observer {
  */
 export interface CrescentGeometry {
   /** Arc of light: topocentric Sun-Moon angular separation (elongation), degrees */
-  ARCL: number
+  ARCL: number;
   /**
    * Arc of vision: Moon airless altitude minus Sun airless altitude, degrees.
    * Used as the primary visibility discriminant in both Yallop and Odeh.
    */
-  ARCV: number
+  ARCV: number;
   /**
    * Relative azimuth: Sun azimuth minus Moon azimuth, normalized to [-180, 180], degrees.
    * Positive = Moon north of Sun.
    */
-  DAZ: number
+  DAZ: number;
   /**
    * Topocentric crescent width in arc minutes.
    * Used directly in Odeh's polynomial V expression.
    */
-  W: number
+  W: number;
   /** Moonset minus sunset in minutes. Negative = Moon sets before Sun (no sighting possible). */
-  lag: number
+  lag: number;
 }
 
 // ─── Yallop q-test ───────────────────────────────────────────────────────────
 
 /** Yallop q-test visibility category (NAO Technical Note 69) */
 /** Yallop visibility category (A = easily visible, F = below Danjon limit). */
-export type YallopCategory = 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
+export type YallopCategory = "A" | "B" | "C" | "D" | "E" | "F";
 
 /**
  * Published q thresholds (Yallop 1997, NAO TN 69):
@@ -158,43 +158,43 @@ export const YALLOP_THRESHOLDS = {
   C: -0.16,
   D: -0.232,
   E: -0.293,
-} as const
+} as const;
 
 /**
  * Human-readable descriptions for each Yallop visibility category (A–F).
  * Sourced from Yallop (NAO TN 69, 1997).
  */
 export const YALLOP_DESCRIPTIONS: Record<YallopCategory, string> = {
-  A: 'Easily visible to the naked eye',
-  B: 'Visible under perfect conditions',
-  C: 'May need optical aid to find; naked eye possible',
-  D: 'Optical aid needed; naked eye not possible',
-  E: 'Not visible even with telescope under good conditions',
-  F: 'Below Danjon limit — crescent cannot form',
-}
+  A: "Easily visible to the naked eye",
+  B: "Visible under perfect conditions",
+  C: "May need optical aid to find; naked eye possible",
+  D: "Optical aid needed; naked eye not possible",
+  E: "Not visible even with telescope under good conditions",
+  F: "Below Danjon limit — crescent cannot form",
+};
 
 export interface YallopResult {
   /** The continuous q parameter (higher = more visible) */
-  q: number
+  q: number;
   /** Visibility category A through F */
-  category: YallopCategory
+  category: YallopCategory;
   /** Human-readable interpretation */
-  description: string
+  description: string;
   /** True for categories A and B */
-  isVisibleNakedEye: boolean
+  isVisibleNakedEye: boolean;
   /** True for categories C and D */
-  requiresOpticalAid: boolean
+  requiresOpticalAid: boolean;
   /** True for category F */
-  isBelowDanjonLimit: boolean
+  isBelowDanjonLimit: boolean;
   /** Topocentric crescent width W' used in the q formula, arc minutes */
-  Wprime: number
+  Wprime: number;
 }
 
 // ─── Odeh criterion ──────────────────────────────────────────────────────────
 
 /** Odeh visibility zone (Experimental Astronomy 2006) */
 /** Odeh visibility zone (A = naked eye visible, D = not visible with any aid). */
-export type OdehZone = 'A' | 'B' | 'C' | 'D'
+export type OdehZone = "A" | "B" | "C" | "D";
 
 /**
  * Published V thresholds (Odeh 2006):
@@ -207,33 +207,33 @@ export const ODEH_THRESHOLDS = {
   A: 5.65,
   B: 2.0,
   C: -0.96,
-} as const
+} as const;
 
 /**
  * Human-readable descriptions for each Odeh visibility zone (A–D).
  * Sourced from Odeh (Experimental Astronomy, 2006).
  */
 export const ODEH_DESCRIPTIONS: Record<OdehZone, string> = {
-  A: 'Visible with naked eye',
-  B: 'Visible with optical aid; may be seen with naked eye under excellent conditions',
-  C: 'Visible with optical aid only',
-  D: 'Not visible even with optical aid',
-}
+  A: "Visible with naked eye",
+  B: "Visible with optical aid; may be seen with naked eye under excellent conditions",
+  C: "Visible with optical aid only",
+  D: "Not visible even with optical aid",
+};
 
 export interface OdehResult {
   /**
    * Continuous visibility parameter V = ARCV - (arcv_minimum(W)).
    * Positive = crescent exceeds minimum visibility threshold.
    */
-  V: number
+  V: number;
   /** Visibility zone A through D */
-  zone: OdehZone
+  zone: OdehZone;
   /** Human-readable interpretation */
-  description: string
+  description: string;
   /** True for zone A */
-  isVisibleNakedEye: boolean
+  isVisibleNakedEye: boolean;
   /** True for zones A and B */
-  isVisibleWithOpticalAid: boolean
+  isVisibleWithOpticalAid: boolean;
 }
 
 // ─── Kernel-free visibility estimate ─────────────────────────────────────────
@@ -248,25 +248,25 @@ export interface MoonVisibilityEstimate {
    * Odeh V parameter: V = ARCV − f(W).
    * Positive = crescent exceeds minimum visibility threshold.
    */
-  V: number
+  V: number;
   /** Visibility zone A through D */
-  zone: OdehZone
+  zone: OdehZone;
   /** Human-readable zone description */
-  description: string
+  description: string;
   /** True for zone A */
-  isVisibleNakedEye: boolean
+  isVisibleNakedEye: boolean;
   /** True for zones A and B */
-  isVisibleWithOpticalAid: boolean
+  isVisibleWithOpticalAid: boolean;
   /** Arc of light (Sun-Moon elongation) in degrees */
-  ARCL: number
+  ARCL: number;
   /** Arc of vision (Moon airless altitude minus Sun airless altitude) in degrees */
-  ARCV: number
+  ARCV: number;
   /** Topocentric crescent width in arc minutes */
-  W: number
+  W: number;
   /** True when Moon is above the horizon at the given time */
-  moonAboveHorizon: boolean
+  moonAboveHorizon: boolean;
   /** Always true: computed via Meeus approximation, not DE442S */
-  isApproximate: true
+  isApproximate: true;
 }
 
 /**
@@ -276,118 +276,118 @@ export interface MoonVisibilityEstimate {
  */
 export interface MoonSnapshot {
   /** Phase name, illumination, age, and next events */
-  phase: MoonPhaseResult
+  phase: MoonPhaseResult;
   /** Topocentric az/alt, distance, parallactic angle */
-  position: MoonPosition
+  position: MoonPosition;
   /** Illumination fraction, phase cycle, bright limb angle, waxing/waning */
-  illumination: MoonIlluminationResult
+  illumination: MoonIlluminationResult;
   /** Quick Odeh-based crescent visibility estimate */
-  visibility: MoonVisibilityEstimate
+  visibility: MoonVisibilityEstimate;
 }
 
 // ─── Moon phase ──────────────────────────────────────────────────────────────
 
 export type MoonPhaseName =
-  | 'new-moon'
-  | 'waxing-crescent'
-  | 'first-quarter'
-  | 'waxing-gibbous'
-  | 'full-moon'
-  | 'waning-gibbous'
-  | 'last-quarter'
-  | 'waning-crescent'
+  | "new-moon"
+  | "waxing-crescent"
+  | "first-quarter"
+  | "waxing-gibbous"
+  | "full-moon"
+  | "waning-gibbous"
+  | "last-quarter"
+  | "waning-crescent";
 
 export interface MoonPhaseResult {
   /** Named phase based on illumination and waxing/waning state */
-  phase: MoonPhaseName
+  phase: MoonPhaseName;
   /** Human-readable phase name, e.g. "Waxing Crescent" */
-  phaseName: string
+  phaseName: string;
   /** Moon phase emoji symbol, e.g. "🌒" */
-  phaseSymbol: string
+  phaseSymbol: string;
   /** Illuminated fraction 0-100 (percent) */
-  illumination: number
+  illumination: number;
   /** Hours since last new moon */
-  age: number
+  age: number;
   /** Ecliptic longitude of the Moon minus the Sun, degrees [0, 360) */
-  elongationDeg: number
+  elongationDeg: number;
   /** True when Moon is moving away from the Sun (illumination increasing) */
-  isWaxing: boolean
+  isWaxing: boolean;
   /** UTC date of the next new moon */
-  nextNewMoon: Date
+  nextNewMoon: Date;
   /** UTC date of the next full moon */
-  nextFullMoon: Date
+  nextFullMoon: Date;
   /** UTC date of the previous new moon */
-  prevNewMoon: Date
+  prevNewMoon: Date;
 }
 
 // ─── Event times ─────────────────────────────────────────────────────────────
 
 export interface SunMoonEvents {
   /** UTC time of sunset for the given date at the observer's location */
-  sunsetUTC: Date | null
+  sunsetUTC: Date | null;
   /** UTC time of moonset for the given date at the observer's location */
-  moonsetUTC: Date | null
+  moonsetUTC: Date | null;
   /** UTC time of sunrise */
-  sunriseUTC: Date | null
+  sunriseUTC: Date | null;
   /** UTC time of moonrise */
-  moonriseUTC: Date | null
+  moonriseUTC: Date | null;
   /** UTC time when civil twilight ends (Sun at -6°) */
-  civilTwilightEndUTC: Date | null
+  civilTwilightEndUTC: Date | null;
   /** UTC time when nautical twilight ends (Sun at -12°) */
-  nauticalTwilightEndUTC: Date | null
+  nauticalTwilightEndUTC: Date | null;
   /** UTC time when astronomical twilight ends (Sun at -18°) */
-  astronomicalTwilightEndUTC: Date | null
+  astronomicalTwilightEndUTC: Date | null;
 }
 
 // ─── Full moon sighting report ────────────────────────────────────────────────
 
 export interface MoonSightingReport {
   /** Date for which the sighting report was computed */
-  date: Date
+  date: Date;
   /** Observer location used */
-  observer: Observer
+  observer: Observer;
 
   // Event times
-  sunsetUTC: Date | null
-  moonsetUTC: Date | null
+  sunsetUTC: Date | null;
+  moonsetUTC: Date | null;
   /** Moonset minus sunset, in minutes. Null if either event is null. */
-  lagMinutes: number | null
+  lagMinutes: number | null;
   /** Best observation time (Odeh/Yallop: T_s + 4/9 * Lag) */
-  bestTimeUTC: Date | null
+  bestTimeUTC: Date | null;
   /** Conservative observation window [bestTime - 20min, bestTime + 20min] */
-  bestTimeWindowUTC: [Date, Date] | null
+  bestTimeWindowUTC: [Date, Date] | null;
 
   // At best time
   /** Topocentric Moon position at best time */
-  moonPosition: AzAlt | null
+  moonPosition: AzAlt | null;
   /** Topocentric Sun position at best time */
-  sunPosition: AzAlt | null
+  sunPosition: AzAlt | null;
   /** Moon illumination percent at best time */
-  illumination: number | null
+  illumination: number | null;
   /** Hours since conjunction (new moon) */
-  moonAge: number | null
+  moonAge: number | null;
 
   // Crescent geometry at best time
-  geometry: CrescentGeometry | null
+  geometry: CrescentGeometry | null;
 
   // Visibility criteria results
-  yallop: YallopResult | null
-  odeh: OdehResult | null
+  yallop: YallopResult | null;
+  odeh: OdehResult | null;
 
   // Sighting guidance
   /**
    * Plain-language direction for observers.
    * Includes where to look (azimuth, altitude), when (best time), and what to expect.
    */
-  guidance: string
+  guidance: string;
 
   // Metadata
   /** Source ephemeris used for this calculation */
-  ephemerisSource: 'DE442S' | 'approximate'
+  ephemerisSource: "DE442S" | "approximate";
   /** Whether the Moon is even above the horizon at best time */
-  moonAboveHorizon: boolean | null
+  moonAboveHorizon: boolean | null;
   /** Whether sighting is geometrically possible (lag > 0, Moon above horizon at best time) */
-  sightingPossible: boolean
+  sightingPossible: boolean;
 }
 
 // ─── Kernel configuration ─────────────────────────────────────────────────────
@@ -397,40 +397,40 @@ export interface MoonSightingReport {
  * Used for both the planetary SPK (de442s.bsp) and leap-second kernel (naif0012.tls).
  */
 export type KernelSource =
-  | { type: 'file'; path: string }
-  | { type: 'buffer'; data: ArrayBuffer; name: string }
-  | { type: 'url'; url: string }
-  | { type: 'auto' } // auto-download from NAIF, cache in ~/.cache/moon-sighting
+  | { type: "file"; path: string }
+  | { type: "buffer"; data: ArrayBuffer; name: string }
+  | { type: "url"; url: string }
+  | { type: "auto" }; // auto-download from NAIF, cache in ~/.cache/moon-sighting
 
 export interface KernelConfig {
   /** Planetary SPK kernel — defaults to de442s.bsp via auto-download */
-  planetary?: KernelSource
+  planetary?: KernelSource;
   /** Leap-second kernel — defaults to naif0012.tls via auto-download */
-  leapSeconds?: KernelSource
+  leapSeconds?: KernelSource;
   /**
    * Directory for the download cache.
    * Defaults to ~/.cache/moon-sighting on POSIX, %LOCALAPPDATA%\moon-sighting on Windows.
    */
-  cacheDir?: string
+  cacheDir?: string;
   /**
    * SHA-256 checksum of de442s.bsp for download verification.
    * Bundled default matches the NAIF distribution as of 2024.
    */
-  checksumOverride?: string
+  checksumOverride?: string;
 }
 
 // ─── Top-level options ────────────────────────────────────────────────────────
 
 export interface SightingOptions {
   /** Kernel acquisition configuration. Defaults to auto-download. */
-  kernels?: KernelConfig
+  kernels?: KernelConfig;
   /**
    * Best-time computation method.
    * 'heuristic'  — T_b = T_sunset + 4/9 * Lag (Odeh/Yallop approximation, fast)
    * 'optimized'  — scan sunset-to-moonset interval, maximize Odeh V parameter
    * Default: 'heuristic'
    */
-  bestTimeMethod?: 'heuristic' | 'optimized'
+  bestTimeMethod?: "heuristic" | "optimized";
 }
 
 // ─── WGS84 constants ─────────────────────────────────────────────────────────
@@ -445,44 +445,44 @@ export const WGS84 = {
   f: 1 / 298.257223563,
   /** Semi-minor axis in meters */
   get b() {
-    return this.a * (1 - this.f)
+    return this.a * (1 - this.f);
   },
   /** First eccentricity squared */
   get e2() {
-    return 2 * this.f - this.f * this.f
+    return 2 * this.f - this.f * this.f;
   },
-} as const
+} as const;
 
 // ─── Internal ephemeris types ─────────────────────────────────────────────────
 
 /** A segment in a JPL SPK (DAF) kernel file */
 export interface SpkSegment {
   /** NAIF body ID of the target body */
-  target: number
+  target: number;
   /** NAIF body ID of the center body */
-  center: number
+  center: number;
   /** Reference frame code */
-  frame: number
+  frame: number;
   /** SPK data type (2 = Chebyshev position only, 3 = Chebyshev position + velocity) */
-  dataType: 2 | 3
+  dataType: 2 | 3;
   /** Segment start time in ET seconds past J2000 */
-  startET: number
+  startET: number;
   /** Segment end time in ET seconds past J2000 */
-  endET: number
+  endET: number;
   /** Byte offset of the data array in the file */
-  dataOffset: number
+  dataOffset: number;
   /** Number of double-precision values in the data array */
-  dataSize: number
+  dataSize: number;
 }
 
 /** A decoded Chebyshev record from a Type 2 or Type 3 SPK segment */
 export interface ChebRecord {
   /** Midpoint of the record interval in ET seconds past J2000 */
-  mid: number
+  mid: number;
   /** Half-width of the record interval in seconds */
-  radius: number
+  radius: number;
   /** Chebyshev coefficients for X, Y, Z [3][degree+1] */
-  coeffs: Float64Array[]
+  coeffs: Float64Array[];
   /** Degree of the polynomial */
-  degree: number
+  degree: number;
 }

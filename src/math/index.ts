@@ -5,57 +5,57 @@
  * Uses Float64Array for coefficient storage to match JS engine optimization paths.
  */
 
-import type { Vec3 } from '../types.js'
+import type { Vec3 } from "../types.js";
 
 // ─── Vector operations ────────────────────────────────────────────────────────
 
 /** Add two 3-vectors */
 export function vadd(a: Vec3, b: Vec3): Vec3 {
-  return [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
+  return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 }
 
 /** Subtract b from a */
 export function vsub(a: Vec3, b: Vec3): Vec3 {
-  return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
+  return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 }
 
 /** Scale a 3-vector */
 export function vscale(a: Vec3, s: number): Vec3 {
-  return [a[0] * s, a[1] * s, a[2] * s]
+  return [a[0] * s, a[1] * s, a[2] * s];
 }
 
 /** Dot product */
 export function vdot(a: Vec3, b: Vec3): number {
-  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
 /** Euclidean norm */
 export function vnorm(a: Vec3): number {
-  return Math.sqrt(vdot(a, a))
+  return Math.sqrt(vdot(a, a));
 }
 
 /** Cross product */
 export function vcross(a: Vec3, b: Vec3): Vec3 {
-  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
+  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 }
 
 /** Unit vector (normalized) */
 export function vunit(a: Vec3): Vec3 {
-  const n = vnorm(a)
-  if (n === 0) throw new RangeError('Cannot normalize a zero vector')
-  return vscale(a, 1 / n)
+  const n = vnorm(a);
+  if (n === 0) throw new RangeError("Cannot normalize a zero vector");
+  return vscale(a, 1 / n);
 }
 
 /** Angular separation between two direction vectors in radians */
 export function angularSep(a: Vec3, b: Vec3): number {
-  const cosAngle = Math.max(-1, Math.min(1, vdot(vunit(a), vunit(b))))
-  return Math.acos(cosAngle)
+  const cosAngle = Math.max(-1, Math.min(1, vdot(vunit(a), vunit(b))));
+  return Math.acos(cosAngle);
 }
 
 // ─── 3×3 matrix operations ────────────────────────────────────────────────────
 
 /** 3×3 matrix stored row-major as a 9-element tuple */
-export type Mat3 = [number, number, number, number, number, number, number, number, number]
+export type Mat3 = [number, number, number, number, number, number, number, number, number];
 
 /** Multiply 3×3 matrix by 3-vector */
 export function mvmul(m: Mat3, v: Vec3): Vec3 {
@@ -63,7 +63,7 @@ export function mvmul(m: Mat3, v: Vec3): Vec3 {
     m[0] * v[0] + m[1] * v[1] + m[2] * v[2],
     m[3] * v[0] + m[4] * v[1] + m[5] * v[2],
     m[6] * v[0] + m[7] * v[1] + m[8] * v[2],
-  ]
+  ];
 }
 
 /** Multiply two 3×3 matrices */
@@ -78,12 +78,12 @@ export function mmmul(a: Mat3, b: Mat3): Mat3 {
     a[6] * b[0] + a[7] * b[3] + a[8] * b[6],
     a[6] * b[1] + a[7] * b[4] + a[8] * b[7],
     a[6] * b[2] + a[7] * b[5] + a[8] * b[8],
-  ]
+  ];
 }
 
 /** Transpose a 3×3 matrix */
 export function mtranspose(m: Mat3): Mat3 {
-  return [m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]]
+  return [m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]];
 }
 
 /**
@@ -91,27 +91,27 @@ export function mtranspose(m: Mat3): Mat3 {
  * Follows right-hand rule.
  */
 export function rotX(theta: number): Mat3 {
-  const c = Math.cos(theta)
-  const s = Math.sin(theta)
-  return [1, 0, 0, 0, c, s, 0, -s, c]
+  const c = Math.cos(theta);
+  const s = Math.sin(theta);
+  return [1, 0, 0, 0, c, s, 0, -s, c];
 }
 
 /**
  * Rotation matrix around the Y axis by angle θ (radians).
  */
 export function rotY(theta: number): Mat3 {
-  const c = Math.cos(theta)
-  const s = Math.sin(theta)
-  return [c, 0, -s, 0, 1, 0, s, 0, c]
+  const c = Math.cos(theta);
+  const s = Math.sin(theta);
+  return [c, 0, -s, 0, 1, 0, s, 0, c];
 }
 
 /**
  * Rotation matrix around the Z axis by angle θ (radians).
  */
 export function rotZ(theta: number): Mat3 {
-  const c = Math.cos(theta)
-  const s = Math.sin(theta)
-  return [c, s, 0, -s, c, 0, 0, 0, 1]
+  const c = Math.cos(theta);
+  const s = Math.sin(theta);
+  return [c, s, 0, -s, c, 0, 0, 0, 1];
 }
 
 // ─── Chebyshev polynomial evaluation ─────────────────────────────────────────
@@ -128,22 +128,22 @@ export function rotZ(theta: number): Mat3 {
  * @returns Polynomial value at x
  */
 export function chebyshevEval(coeffs: Float64Array, x: number): number {
-  const n = coeffs.length
-  if (n === 0) return 0
-  if (n === 1) return coeffs[0]! // Float64Array length checked above; index 0 is valid
+  const n = coeffs.length;
+  if (n === 0) return 0;
+  if (n === 1) return coeffs[0]!; // Float64Array length checked above; index 0 is valid
 
   // Double-x for Clenshaw efficiency
-  const x2 = 2 * x
-  let b2 = 0
-  let b1 = 0
+  const x2 = 2 * x;
+  let b2 = 0;
+  let b1 = 0;
 
   for (let k = n - 1; k >= 1; k--) {
-    const b0 = coeffs[k]! + x2 * b1 - b2 // k in [1, n-1]; all valid indices
-    b2 = b1
-    b1 = b0
+    const b0 = coeffs[k]! + x2 * b1 - b2; // k in [1, n-1]; all valid indices
+    b2 = b1;
+    b1 = b0;
   }
 
-  return coeffs[0]! + x * b1 - b2 // index 0 valid; n >= 2 at this point
+  return coeffs[0]! + x * b1 - b2; // index 0 valid; n >= 2 at this point
 }
 
 /**
@@ -160,29 +160,29 @@ export function chebyshevEvalWithDerivative(
   x: number,
   radius: number,
 ): [number, number] {
-  const n = coeffs.length
-  if (n === 0) return [0, 0]
-  if (n === 1) return [coeffs[0]!, 0] // length checked; index 0 valid
+  const n = coeffs.length;
+  if (n === 0) return [0, 0];
+  if (n === 1) return [coeffs[0]!, 0]; // length checked; index 0 valid
 
-  const x2 = 2 * x
-  let b2 = 0
-  let b1 = 0
-  let db2 = 0
-  let db1 = 0
+  const x2 = 2 * x;
+  let b2 = 0;
+  let b1 = 0;
+  let db2 = 0;
+  let db1 = 0;
 
   for (let k = n - 1; k >= 1; k--) {
-    const b0 = coeffs[k]! + x2 * b1 - b2 // k in [1, n-1]; all valid indices
-    const db0 = 2 * b1 + x2 * db1 - db2
-    b2 = b1
-    b1 = b0
-    db2 = db1
-    db1 = db0
+    const b0 = coeffs[k]! + x2 * b1 - b2; // k in [1, n-1]; all valid indices
+    const db0 = 2 * b1 + x2 * db1 - db2;
+    b2 = b1;
+    b1 = b0;
+    db2 = db1;
+    db1 = db0;
   }
 
-  const value = coeffs[0]! + x * b1 - b2 // index 0 valid; n >= 2 at this point
-  const dvalue = b1 + x * db1 - db2
+  const value = coeffs[0]! + x * b1 - b2; // index 0 valid; n >= 2 at this point
+  const dvalue = b1 + x * db1 - db2;
   // Scale derivative from normalized domain back to seconds
-  return [value, dvalue / radius]
+  return [value, dvalue / radius];
 }
 
 // ─── Root finding ─────────────────────────────────────────────────────────────
@@ -208,71 +208,71 @@ export function brentRoot(
   tol = 1e-9,
   maxIter = 64,
 ): number | null {
-  let fa = f(a)
-  let fb = f(b)
+  let fa = f(a);
+  let fb = f(b);
 
   // No sign change in bracket
-  if (fa * fb > 0) return null
+  if (fa * fb > 0) return null;
 
   // Swap so |f(b)| <= |f(a)|
   if (Math.abs(fa) < Math.abs(fb)) {
-    ;[a, b] = [b, a]
-    ;[fa, fb] = [fb, fa]
+    [a, b] = [b, a];
+    [fa, fb] = [fb, fa];
   }
 
-  let c = a
-  let fc = fa
-  let mflag = true
-  let s: number
-  let d = 0
+  let c = a;
+  let fc = fa;
+  let mflag = true;
+  let s: number;
+  let d = 0;
 
   for (let i = 0; i < maxIter; i++) {
-    if (Math.abs(b - a) < tol) return b
+    if (Math.abs(b - a) < tol) return b;
 
     if (fa !== fc && fb !== fc) {
       // Inverse quadratic interpolation
       s =
         (a * fb * fc) / ((fa - fb) * (fa - fc)) +
         (b * fa * fc) / ((fb - fa) * (fb - fc)) +
-        (c * fa * fb) / ((fc - fa) * (fc - fb))
+        (c * fa * fb) / ((fc - fa) * (fc - fb));
     } else {
       // Secant method
-      s = b - fb * ((b - a) / (fb - fa))
+      s = b - fb * ((b - a) / (fb - fa));
     }
 
-    const cond1 = s < (3 * a + b) / 4 || s > b
-    const cond2 = mflag && Math.abs(s - b) >= Math.abs(b - c) / 2
-    const cond3 = !mflag && Math.abs(s - b) >= Math.abs(c - d) / 2
-    const cond4 = mflag && Math.abs(b - c) < tol
-    const cond5 = !mflag && Math.abs(c - d) < tol
+    const cond1 = s < (3 * a + b) / 4 || s > b;
+    const cond2 = mflag && Math.abs(s - b) >= Math.abs(b - c) / 2;
+    const cond3 = !mflag && Math.abs(s - b) >= Math.abs(c - d) / 2;
+    const cond4 = mflag && Math.abs(b - c) < tol;
+    const cond5 = !mflag && Math.abs(c - d) < tol;
 
     if (cond1 || cond2 || cond3 || cond4 || cond5) {
-      s = (a + b) / 2
-      mflag = true
+      s = (a + b) / 2;
+      mflag = true;
     } else {
-      mflag = false
+      mflag = false;
     }
 
-    const fs = f(s)
-    d = c
-    c = b
-    fc = fb
+    const fs = f(s);
+    d = c;
+    c = b;
+    fc = fb;
 
     if (fa * fs < 0) {
-      b = s
-      fb = fs
+      b = s;
+      fb = fs;
     } else {
-      a = s
-      fa = fs
+      a = s;
+      fa = fs;
     }
 
     if (Math.abs(fa) < Math.abs(fb)) {
-      ;[a, b] = [b, a]
-      ;[fa, fb] = [fb, fa]
+      [a, b] = [b, a];
+      [fa, fb] = [fb, fa];
     }
   }
 
-  return b
+  return b;
 }
 
 /**
@@ -286,54 +286,55 @@ export function brentRoot(
  * @returns Array of root locations
  */
 export function findRoots(f: (t: number) => number, a: number, b: number, steps = 48): number[] {
-  const dt = (b - a) / steps
-  const roots: number[] = []
-  let tPrev = a
-  let fPrev = f(a)
+  const dt = (b - a) / steps;
+  const roots: number[] = [];
+  let tPrev = a;
+  let fPrev = f(a);
 
   for (let i = 1; i <= steps; i++) {
-    const t = a + i * dt
-    const ft = f(t)
+    const t = a + i * dt;
+    const ft = f(t);
 
     if (fPrev * ft <= 0) {
       // Sign change in [tPrev, t] — apply Brent's method
-      const root = brentRoot(f, tPrev, t, 1e-9, 64)
+      const root = brentRoot(f, tPrev, t, 1e-9, 64);
       if (root !== null) {
         // Deduplicate roots that are too close together
-        if (roots.length === 0 || Math.abs(root - roots[roots.length - 1]!) > 1e-6) { // length > 0 checked via ||
-          roots.push(root)
+        if (roots.length === 0 || Math.abs(root - roots[roots.length - 1]!) > 1e-6) {
+          // length > 0 checked via ||
+          roots.push(root);
         }
       }
     }
 
-    tPrev = t
-    fPrev = ft
+    tPrev = t;
+    fPrev = ft;
   }
 
-  return roots
+  return roots;
 }
 
 // ─── Angle utilities ─────────────────────────────────────────────────────────
 
 /** Convert degrees to radians */
-export const DEG2RAD = Math.PI / 180
+export const DEG2RAD = Math.PI / 180;
 
 /** Convert radians to degrees */
-export const RAD2DEG = 180 / Math.PI
+export const RAD2DEG = 180 / Math.PI;
 
 /** Normalize an angle to [0, 2π) */
 export function mod2pi(angle: number): number {
-  const twoPi = 2 * Math.PI
-  return ((angle % twoPi) + twoPi) % twoPi
+  const twoPi = 2 * Math.PI;
+  return ((angle % twoPi) + twoPi) % twoPi;
 }
 
 /** Normalize an angle in degrees to [0, 360) */
 export function mod360(deg: number): number {
-  return ((deg % 360) + 360) % 360
+  return ((deg % 360) + 360) % 360;
 }
 
 /** Normalize an angle in degrees to [-180, 180) */
 export function normalizeDeg180(deg: number): number {
-  deg = mod360(deg)
-  return deg >= 180 ? deg - 360 : deg
+  deg = mod360(deg);
+  return deg >= 180 ? deg - 360 : deg;
 }

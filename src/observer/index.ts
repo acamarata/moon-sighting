@@ -18,10 +18,10 @@
  *   Saemundsson (1986), Sky & Telescope 72, 70
  */
 
-import type { Vec3, Observer, AzAlt, TimeScales } from '../types.js'
-import { WGS84 } from '../types.js'
-import { gcrsToItrs } from '../frames/index.js'
-import { vdot } from '../math/index.js'
+import type { Vec3, Observer, AzAlt, TimeScales } from "../types.js";
+import { WGS84 } from "../types.js";
+import { gcrsToItrs } from "../frames/index.js";
+import { vdot } from "../math/index.js";
 
 // ─── Geodetic ↔ ECEF ─────────────────────────────────────────────────────────
 
@@ -35,17 +35,17 @@ import { vdot } from '../math/index.js'
  * @returns ECEF position vector in meters
  */
 export function geodeticToECEF(lat: number, lon: number, elev: number): Vec3 {
-  const phi = (lat * Math.PI) / 180
-  const lam = (lon * Math.PI) / 180
-  const sinPhi = Math.sin(phi)
-  const cosPhi = Math.cos(phi)
+  const phi = (lat * Math.PI) / 180;
+  const lam = (lon * Math.PI) / 180;
+  const sinPhi = Math.sin(phi);
+  const cosPhi = Math.cos(phi);
   // Prime vertical radius of curvature
-  const N = WGS84.a / Math.sqrt(1 - WGS84.e2 * sinPhi * sinPhi)
+  const N = WGS84.a / Math.sqrt(1 - WGS84.e2 * sinPhi * sinPhi);
   return [
     (N + elev) * cosPhi * Math.cos(lam),
     (N + elev) * cosPhi * Math.sin(lam),
     (N * (1 - WGS84.e2) + elev) * sinPhi,
-  ]
+  ];
 }
 
 /**
@@ -55,27 +55,27 @@ export function geodeticToECEF(lat: number, lon: number, elev: number): Vec3 {
  * @returns { lat, lon, h } — latitude/longitude in degrees, height in meters
  */
 export function ecefToGeodetic(ecef: Vec3): { lat: number; lon: number; h: number } {
-  const [X, Y, Z] = ecef
-  const p = Math.sqrt(X * X + Y * Y)
-  const lon = Math.atan2(Y, X)
+  const [X, Y, Z] = ecef;
+  const p = Math.sqrt(X * X + Y * Y);
+  const lon = Math.atan2(Y, X);
 
   // Bowring iteration for geodetic latitude
-  let lat = Math.atan2(Z, p * (1 - WGS84.e2))
+  let lat = Math.atan2(Z, p * (1 - WGS84.e2));
   for (let i = 0; i < 4; i++) {
-    const sinLat = Math.sin(lat)
-    const N = WGS84.a / Math.sqrt(1 - WGS84.e2 * sinLat * sinLat)
-    lat = Math.atan2(Z + WGS84.e2 * N * sinLat, p)
+    const sinLat = Math.sin(lat);
+    const N = WGS84.a / Math.sqrt(1 - WGS84.e2 * sinLat * sinLat);
+    lat = Math.atan2(Z + WGS84.e2 * N * sinLat, p);
   }
 
-  const sinLat = Math.sin(lat)
-  const N = WGS84.a / Math.sqrt(1 - WGS84.e2 * sinLat * sinLat)
-  const h = p / Math.cos(lat) - N
+  const sinLat = Math.sin(lat);
+  const N = WGS84.a / Math.sqrt(1 - WGS84.e2 * sinLat * sinLat);
+  const h = p / Math.cos(lat) - N;
 
   return {
     lat: (lat * 180) / Math.PI,
     lon: (lon * 180) / Math.PI,
     h,
-  }
+  };
 }
 
 // ─── Topocentric ENU ─────────────────────────────────────────────────────────
@@ -92,18 +92,18 @@ export function ecefToGeodetic(ecef: Vec3): { lat: number; lon: number; h: numbe
  * @param lon - Longitude in degrees
  */
 export function computeENUBasis(lat: number, lon: number): { east: Vec3; north: Vec3; up: Vec3 } {
-  const phi = (lat * Math.PI) / 180
-  const lam = (lon * Math.PI) / 180
+  const phi = (lat * Math.PI) / 180;
+  const lam = (lon * Math.PI) / 180;
   const sinPhi = Math.sin(phi),
-    cosPhi = Math.cos(phi)
+    cosPhi = Math.cos(phi);
   const sinLam = Math.sin(lam),
-    cosLam = Math.cos(lam)
+    cosLam = Math.cos(lam);
 
-  const east: Vec3 = [-sinLam, cosLam, 0]
-  const north: Vec3 = [-sinPhi * cosLam, -sinPhi * sinLam, cosPhi]
-  const up: Vec3 = [cosPhi * cosLam, cosPhi * sinLam, sinPhi]
+  const east: Vec3 = [-sinLam, cosLam, 0];
+  const north: Vec3 = [-sinPhi * cosLam, -sinPhi * sinLam, cosPhi];
+  const up: Vec3 = [cosPhi * cosLam, cosPhi * sinLam, sinPhi];
 
-  return { east, north, up }
+  return { east, north, up };
 }
 
 /**
@@ -116,8 +116,8 @@ export function computeENUBasis(lat: number, lon: number): { east: Vec3; north: 
  * @returns ENU vector [east, north, up] in the same units as input
  */
 export function ecefToENU(ecefDelta: Vec3, lat: number, lon: number): Vec3 {
-  const { east, north, up } = computeENUBasis(lat, lon)
-  return [vdot(ecefDelta, east), vdot(ecefDelta, north), vdot(ecefDelta, up)]
+  const { east, north, up } = computeENUBasis(lat, lon);
+  return [vdot(ecefDelta, east), vdot(ecefDelta, north), vdot(ecefDelta, up)];
 }
 
 /**
@@ -130,13 +130,13 @@ export function ecefToENU(ecefDelta: Vec3, lat: number, lon: number): Vec3 {
  * @returns Azimuth (degrees, [0, 360)) and altitude (degrees)
  */
 export function enuToAzAlt(enu: Vec3): AzAlt {
-  const [e, n, u] = enu
-  const horiz = Math.sqrt(e * e + n * n)
-  const altitude = (Math.atan2(u, horiz) * 180) / Math.PI
+  const [e, n, u] = enu;
+  const horiz = Math.sqrt(e * e + n * n);
+  const altitude = (Math.atan2(u, horiz) * 180) / Math.PI;
   // atan2(east, north) gives bearing from North; convert to [0, 360)
-  let azimuth = (Math.atan2(e, n) * 180) / Math.PI
-  if (azimuth < 0) azimuth += 360
-  return { azimuth, altitude }
+  let azimuth = (Math.atan2(e, n) * 180) / Math.PI;
+  if (azimuth < 0) azimuth += 360;
+  return { azimuth, altitude };
 }
 
 // ─── Topocentric parallax ─────────────────────────────────────────────────────
@@ -158,7 +158,7 @@ export function topocentricPosition(bodyGCRS: Vec3, observerGCRS: Vec3): Vec3 {
     bodyGCRS[0] - observerGCRS[0],
     bodyGCRS[1] - observerGCRS[1],
     bodyGCRS[2] - observerGCRS[2],
-  ]
+  ];
 }
 
 // ─── Full pipeline: GCRS → az/alt ────────────────────────────────────────────
@@ -188,27 +188,31 @@ export function computeAzAlt(
   airless: boolean,
 ): AzAlt {
   // 1. Convert body position from GCRS to ITRS (km)
-  const bodyITRS = gcrsToItrs(bodyGCRS, ts)
+  const bodyITRS = gcrsToItrs(bodyGCRS, ts);
 
   // 2. Observer position in ITRS: geodeticToECEF returns meters → convert to km
-  const obsECEF = geodeticToECEF(observer.lat, observer.lon, observer.elevation)
-  const obsITRS: Vec3 = [obsECEF[0] / 1000, obsECEF[1] / 1000, obsECEF[2] / 1000]
+  const obsECEF = geodeticToECEF(observer.lat, observer.lon, observer.elevation);
+  const obsITRS: Vec3 = [obsECEF[0] / 1000, obsECEF[1] / 1000, obsECEF[2] / 1000];
 
   // 3. Displacement vector from observer to body in ITRS (km — magnitude doesn't matter)
-  const delta: Vec3 = [bodyITRS[0] - obsITRS[0], bodyITRS[1] - obsITRS[1], bodyITRS[2] - obsITRS[2]]
+  const delta: Vec3 = [
+    bodyITRS[0] - obsITRS[0],
+    bodyITRS[1] - obsITRS[1],
+    bodyITRS[2] - obsITRS[2],
+  ];
 
   // 4. Project onto local ENU basis at the observer's location
-  const enu = ecefToENU(delta, observer.lat, observer.lon)
+  const enu = ecefToENU(delta, observer.lat, observer.lon);
 
   // 5. Convert ENU to azimuth + altitude
-  const azAlt = enuToAzAlt(enu)
+  const azAlt = enuToAzAlt(enu);
 
   // 6. Refraction correction
   if (!airless) {
-    azAlt.altitude = applyRefraction(azAlt.altitude, observer.pressure, observer.temperature)
+    azAlt.altitude = applyRefraction(azAlt.altitude, observer.pressure, observer.temperature);
   }
 
-  return azAlt
+  return azAlt;
 }
 
 // ─── Atmospheric refraction ───────────────────────────────────────────────────
@@ -237,17 +241,17 @@ export function bennettRefraction(
   temperature = 15,
 ): number {
   // No refraction below the geometric horizon (Bennett formula diverges below ~−1°)
-  if (altitudeDeg < -1) return 0
+  if (altitudeDeg < -1) return 0;
 
   // Convert altitude argument to radians for the cot computation
-  const h = altitudeDeg
-  const argDeg = h + 7.31 / (h + 4.4)
-  const argRad = (argDeg * Math.PI) / 180
-  const R = 1 / (Math.tan(argRad) * 60) // degrees
+  const h = altitudeDeg;
+  const argDeg = h + 7.31 / (h + 4.4);
+  const argRad = (argDeg * Math.PI) / 180;
+  const R = 1 / (Math.tan(argRad) * 60); // degrees
 
   // Pressure and temperature correction
-  const corrected = R * (pressure / 1010) * (283 / (273 + temperature))
-  return Math.max(0, corrected)
+  const corrected = R * (pressure / 1010) * (283 / (273 + temperature));
+  return Math.max(0, corrected);
 }
 
 /**
@@ -255,7 +259,7 @@ export function bennettRefraction(
  * Returns the apparent (observed) altitude.
  */
 export function applyRefraction(airlessAlt: number, pressure = 1013.25, temperature = 15): number {
-  return airlessAlt + bennettRefraction(airlessAlt, pressure, temperature)
+  return airlessAlt + bennettRefraction(airlessAlt, pressure, temperature);
 }
 
 /**
@@ -268,9 +272,9 @@ export function removeRefraction(
   temperature = 15,
 ): number {
   // Start from the apparent altitude and iterate
-  let airless = apparentAlt
+  let airless = apparentAlt;
   for (let i = 0; i < 4; i++) {
-    airless = apparentAlt - bennettRefraction(airless, pressure, temperature)
+    airless = apparentAlt - bennettRefraction(airless, pressure, temperature);
   }
-  return airless
+  return airless;
 }

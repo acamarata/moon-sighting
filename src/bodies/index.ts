@@ -16,21 +16,21 @@
  *     New Crescent Moon. NAO Technical Note 69. HM Nautical Almanac Office.
  */
 
-import type { StateVector, Vec3 } from '../types.js'
-import type { SpkKernel } from '../spk/index.js'
-import { NAIF_IDS } from '../spk/index.js'
-import { J2000, DAYS_PER_JULIAN_CENTURY } from '../time/index.js'
-import { DEG2RAD, vdot, vnorm } from '../math/index.js'
+import type { StateVector, Vec3 } from "../types.js";
+import type { SpkKernel } from "../spk/index.js";
+import { NAIF_IDS } from "../spk/index.js";
+import { J2000, DAYS_PER_JULIAN_CENTURY } from "../time/index.js";
+import { DEG2RAD, vdot, vnorm } from "../math/index.js";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const AU_KM = 149597870.7
+const AU_KM = 149597870.7;
 
 /** Mean radius of the Moon in km (IAU 2015 nominal value) */
-const MOON_RADIUS_KM = 1737.4
+const MOON_RADIUS_KM = 1737.4;
 
 /** Mean radius of the Sun in km */
-const _SUN_RADIUS_KM = 696000.0
-void _SUN_RADIUS_KM // reserved for future solar semi-diameter calculations
+const _SUN_RADIUS_KM = 696000.0;
+void _SUN_RADIUS_KM; // reserved for future solar semi-diameter calculations
 
 // ─── Geocentric state ─────────────────────────────────────────────────────────
 
@@ -45,7 +45,7 @@ void _SUN_RADIUS_KM // reserved for future solar semi-diameter calculations
  * @returns Moon state vector relative to Earth center, km and km/s, GCRS
  */
 export function getMoonGeocentricState(kernel: SpkKernel, et: number): StateVector {
-  return kernel.getState(NAIF_IDS.MOON, NAIF_IDS.EARTH, et)
+  return kernel.getState(NAIF_IDS.MOON, NAIF_IDS.EARTH, et);
 }
 
 /**
@@ -59,7 +59,7 @@ export function getMoonGeocentricState(kernel: SpkKernel, et: number): StateVect
  * @returns Sun state vector relative to Earth center, km and km/s, GCRS
  */
 export function getSunGeocentricState(kernel: SpkKernel, et: number): StateVector {
-  return kernel.getState(NAIF_IDS.SUN, NAIF_IDS.EARTH, et)
+  return kernel.getState(NAIF_IDS.SUN, NAIF_IDS.EARTH, et);
 }
 
 // ─── Moon illumination ────────────────────────────────────────────────────────
@@ -85,12 +85,12 @@ export function computeIllumination(
   moonGCRS: Vec3,
   sunGCRS: Vec3,
 ): { illumination: number; phaseAngleDeg: number; elongationDeg: number; isWaxing: boolean } {
-  const rMoon = vnorm(moonGCRS)
-  const rSun = vnorm(sunGCRS)
+  const rMoon = vnorm(moonGCRS);
+  const rSun = vnorm(sunGCRS);
 
   // Elongation ψ: angle at Earth between Moon and Sun
-  const cosElong = vdot(moonGCRS, sunGCRS) / (rMoon * rSun)
-  const elongationDeg = Math.acos(Math.max(-1, Math.min(1, cosElong))) / DEG2RAD
+  const cosElong = vdot(moonGCRS, sunGCRS) / (rMoon * rSun);
+  const elongationDeg = Math.acos(Math.max(-1, Math.min(1, cosElong))) / DEG2RAD;
 
   // Phase angle i: angle at Moon between Earth and Sun
   // Vector from Moon to Earth: -moonGCRS
@@ -99,21 +99,21 @@ export function computeIllumination(
     sunGCRS[0] - moonGCRS[0],
     sunGCRS[1] - moonGCRS[1],
     sunGCRS[2] - moonGCRS[2],
-  ]
-  const moonToEarth: Vec3 = [-moonGCRS[0], -moonGCRS[1], -moonGCRS[2]]
-  const rMoonToSun = vnorm(moonToSun)
+  ];
+  const moonToEarth: Vec3 = [-moonGCRS[0], -moonGCRS[1], -moonGCRS[2]];
+  const rMoonToSun = vnorm(moonToSun);
 
-  const cosPhase = vdot(moonToEarth, moonToSun) / (rMoon * rMoonToSun)
-  const phaseAngleDeg = Math.acos(Math.max(-1, Math.min(1, cosPhase))) / DEG2RAD
+  const cosPhase = vdot(moonToEarth, moonToSun) / (rMoon * rMoonToSun);
+  const phaseAngleDeg = Math.acos(Math.max(-1, Math.min(1, cosPhase))) / DEG2RAD;
 
-  const illumination = (1 + Math.cos(phaseAngleDeg * DEG2RAD)) / 2
+  const illumination = (1 + Math.cos(phaseAngleDeg * DEG2RAD)) / 2;
 
   // Moon is waxing when it is east of the Sun (elongation increasing).
   // Cross product sunGCRS × moonGCRS z-component: positive when Moon is east of Sun.
-  const crossZ = sunGCRS[0] * moonGCRS[1] - sunGCRS[1] * moonGCRS[0]
-  const isWaxing = crossZ > 0
+  const crossZ = sunGCRS[0] * moonGCRS[1] - sunGCRS[1] * moonGCRS[0];
+  const isWaxing = crossZ > 0;
 
-  return { illumination, phaseAngleDeg, elongationDeg, isWaxing }
+  return { illumination, phaseAngleDeg, elongationDeg, isWaxing };
 }
 
 /**
@@ -140,17 +140,17 @@ export function computeCrescentWidth(
   moonTopoVec: Vec3,
   ARCL: number,
 ): { W: number; Wprime: number } {
-  const rMoon = Math.sqrt(moonTopoVec[0] ** 2 + moonTopoVec[1] ** 2 + moonTopoVec[2] ** 2)
+  const rMoon = Math.sqrt(moonTopoVec[0] ** 2 + moonTopoVec[1] ** 2 + moonTopoVec[2] ** 2);
 
   // Topocentric semi-diameter in arc minutes
-  const SDmoon_arcmin = (Math.atan(MOON_RADIUS_KM / rMoon) / DEG2RAD) * 60
+  const SDmoon_arcmin = (Math.atan(MOON_RADIUS_KM / rMoon) / DEG2RAD) * 60;
 
   // Crescent width in arc minutes
-  const ARCL_rad = ARCL * DEG2RAD
-  const W = SDmoon_arcmin * (1 - Math.cos(ARCL_rad))
+  const ARCL_rad = ARCL * DEG2RAD;
+  const W = SDmoon_arcmin * (1 - Math.cos(ARCL_rad));
 
   // Wprime ≡ W for both Odeh and Yallop in this formulation
-  return { W, Wprime: W }
+  return { W, Wprime: W };
 }
 
 // ─── Approximate positions (no kernel) ────────────────────────────────────────
@@ -169,48 +169,48 @@ export function computeCrescentWidth(
  * @returns Geocentric GCRS positions in km (approximate, light-time not corrected)
  */
 export function getMoonSunApproximate(jdTT: number): {
-  moonGCRS: Vec3
-  sunGCRS: Vec3
+  moonGCRS: Vec3;
+  sunGCRS: Vec3;
 } {
-  const T = (jdTT - J2000) / DAYS_PER_JULIAN_CENTURY
+  const T = (jdTT - J2000) / DAYS_PER_JULIAN_CENTURY;
 
   // ── Sun (Meeus Ch. 25) ──────────────────────────────────────────────────────
 
   // Mean longitude L0 and mean anomaly M (degrees)
-  const L0 = 280.46646 + 36000.76983 * T + 0.0003032 * T * T
-  const M_sun = 357.52911 + 35999.05029 * T - 0.0001537 * T * T
-  const M_sun_rad = (M_sun % 360) * DEG2RAD
+  const L0 = 280.46646 + 36000.76983 * T + 0.0003032 * T * T;
+  const M_sun = 357.52911 + 35999.05029 * T - 0.0001537 * T * T;
+  const M_sun_rad = (M_sun % 360) * DEG2RAD;
 
-  const e_sun = 0.016708634 - 0.000042037 * T - 0.0000001267 * T * T
+  const e_sun = 0.016708634 - 0.000042037 * T - 0.0000001267 * T * T;
 
   // Equation of center (degrees)
   const C =
     (1.914602 - 0.004817 * T - 0.000014 * T * T) * Math.sin(M_sun_rad) +
     (0.019993 - 0.000101 * T) * Math.sin(2 * M_sun_rad) +
-    0.000289 * Math.sin(3 * M_sun_rad)
+    0.000289 * Math.sin(3 * M_sun_rad);
 
   // True longitude and anomaly
-  const sunLonDeg = L0 + C
-  const nu_rad = M_sun_rad + C * DEG2RAD
+  const sunLonDeg = L0 + C;
+  const nu_rad = M_sun_rad + C * DEG2RAD;
 
   // Geometric distance in AU
-  const R_AU = (1.000001018 * (1 - e_sun * e_sun)) / (1 + e_sun * Math.cos(nu_rad))
-  const R_km = R_AU * AU_KM
+  const R_AU = (1.000001018 * (1 - e_sun * e_sun)) / (1 + e_sun * Math.cos(nu_rad));
+  const R_km = R_AU * AU_KM;
 
   // Nutation correction for apparent longitude (simplified)
-  const omega = (125.04 - 1934.136 * T) * DEG2RAD
-  const sunLonApp = sunLonDeg - 0.00569 - 0.00478 * Math.sin(omega)
-  const sunLon_rad = sunLonApp * DEG2RAD
+  const omega = (125.04 - 1934.136 * T) * DEG2RAD;
+  const sunLonApp = sunLonDeg - 0.00569 - 0.00478 * Math.sin(omega);
+  const sunLon_rad = sunLonApp * DEG2RAD;
 
   // Mean obliquity of the ecliptic (IAU 1980 approximation, degrees)
   const eps =
-    (23.439291111 - 0.013004167 * T - 0.0000001638 * T * T + 0.0000005036 * T * T * T) * DEG2RAD
+    (23.439291111 - 0.013004167 * T - 0.0000001638 * T * T + 0.0000005036 * T * T * T) * DEG2RAD;
 
   const sunGCRS: Vec3 = [
     R_km * Math.cos(sunLon_rad),
     R_km * Math.sin(sunLon_rad) * Math.cos(eps),
     R_km * Math.sin(sunLon_rad) * Math.sin(eps),
-  ]
+  ];
 
   // ── Moon (Meeus Ch. 47) ─────────────────────────────────────────────────────
 
@@ -220,40 +220,40 @@ export function getMoonSunApproximate(jdTT: number): {
     481267.88123421 * T -
     0.0015786 * T * T +
     (T * T * T) / 538841 -
-    (T * T * T * T) / 65194000
+    (T * T * T * T) / 65194000;
   const D =
     297.8501921 +
     445267.1114034 * T -
     0.0018819 * T * T +
     (T * T * T) / 545868 -
-    (T * T * T * T) / 113065000
-  const M = 357.5291092 + 35999.0502909 * T - 0.0001536 * T * T + (T * T * T) / 24490000
+    (T * T * T * T) / 113065000;
+  const M = 357.5291092 + 35999.0502909 * T - 0.0001536 * T * T + (T * T * T) / 24490000;
   const Mp =
     134.9633964 +
     477198.8675055 * T +
     0.0087414 * T * T +
     (T * T * T) / 69699 -
-    (T * T * T * T) / 14712000
+    (T * T * T * T) / 14712000;
   const F =
     93.272095 +
     483202.0175233 * T -
     0.0036539 * T * T -
     (T * T * T) / 3526000 +
-    (T * T * T * T) / 863310000
+    (T * T * T * T) / 863310000;
 
   // Additive terms for longitude/latitude
-  const A1 = (119.75 + 131.849 * T) * DEG2RAD
-  const A2 = (53.09 + 479264.29 * T) * DEG2RAD
-  const A3 = (313.45 + 481266.484 * T) * DEG2RAD
+  const A1 = (119.75 + 131.849 * T) * DEG2RAD;
+  const A2 = (53.09 + 479264.29 * T) * DEG2RAD;
+  const A3 = (313.45 + 481266.484 * T) * DEG2RAD;
 
   // Convert to radians for accumulation
-  const D_r = (D % 360) * DEG2RAD
-  const M_r = (M % 360) * DEG2RAD
-  const Mp_r = (Mp % 360) * DEG2RAD
-  const F_r = (F % 360) * DEG2RAD
+  const D_r = (D % 360) * DEG2RAD;
+  const M_r = (M % 360) * DEG2RAD;
+  const Mp_r = (Mp % 360) * DEG2RAD;
+  const F_r = (F % 360) * DEG2RAD;
 
   // Eccentricity correction for terms involving M (Earth's orbital eccentricity)
-  const E = 1 - 0.002516 * T - 0.0000074 * T * T
+  const E = 1 - 0.002516 * T - 0.0000074 * T * T;
 
   // Longitude and distance accumulation — 30 main terms from Meeus Table 47.A
   // [d, m, mp, f, Σl (0.000001°), Σr (0.001 km)]
@@ -288,19 +288,19 @@ export function getMoonSunApproximate(jdTT: number): {
     [0, 1, -2, 0, -2689, -7003],
     [2, 0, -1, 2, -2602, 0],
     [2, -1, -2, 0, 2390, 10056],
-  ]
+  ];
 
   let Sl = 0,
-    Sr = 0
+    Sr = 0;
   for (const [d, m, mp, f, sl, sr] of LD) {
-    const arg = d * D_r + m * M_r + mp * Mp_r + f * F_r
-    const eCorr = Math.abs(m) === 2 ? E * E : Math.abs(m) === 1 ? E : 1
-    Sl += sl * eCorr * Math.sin(arg)
-    Sr += sr * eCorr * Math.cos(arg)
+    const arg = d * D_r + m * M_r + mp * Mp_r + f * F_r;
+    const eCorr = Math.abs(m) === 2 ? E * E : Math.abs(m) === 1 ? E : 1;
+    Sl += sl * eCorr * Math.sin(arg);
+    Sr += sr * eCorr * Math.cos(arg);
   }
 
   // Additive longitude corrections (Meeus §47)
-  Sl += 3958 * Math.sin(A1) + 1962 * Math.sin((Lp - F) * DEG2RAD) + 318 * Math.sin(A2)
+  Sl += 3958 * Math.sin(A1) + 1962 * Math.sin((Lp - F) * DEG2RAD) + 318 * Math.sin(A2);
 
   // Latitude accumulation — 20 main terms from Meeus Table 47.B
   // [d, m, mp, f, Σb (0.000001°)]
@@ -325,13 +325,13 @@ export function getMoonSunApproximate(jdTT: number): {
     [0, 1, -1, -1, -1870],
     [4, 0, -1, -1, 1828],
     [0, 1, 0, 1, -1794],
-  ]
+  ];
 
-  let Sb = 0
+  let Sb = 0;
   for (const [d, m, mp, f, sb] of FB) {
-    const arg = d * D_r + m * M_r + mp * Mp_r + f * F_r
-    const eCorr = Math.abs(m) === 2 ? E * E : Math.abs(m) === 1 ? E : 1
-    Sb += sb * eCorr * Math.sin(arg)
+    const arg = d * D_r + m * M_r + mp * Mp_r + f * F_r;
+    const eCorr = Math.abs(m) === 2 ? E * E : Math.abs(m) === 1 ? E : 1;
+    Sb += sb * eCorr * Math.sin(arg);
   }
 
   // Additive latitude corrections
@@ -341,15 +341,15 @@ export function getMoonSunApproximate(jdTT: number): {
     175 * Math.sin(A1 - F_r) +
     175 * Math.sin(A1 + F_r) +
     127 * Math.sin((Lp - Mp) * DEG2RAD) -
-    115 * Math.sin((Lp + Mp) * DEG2RAD)
+    115 * Math.sin((Lp + Mp) * DEG2RAD);
 
   // Moon ecliptic coordinates
-  const moonLonDeg = Lp + Sl * 1e-6
-  const moonLatDeg = Sb * 1e-6
-  const moonDistKm = 385000.56 + Sr * 0.001
+  const moonLonDeg = Lp + Sl * 1e-6;
+  const moonLatDeg = Sb * 1e-6;
+  const moonDistKm = 385000.56 + Sr * 0.001;
 
-  const moonLon_rad = moonLonDeg * DEG2RAD
-  const moonLat_rad = moonLatDeg * DEG2RAD
+  const moonLon_rad = moonLonDeg * DEG2RAD;
+  const moonLat_rad = moonLatDeg * DEG2RAD;
 
   // Ecliptic to equatorial (GCRS ≈ J2000 equatorial for this accuracy level)
   const moonGCRS: Vec3 = [
@@ -360,9 +360,9 @@ export function getMoonSunApproximate(jdTT: number): {
     moonDistKm *
       (Math.sin(eps) * Math.cos(moonLat_rad) * Math.sin(moonLon_rad) +
         Math.cos(eps) * Math.sin(moonLat_rad)),
-  ]
+  ];
 
-  return { moonGCRS, sunGCRS }
+  return { moonGCRS, sunGCRS };
 }
 
 /**
@@ -374,11 +374,11 @@ export function getMoonSunApproximate(jdTT: number): {
  */
 export function nearestNewMoon(jdTT: number): number {
   // Convert JD to approximate decimal year
-  const Y = 2000.0 + (jdTT - J2000) / 365.25
+  const Y = 2000.0 + (jdTT - J2000) / 365.25;
 
   // k = approximate lunation number (0 = Jan 6, 2000 new moon)
-  const k = Math.round((Y - 2000.0) * 12.3685)
-  const T = k / 1236.85
+  const k = Math.round((Y - 2000.0) * 12.3685);
+  const T = k / 1236.85;
 
   // JDE of mean new moon (Meeus Eq. 49.1)
   let JDE =
@@ -386,16 +386,16 @@ export function nearestNewMoon(jdTT: number): number {
     29.530588861 * k +
     0.00015437 * T * T -
     0.00000015 * T * T * T +
-    0.00000000073 * T * T * T * T
+    0.00000000073 * T * T * T * T;
 
   // Fundamental arguments for the corrections (degrees → radians)
-  const M = (2.5534 + 29.1053567 * k - 0.0000014 * T * T - 0.00000011 * T * T * T) * DEG2RAD
-  const Mp = (201.5643 + 385.81693528 * k + 0.0107582 * T * T + 0.00001238 * T * T * T) * DEG2RAD
-  const Fc = (160.7108 + 390.67050284 * k - 0.0016118 * T * T - 0.00000227 * T * T * T) * DEG2RAD
-  const Om = (124.7746 - 1.56375588 * k + 0.0020672 * T * T + 0.00000215 * T * T * T) * DEG2RAD
+  const M = (2.5534 + 29.1053567 * k - 0.0000014 * T * T - 0.00000011 * T * T * T) * DEG2RAD;
+  const Mp = (201.5643 + 385.81693528 * k + 0.0107582 * T * T + 0.00001238 * T * T * T) * DEG2RAD;
+  const Fc = (160.7108 + 390.67050284 * k - 0.0016118 * T * T - 0.00000227 * T * T * T) * DEG2RAD;
+  const Om = (124.7746 - 1.56375588 * k + 0.0020672 * T * T + 0.00000215 * T * T * T) * DEG2RAD;
 
   // Eccentricity of Earth's orbit
-  const E = 1 - 0.002516 * T - 0.0000074 * T * T
+  const E = 1 - 0.002516 * T - 0.0000074 * T * T;
 
   // Corrections from Meeus Table 49.A (new moon)
   JDE +=
@@ -423,7 +423,7 @@ export function nearestNewMoon(jdTT: number): number {
     0.00003 * Math.sin(Mp - M + 2 * Fc) -
     0.00002 * Math.sin(Mp - M - 2 * Fc) -
     0.00002 * Math.sin(3 * Mp + M) +
-    0.00002 * Math.sin(4 * Mp)
+    0.00002 * Math.sin(4 * Mp);
 
-  return JDE
+  return JDE;
 }

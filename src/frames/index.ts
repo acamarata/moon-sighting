@@ -21,18 +21,18 @@
  *   Capitaine et al. (2003), Astronomy & Astrophysics 412, 567-586
  */
 
-import type { Vec3, TimeScales } from '../types.js'
-import type { Mat3 } from '../math/index.js'
-import { mvmul, mmmul, mtranspose, rotX, rotY, rotZ } from '../math/index.js'
-import { J2000, DAYS_PER_JULIAN_CENTURY } from '../time/index.js'
+import type { Vec3, TimeScales } from "../types.js";
+import type { Mat3 } from "../math/index.js";
+import { mvmul, mmmul, mtranspose, rotX, rotY, rotZ } from "../math/index.js";
+import { J2000, DAYS_PER_JULIAN_CENTURY } from "../time/index.js";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 /** Arcseconds to radians */
-const ARCSEC_RAD = Math.PI / (180 * 3600)
+const ARCSEC_RAD = Math.PI / (180 * 3600);
 
 /** 0.1 microarcseconds to arcseconds (units of nutation coefficients) */
-const UAS01_TO_ARCSEC = 1e-7
+const UAS01_TO_ARCSEC = 1e-7;
 
 // ─── IAU 2000B Nutation Series ────────────────────────────────────────────────
 //
@@ -207,7 +207,7 @@ const NUT_2000B: ReadonlyArray<
   [0, 0, 4, -2, 4, 1341.0, 0.0, 0.0, -577.0, 0.0, 0.0],
   // 77
   [0, 0, 2, -2, 4, -1316.0, 0.0, 0.0, 567.0, 0.0, 0.0],
-]
+];
 
 // ─── Fundamental arguments (Delaunay) ────────────────────────────────────────
 // Source: SOFA iauFal03, iauFalp03, iauFaf03, iauFad03, iauFaom03
@@ -215,43 +215,43 @@ const NUT_2000B: ReadonlyArray<
 
 /** Reduce arcseconds to [0, 2π) radians */
 function arcsecToRad(arcsec: number): number {
-  const r = (arcsec * ARCSEC_RAD) % (2 * Math.PI)
-  return r >= 0 ? r : r + 2 * Math.PI
+  const r = (arcsec * ARCSEC_RAD) % (2 * Math.PI);
+  return r >= 0 ? r : r + 2 * Math.PI;
 }
 
 /** Mean anomaly of the Moon l (IAU 2003) */
 function fundamentalL(T: number): number {
   return arcsecToRad(
     485868.249036 + T * (1717915923.2178 + T * (31.8792 + T * (0.051635 + T * -0.0002447))),
-  )
+  );
 }
 
 /** Mean anomaly of the Sun l' (IAU 2003) */
 function fundamentalLp(T: number): number {
   return arcsecToRad(
     1287104.793048 + T * (129596581.0481 + T * (-0.5532 + T * (0.000136 + T * -0.00001149))),
-  )
+  );
 }
 
 /** Moon's argument of latitude F = L - Ω (IAU 2003) */
 function fundamentalF(T: number): number {
   return arcsecToRad(
     335779.526232 + T * (1739527262.8478 + T * (-12.7512 + T * (-0.001037 + T * 0.00000417))),
-  )
+  );
 }
 
 /** Mean elongation of the Moon D (IAU 2003) */
 function fundamentalD(T: number): number {
   return arcsecToRad(
     1072260.703692 + T * (1602961601.209 + T * (-6.3706 + T * (0.006593 + T * -0.00003169))),
-  )
+  );
 }
 
 /** Longitude of Moon's ascending node Ω (IAU 2003) */
 function fundamentalOm(T: number): number {
   return arcsecToRad(
     450160.398036 + T * (-6962890.5431 + T * (7.4722 + T * (0.007702 + T * -0.00005939))),
-  )
+  );
 }
 
 // ─── CIP coordinates ─────────────────────────────────────────────────────────
@@ -273,29 +273,29 @@ function fundamentalOm(T: number): number {
  * @returns { X, Y, s } in radians
  */
 export function computeCIPXYs(jdTT: number): { X: number; Y: number; s: number } {
-  const T = (jdTT - J2000) / DAYS_PER_JULIAN_CENTURY
+  const T = (jdTT - J2000) / DAYS_PER_JULIAN_CENTURY;
 
   // Delaunay fundamental arguments
-  const l = fundamentalL(T)
-  const lp = fundamentalLp(T)
-  const F = fundamentalF(T)
-  const D = fundamentalD(T)
-  const Om = fundamentalOm(T)
+  const l = fundamentalL(T);
+  const lp = fundamentalLp(T);
+  const F = fundamentalF(T);
+  const D = fundamentalD(T);
+  const Om = fundamentalOm(T);
 
   // Accumulate nutation in longitude (dpsi) and obliquity (deps) — units: 0.1 uas
-  let dpsi = 0.0
-  let deps = 0.0
+  let dpsi = 0.0;
+  let deps = 0.0;
   for (const [nl, nlp, nF, nD, nOm, ps, pst, pc, ec, ect, es] of NUT_2000B) {
-    const arg = nl * l + nlp * lp + nF * F + nD * D + nOm * Om
-    const sinA = Math.sin(arg)
-    const cosA = Math.cos(arg)
-    dpsi += (ps + pst * T) * sinA + pc * cosA
-    deps += (ec + ect * T) * cosA + es * sinA
+    const arg = nl * l + nlp * lp + nF * F + nD * D + nOm * Om;
+    const sinA = Math.sin(arg);
+    const cosA = Math.cos(arg);
+    dpsi += (ps + pst * T) * sinA + pc * cosA;
+    deps += (ec + ect * T) * cosA + es * sinA;
   }
 
   // Convert 0.1 uas → arcseconds → radians
-  const dpsiRad = dpsi * UAS01_TO_ARCSEC * ARCSEC_RAD
-  const depsRad = deps * UAS01_TO_ARCSEC * ARCSEC_RAD
+  const dpsiRad = dpsi * UAS01_TO_ARCSEC * ARCSEC_RAD;
+  const depsRad = deps * UAS01_TO_ARCSEC * ARCSEC_RAD;
 
   // Mean obliquity eps0 (IAU 2006, arcseconds → radians)
   // Reference: IERS Conventions (2010) Table 5.1
@@ -304,30 +304,30 @@ export function computeCIPXYs(jdTT: number): { X: number; Y: number; s: number }
       T *
         (-46.836769 +
           T * (-0.0001831 + T * (0.0020034 + T * (-0.000000576 + T * -0.0000000434))))) *
-    ARCSEC_RAD
+    ARCSEC_RAD;
 
   // IAU 2006 precession polynomial for X (arcseconds)
   // Reference: IERS Conventions (2010) Table 5.2a, polynomial s_X
   const Xarcsec =
     -0.016617 +
-    T * (2004.191898 + T * (-0.4297829 + T * (-0.19861834 + T * (0.000007578 + T * 0.0000059285))))
+    T * (2004.191898 + T * (-0.4297829 + T * (-0.19861834 + T * (0.000007578 + T * 0.0000059285))));
 
   // IAU 2006 precession polynomial for Y (arcseconds)
   // Reference: IERS Conventions (2010) Table 5.2a, polynomial s_Y
   const Yarcsec =
     -0.006951 +
-    T * (-0.025896 + T * (-22.4072747 + T * (0.00190059 + T * (0.001112526 + T * 0.0000001358))))
+    T * (-0.025896 + T * (-22.4072747 + T * (0.00190059 + T * (0.001112526 + T * 0.0000001358))));
 
   // CIP X, Y: precession polynomial + first-order nutation correction
-  const X = Xarcsec * ARCSEC_RAD + dpsiRad * Math.sin(eps0)
-  const Y = Yarcsec * ARCSEC_RAD - depsRad
+  const X = Xarcsec * ARCSEC_RAD + dpsiRad * Math.sin(eps0);
+  const Y = Yarcsec * ARCSEC_RAD - depsRad;
 
   // CIO locator s ≈ -X·Y/2 + small polynomial (IERS Conventions 2010 Eq. 5.9)
   // Polynomial term: s_poly ≈ -0.041775"·T (arcseconds)
-  const sPoly = -0.041775 * T * ARCSEC_RAD
-  const s = (-X * Y) / 2 + sPoly
+  const sPoly = -0.041775 * T * ARCSEC_RAD;
+  const s = (-X * Y) / 2 + sPoly;
 
-  return { X, Y, s }
+  return { X, Y, s };
 }
 
 // ─── Earth Rotation Angle ────────────────────────────────────────────────────
@@ -345,9 +345,9 @@ export function computeCIPXYs(jdTT: number): { X: number; Y: number; s: number }
  * Reference: IAU 2000 Resolution B1.8; IERS Conventions (2010) §5.4.4
  */
 export function computeERA(jdUT1: number): number {
-  const Du = jdUT1 - 2451545.0
-  const era = 2 * Math.PI * (0.779057273264 + 1.0027378119113546 * Du)
-  return ((era % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
+  const Du = jdUT1 - 2451545.0;
+  const era = 2 * Math.PI * (0.779057273264 + 1.0027378119113546 * Du);
+  return ((era % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
 }
 
 // ─── Frame rotation matrices ──────────────────────────────────────────────────
@@ -363,10 +363,10 @@ export function computeERA(jdUT1: number): number {
  * Reference: SOFA iauC2ixys; IERS Conventions (2010) Eq. 5.7
  */
 export function celestialMotionMatrix(X: number, Y: number, s: number): Mat3 {
-  const r2 = X * X + Y * Y
-  const e = r2 > 0 ? Math.atan2(Y, X) : 0
-  const d = Math.asin(Math.sqrt(r2))
-  return mmmul(rotZ(-(e + s)), mmmul(rotY(d), rotZ(e)))
+  const r2 = X * X + Y * Y;
+  const e = r2 > 0 ? Math.atan2(Y, X) : 0;
+  const d = Math.asin(Math.sqrt(r2));
+  return mmmul(rotZ(-(e + s)), mmmul(rotY(d), rotZ(e)));
 }
 
 /**
@@ -374,7 +374,7 @@ export function celestialMotionMatrix(X: number, Y: number, s: number): Mat3 {
  * Simple rotation about the CIP pole (z-axis) by ERA.
  */
 export function earthRotationMatrix(era: number): Mat3 {
-  return rotZ(era)
+  return rotZ(era);
 }
 
 /**
@@ -391,7 +391,7 @@ export function earthRotationMatrix(era: number): Mat3 {
  * @param yp - Pole y-offset in radians (from IERS Bulletin A)
  */
 export function polarMotionMatrix(xp: number, yp: number): Mat3 {
-  return mmmul(rotY(xp), rotX(-yp))
+  return mmmul(rotY(xp), rotX(-yp));
 }
 
 // ─── Full transformation ──────────────────────────────────────────────────────
@@ -408,14 +408,14 @@ export function polarMotionMatrix(xp: number, yp: number): Mat3 {
  * @returns Vector in ITRS frame (km)
  */
 export function gcrsToItrs(gcrsVec: Vec3, ts: TimeScales, xp = 0, yp = 0): Vec3 {
-  const { X, Y, s } = computeCIPXYs(ts.jdTT)
-  const Q = celestialMotionMatrix(X, Y, s)
-  const era = computeERA(ts.jdUT1)
-  const R = earthRotationMatrix(era)
-  const W = polarMotionMatrix(xp, yp)
+  const { X, Y, s } = computeCIPXYs(ts.jdTT);
+  const Q = celestialMotionMatrix(X, Y, s);
+  const era = computeERA(ts.jdUT1);
+  const R = earthRotationMatrix(era);
+  const W = polarMotionMatrix(xp, yp);
   // Apply Q first (GCRS→CIRS), then R (CIRS→TIRS), then W (TIRS→ITRS)
-  const combined = mmmul(W, mmmul(R, Q))
-  return mvmul(combined, gcrsVec)
+  const combined = mmmul(W, mmmul(R, Q));
+  return mvmul(combined, gcrsVec);
 }
 
 /**
@@ -430,12 +430,12 @@ export function gcrsToItrs(gcrsVec: Vec3, ts: TimeScales, xp = 0, yp = 0): Vec3 
  * @returns Vector in GCRS frame (km)
  */
 export function itrsToGcrs(itrsVec: Vec3, ts: TimeScales, xp = 0, yp = 0): Vec3 {
-  const { X, Y, s } = computeCIPXYs(ts.jdTT)
-  const Q = celestialMotionMatrix(X, Y, s)
-  const era = computeERA(ts.jdUT1)
-  const R = earthRotationMatrix(era)
-  const W = polarMotionMatrix(xp, yp)
+  const { X, Y, s } = computeCIPXYs(ts.jdTT);
+  const Q = celestialMotionMatrix(X, Y, s);
+  const era = computeERA(ts.jdUT1);
+  const R = earthRotationMatrix(era);
+  const W = polarMotionMatrix(xp, yp);
   // [GCRS] = Qᵀ · Rᵀ · Wᵀ · [ITRS]
-  const combined = mmmul(mtranspose(Q), mmmul(mtranspose(R), mtranspose(W)))
-  return mvmul(combined, itrsVec)
+  const combined = mmmul(mtranspose(Q), mmmul(mtranspose(R), mtranspose(W)));
+  return mvmul(combined, itrsVec);
 }

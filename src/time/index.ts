@@ -19,21 +19,21 @@
  *   Espenak & Meeus — ΔT polynomial expressions
  */
 
-import type { TimeScales } from '../types.js'
+import type { TimeScales } from "../types.js";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 /** Julian Date of J2000.0 epoch (2000 Jan 1, 12:00 TT) */
-export const J2000 = 2451545.0
+export const J2000 = 2451545.0;
 
 /** TT - TAI offset in seconds (exact, by definition) */
-export const TT_MINUS_TAI = 32.184
+export const TT_MINUS_TAI = 32.184;
 
 /** Seconds per day */
-export const SECONDS_PER_DAY = 86400.0
+export const SECONDS_PER_DAY = 86400.0;
 
 /** Days per Julian century */
-export const DAYS_PER_JULIAN_CENTURY = 36525.0
+export const DAYS_PER_JULIAN_CENTURY = 36525.0;
 
 // ─── Leap-second table ────────────────────────────────────────────────────────
 
@@ -73,19 +73,19 @@ export const LEAP_SECOND_TABLE: ReadonlyArray<readonly [number, number]> = [
   [2456109.5, 35], // 2012 Jul 1
   [2457204.5, 36], // 2015 Jul 1
   [2457754.5, 37], // 2017 Jan 1
-] as const
+] as const;
 
 /**
  * Get the current leap second count (TAI - UTC) for a given JD in UTC.
  * Returns 10 for dates before 1972 (the first leap second era).
  */
 export function getDeltaAT(jdUTC: number): number {
-  let deltaAT = 10
+  let deltaAT = 10;
   for (const [jd, dat] of LEAP_SECOND_TABLE) {
-    if (jdUTC >= jd) deltaAT = dat
-    else break
+    if (jdUTC >= jd) deltaAT = dat;
+    else break;
   }
-  return deltaAT
+  return deltaAT;
 }
 
 // ─── Julian Date ─────────────────────────────────────────────────────────────
@@ -95,14 +95,14 @@ export function getDeltaAT(jdUTC: number): number {
  * Uses the standard formula; valid for dates after the Gregorian reform.
  */
 export function dateToJD(date: Date): number {
-  return date.getTime() / 86400000 + 2440587.5
+  return date.getTime() / 86400000 + 2440587.5;
 }
 
 /**
  * Convert a Julian Date in UTC to a JavaScript Date.
  */
 export function jdToDate(jd: number): Date {
-  return new Date((jd - 2440587.5) * 86400000)
+  return new Date((jd - 2440587.5) * 86400000);
 }
 
 /**
@@ -110,7 +110,7 @@ export function jdToDate(jd: number): Date {
  * Used as the standard argument for precession and nutation polynomials.
  */
 export function jdTTtoT(jdTT: number): number {
-  return (jdTT - J2000) / DAYS_PER_JULIAN_CENTURY
+  return (jdTT - J2000) / DAYS_PER_JULIAN_CENTURY;
 }
 
 // ─── Time scale conversions ───────────────────────────────────────────────────
@@ -129,33 +129,33 @@ export function computeTimeScales(
   ut1utcOverride?: number,
   deltaTOverride?: number,
 ): TimeScales {
-  const jdUTC = dateToJD(utc)
-  const deltaAT = getDeltaAT(jdUTC)
+  const jdUTC = dateToJD(utc);
+  const deltaAT = getDeltaAT(jdUTC);
 
   // UTC → TAI → TT
-  const jdTAI = jdUTC + deltaAT / SECONDS_PER_DAY
-  const jdTT = jdTAI + TT_MINUS_TAI / SECONDS_PER_DAY
+  const jdTAI = jdUTC + deltaAT / SECONDS_PER_DAY;
+  const jdTT = jdTAI + TT_MINUS_TAI / SECONDS_PER_DAY;
 
   // TT → TDB (periodic correction, sub-millisecond)
-  const tdbCorrection = tdbMinusTT(jdTT) / SECONDS_PER_DAY
-  const jdTDB = jdTT + tdbCorrection
+  const tdbCorrection = tdbMinusTT(jdTT) / SECONDS_PER_DAY;
+  const jdTDB = jdTT + tdbCorrection;
 
   // UT1
-  let jdUT1: number
-  let deltaT: number
+  let jdUT1: number;
+  let deltaT: number;
 
   if (ut1utcOverride !== undefined) {
-    jdUT1 = jdUTC + ut1utcOverride / SECONDS_PER_DAY
-    deltaT = (jdTT - jdUT1) * SECONDS_PER_DAY
+    jdUT1 = jdUTC + ut1utcOverride / SECONDS_PER_DAY;
+    deltaT = (jdTT - jdUT1) * SECONDS_PER_DAY;
   } else if (deltaTOverride !== undefined) {
-    deltaT = deltaTOverride
-    jdUT1 = jdTT - deltaT / SECONDS_PER_DAY
+    deltaT = deltaTOverride;
+    jdUT1 = jdTT - deltaT / SECONDS_PER_DAY;
   } else {
-    deltaT = deltaTPolynomial(jdTT)
-    jdUT1 = jdTT - deltaT / SECONDS_PER_DAY
+    deltaT = deltaTPolynomial(jdTT);
+    jdUT1 = jdTT - deltaT / SECONDS_PER_DAY;
   }
 
-  return { utc, jdUTC, jdTT, jdTDB, jdUT1, deltaT, deltaAT }
+  return { utc, jdUTC, jdTT, jdTDB, jdUT1, deltaT, deltaAT };
 }
 
 /**
@@ -165,8 +165,8 @@ export function computeTimeScales(
  * gives the proper SPICE-compatible ET value.
  */
 export function jdTTtoET(jdTT: number): number {
-  const tdbCorr = tdbMinusTT(jdTT)
-  return (jdTT - J2000) * SECONDS_PER_DAY + tdbCorr
+  const tdbCorr = tdbMinusTT(jdTT);
+  return (jdTT - J2000) * SECONDS_PER_DAY + tdbCorr;
 }
 
 /**
@@ -179,11 +179,11 @@ export function jdTTtoET(jdTT: number): number {
  * Maximum error: ~30 microseconds (acceptable for crescent work).
  */
 export function tdbMinusTT(jdTT: number): number {
-  const d = jdTT - J2000
+  const d = jdTT - J2000;
   // Mean anomaly of the Sun (degrees)
-  const gDeg = 357.53 + 0.9856003 * d
-  const g = (gDeg * Math.PI) / 180
-  return 0.001658 * Math.sin(g) + 0.000014 * Math.sin(2 * g)
+  const gDeg = 357.53 + 0.9856003 * d;
+  const g = (gDeg * Math.PI) / 180;
+  return 0.001658 * Math.sin(g) + 0.000014 * Math.sin(2 * g);
 }
 
 /**
@@ -194,13 +194,13 @@ export function tdbMinusTT(jdTT: number): number {
  */
 export function deltaTPolynomial(jdTT: number): number {
   // Convert JD to decimal year
-  const y = 2000 + (jdTT - J2000) / 365.25
+  const y = 2000 + (jdTT - J2000) / 365.25;
 
   if (y < -500) {
-    const u = (y - 1820) / 100
-    return -20 + 32 * u * u
+    const u = (y - 1820) / 100;
+    return -20 + 32 * u * u;
   } else if (y < 500) {
-    const u = y / 100
+    const u = y / 100;
     return (
       10583.6 -
       1014.41 * u +
@@ -209,9 +209,9 @@ export function deltaTPolynomial(jdTT: number): number {
       0.1798452 * u ** 4 +
       0.022174192 * u ** 5 +
       0.0090316521 * u ** 6
-    )
+    );
   } else if (y < 1600) {
-    const u = (y - 1000) / 100
+    const u = (y - 1000) / 100;
     return (
       1574.2 -
       556.01 * u +
@@ -220,15 +220,15 @@ export function deltaTPolynomial(jdTT: number): number {
       0.8503463 * u ** 4 -
       0.005050998 * u ** 5 +
       0.0083572073 * u ** 6
-    )
+    );
   } else if (y < 1700) {
-    const t = y - 1600
-    return 120 - 0.9808 * t - 0.01532 * t * t + t ** 3 / 7129
+    const t = y - 1600;
+    return 120 - 0.9808 * t - 0.01532 * t * t + t ** 3 / 7129;
   } else if (y < 1800) {
-    const t = y - 1700
-    return 8.83 + 0.1603 * t - 0.0059285 * t * t + 0.00013336 * t ** 3 - t ** 4 / 1174000
+    const t = y - 1700;
+    return 8.83 + 0.1603 * t - 0.0059285 * t * t + 0.00013336 * t ** 3 - t ** 4 / 1174000;
   } else if (y < 1860) {
-    const t = y - 1800
+    const t = y - 1800;
     return (
       13.72 -
       0.332447 * t +
@@ -238,9 +238,9 @@ export function deltaTPolynomial(jdTT: number): number {
       0.0000121272 * t ** 5 -
       0.0000001699 * t ** 6 +
       0.000000000875 * t ** 7
-    )
+    );
   } else if (y < 1900) {
-    const t = y - 1860
+    const t = y - 1860;
     return (
       7.62 +
       0.5737 * t -
@@ -248,21 +248,21 @@ export function deltaTPolynomial(jdTT: number): number {
       0.01680668 * t ** 3 -
       0.0004473624 * t ** 4 +
       t ** 5 / 233174
-    )
+    );
   } else if (y < 1920) {
-    const t = y - 1900
-    return -2.79 + 1.494119 * t - 0.0598939 * t * t + 0.0061966 * t ** 3 - 0.000197 * t ** 4
+    const t = y - 1900;
+    return -2.79 + 1.494119 * t - 0.0598939 * t * t + 0.0061966 * t ** 3 - 0.000197 * t ** 4;
   } else if (y < 1941) {
-    const t = y - 1920
-    return 21.2 + 0.84493 * t - 0.0761 * t * t + 0.0020936 * t ** 3
+    const t = y - 1920;
+    return 21.2 + 0.84493 * t - 0.0761 * t * t + 0.0020936 * t ** 3;
   } else if (y < 1961) {
-    const t = y - 1950
-    return 29.07 + 0.407 * t - (t * t) / 233 + t ** 3 / 2547
+    const t = y - 1950;
+    return 29.07 + 0.407 * t - (t * t) / 233 + t ** 3 / 2547;
   } else if (y < 1986) {
-    const t = y - 1975
-    return 45.45 + 1.067 * t - (t * t) / 260 - t ** 3 / 718
+    const t = y - 1975;
+    return 45.45 + 1.067 * t - (t * t) / 260 - t ** 3 / 718;
   } else if (y < 2005) {
-    const t = y - 2000
+    const t = y - 2000;
     return (
       63.86 +
       0.3345 * t -
@@ -270,14 +270,14 @@ export function deltaTPolynomial(jdTT: number): number {
       0.0017275 * t ** 3 +
       0.000651814 * t ** 4 +
       0.00002373599 * t ** 5
-    )
+    );
   } else if (y < 2050) {
-    const t = y - 2000
-    return 62.92 + 0.32217 * t + 0.005589 * t * t
+    const t = y - 2000;
+    return 62.92 + 0.32217 * t + 0.005589 * t * t;
   } else if (y < 2150) {
-    return -20 + 32 * ((y - 1820) / 100) ** 2 - 0.5628 * (2150 - y)
+    return -20 + 32 * ((y - 1820) / 100) ** 2 - 0.5628 * (2150 - y);
   } else {
-    const u = (y - 1820) / 100
-    return -20 + 32 * u * u
+    const u = (y - 1820) / 100;
+    return -20 + 32 * u * u;
   }
 }

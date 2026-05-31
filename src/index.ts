@@ -27,7 +27,7 @@ export {
   initKernels,
   downloadKernels,
   verifyKernels,
-} from './api/index.js'
+} from "./api/index.js";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -61,7 +61,7 @@ export type {
   // Ephemeris internals (for advanced use)
   SpkSegment,
   ChebRecord,
-} from './types.js'
+} from "./types.js";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -71,4 +71,4 @@ export {
   ODEH_THRESHOLDS,
   ODEH_DESCRIPTIONS,
   WGS84,
-} from './types.js'
+} from "./types.js";
