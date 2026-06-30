@@ -63,3 +63,7 @@ Full documentation on the [GitHub Wiki](https://github.com/acamarata/moon-sighti
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## Telemetry
+
+This package supports optional, anonymous usage telemetry via [`@acamarata/telemetry`](https://github.com/acamarata/telemetry). It is **off by default**. See [TELEMETRY.md](https://github.com/acamarata/telemetry/blob/main/TELEMETRY.md) for what is collected and how to enable or disable it.
