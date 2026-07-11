@@ -451,8 +451,16 @@ describe("Input validation", () => {
 });
 
 describe("kernel-backed sighting pipeline", () => {
-  it("computes London sunset and moonset for 2025-03-29", async () => {
-    await initKernels();
+  it("computes London sunset and moonset for 2025-03-29", async (t) => {
+    // Downloads the ~32MB de442s.bsp planetary kernel from NAIF. Skip (don't
+    // fail) when that fetch is unavailable — e.g. offline or a CI runner that
+    // can't pull large external files — so network flakiness never reds CI.
+    try {
+      await initKernels();
+    } catch (err) {
+      t.skip(`kernel download unavailable (offline/CI): ${err?.message ?? err}`);
+      return;
+    }
 
     const observer = { lat: 51.5, lon: -0.1, elevation: 0 };
     const report = await getMoonSightingReport(new Date("2025-03-29T00:00:00Z"), observer);
