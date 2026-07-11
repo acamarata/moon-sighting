@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.3] - 2026-07-11
+
+### Fixed
+- SPK/DAF kernel parsing was completely broken: the DAF forward-record offset was read from byte 256 instead of 76, so zero segments loaded and every kernel-backed call threw `no path for target=301 center=399`. Also fixed a Type 2/3 Chebyshev `nCoeffs` off-by-one and an Earth/SSB sign error in barycentre assembly. Fixed geocentric Moon position now matches JPL Horizons to within ~0.6 km / 0.003°. Thanks @hsravat-4590 (#2).
+
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
