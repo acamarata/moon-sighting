@@ -147,8 +147,8 @@ export class SpkKernel {
         const svSunSsb = evaluateSegment(this.buffer, sSunSsb, et, this.le);
         const svEmbSsb = evaluateSegment(this.buffer, sEmbSsb, et, this.le);
         const svEarthEmb = evaluateSegment(this.buffer, sEarthEmb, et, this.le);
-        // Earth/SSB = EMB/SSB - Earth/EMB
-        const earthSsb = subtractSV(svEmbSsb, svEarthEmb);
+        // Earth/SSB = EMB/SSB + Earth/EMB because the kernel stores 399:3.
+        const earthSsb = addSV(svEmbSsb, svEarthEmb);
         return subtractSV(svSunSsb, earthSsb);
       }
     }
@@ -192,9 +192,11 @@ function parseDafFileRecord(buffer: ArrayBuffer): {
   }
 
   const ni = dv.getInt32(12, le);
-  const fward = dv.getInt32(256, le);
-  const bward = dv.getInt32(260, le);
-  const free = dv.getInt32(264, le);
+  // DAF file record layout stores the forward/backward/free record numbers
+  // directly after the 60-byte internal file name, not at byte 256.
+  const fward = dv.getInt32(76, le);
+  const bward = dv.getInt32(80, le);
+  const free = dv.getInt32(84, le);
 
   return { nd, ni, fward, bward, free, le };
 }
@@ -279,9 +281,8 @@ export function evaluateType2(
   const intlen = dv.getFloat64(endOffset - 3 * BYTES_PER_DOUBLE, le);
   const init = dv.getFloat64(endOffset - 4 * BYTES_PER_DOUBLE, le);
 
-  // degree = (rsize - 2) / 3  (Type 2 stores 3 components)
-  const degree = Math.round((rsize - 2) / 3);
-  const nCoeffs = degree + 1;
+  // Type 2 record size is RSIZE = 3 * NCOEFF + 2.
+  const nCoeffs = Math.round((rsize - 2) / 3);
 
   let recIdx = Math.floor((et - init) / intlen);
   recIdx = Math.max(0, Math.min(Math.round(N) - 1, recIdx));
@@ -320,8 +321,8 @@ export function evaluateType3(
   const intlen = dv.getFloat64(endOffset - 3 * BYTES_PER_DOUBLE, le);
   const init = dv.getFloat64(endOffset - 4 * BYTES_PER_DOUBLE, le);
 
-  const degree = Math.round((rsize - 2) / 6);
-  const nCoeffs = degree + 1;
+  // Type 3 record size is RSIZE = 6 * NCOEFF + 2.
+  const nCoeffs = Math.round((rsize - 2) / 6);
 
   let recIdx = Math.floor((et - init) / intlen);
   recIdx = Math.max(0, Math.min(Math.round(N) - 1, recIdx));
@@ -370,6 +371,21 @@ function subtractSV(a: StateVector, b: StateVector): StateVector {
       a.velocity[0] - b.velocity[0],
       a.velocity[1] - b.velocity[1],
       a.velocity[2] - b.velocity[2],
+    ],
+  };
+}
+
+function addSV(a: StateVector, b: StateVector): StateVector {
+  return {
+    position: [
+      a.position[0] + b.position[0],
+      a.position[1] + b.position[1],
+      a.position[2] + b.position[2],
+    ],
+    velocity: [
+      a.velocity[0] + b.velocity[0],
+      a.velocity[1] + b.velocity[1],
+      a.velocity[2] + b.velocity[2],
     ],
   };
 }
