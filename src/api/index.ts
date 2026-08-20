@@ -365,7 +365,7 @@ export async function getMoonSightingReport(
   // Illumination and moon age
   const illumData = computeIllumination(moonGCRS, sunGCRS);
   const illumination = illumData.illumination * 100;
-  const prevNewMoonJD = nearestNewMoon(ts.jdTT - 15);
+  const prevNewMoonJD = previousNewMoon(ts.jdTT);
   const moonAgeHours = (ts.jdTT - prevNewMoonJD) * 24;
 
   // Topocentric vectors for crescent geometry (GCRS - observer GCRS)
@@ -467,6 +467,45 @@ const PHASE_DISPLAY: Record<MoonPhaseName, { name: string; symbol: string }> = {
   "waning-crescent": { name: "Waning Crescent", symbol: "🌘" },
 };
 
+/** Mean length of a synodic month in days. */
+const SYNODIC_MONTH_DAYS = 29.530588861;
+
+/**
+ * The last new moon at or before `jdTT`.
+ *
+ * `nearestNewMoon` rounds to the closest lunation, which is frequently the NEXT one. The
+ * previous call sites biased the input backwards by 15 days to compensate, but the
+ * lunation number is derived from a decimal-year approximation and the bias does not
+ * hold near a lunation boundary: for roughly five days before every new moon it still
+ * selected the upcoming one, so "hours since last new moon" came back NEGATIVE (down to
+ * -120h) and `prevNewMoon` was reported as a future date.
+ *
+ * Stepping back a whole synodic month at a time until the result is at or before the
+ * target is exact regardless of how the estimate rounds.
+ */
+function previousNewMoon(jdTT: number): number {
+  let jd = nearestNewMoon(jdTT);
+  let guard = 0;
+  while (jd > jdTT && guard < 4) {
+    jd = nearestNewMoon(jd - SYNODIC_MONTH_DAYS);
+    guard++;
+  }
+  return jd;
+}
+
+/**
+ * The next new moon strictly after `jdTT`, by the same reasoning as [previousNewMoon].
+ */
+function nextNewMoonAfter(jdTT: number): number {
+  let jd = nearestNewMoon(jdTT);
+  let guard = 0;
+  while (jd <= jdTT && guard < 4) {
+    jd = nearestNewMoon(jd + SYNODIC_MONTH_DAYS);
+    guard++;
+  }
+  return jd;
+}
+
 /**
  * Compute the Moon's current phase, illumination, and next phase times.
  *
@@ -493,15 +532,14 @@ export function getMoonPhase(date = new Date()): MoonPhaseResult {
   const { illumination, elongationDeg, isWaxing } = computeIllumination(moonGCRS, sunGCRS);
   const illuminationPct = illumination * 100;
 
-  // Age in hours since previous new moon
-  // Search 15 days back/forward to ensure we clear the current lunation boundary
-  const prevNewMoonJD = nearestNewMoon(ts.jdTT - 15);
+  // Age in hours since the previous new moon. Always >= 0 by construction.
+  const prevNewMoonJD = previousNewMoon(ts.jdTT);
   const age = (ts.jdTT - prevNewMoonJD) * 24;
 
   const phaseKey = elongationToPhase(elongationDeg, isWaxing);
   const { name: phaseName, symbol: phaseSymbol } = PHASE_DISPLAY[phaseKey];
 
-  const nextNewMoonJD = nearestNewMoon(ts.jdTT + 15);
+  const nextNewMoonJD = nextNewMoonAfter(ts.jdTT);
   const nextFullMoonJD = nearestFullMoon(ts.jdTT);
 
   return {

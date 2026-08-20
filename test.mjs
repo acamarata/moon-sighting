@@ -472,3 +472,54 @@ describe("kernel-backed sighting pipeline", () => {
     assert.equal(report.odeh?.zone, "D");
   });
 });
+
+// ---------------------------------------------------------------------------
+// PKG-23 — high-latitude coverage.
+//
+// Crescent visibility depends on the sun-moon geometry at sunset, and inside the polar
+// circles there is no sunset for weeks. Nothing previously exercised those latitudes, so
+// any NaN leak or throw there would have gone unnoticed.
+// ---------------------------------------------------------------------------
+describe('PKG-23 — high latitudes', () => {
+  const polar = [
+    ['Longyearbyen midnight sun', 78.22334, 15.64689, new Date('2026-06-21T12:00:00Z')],
+    ['Longyearbyen polar night', 78.22334, 15.64689, new Date('2026-12-21T12:00:00Z')],
+    ['Tromso midnight sun', 69.6492, 18.9553, new Date('2026-06-21T12:00:00Z')],
+    ['McMurdo polar night', -77.8419, 166.6863, new Date('2026-06-21T12:00:00Z')],
+  ];
+
+  it('moon position and illumination stay finite at polar latitudes', () => {
+    for (const [name, lat, lng, date] of polar) {
+      const pos = getMoonPosition(date, lat, lng);
+      assert.ok(Number.isFinite(pos.altitude), `${name}: altitude ${pos.altitude}`);
+      assert.ok(Number.isFinite(pos.azimuth), `${name}: azimuth ${pos.azimuth}`);
+      const illum = getMoonIllumination(date);
+      assert.ok(Number.isFinite(illum.fraction), `${name}: fraction ${illum.fraction}`);
+      assert.ok(illum.fraction >= 0 && illum.fraction <= 1, `${name}: fraction out of range`);
+    }
+  });
+
+  it('a visibility estimate at a polar latitude does not throw', () => {
+    for (const [name, lat, lng, date] of polar) {
+      assert.doesNotThrow(
+        () => getMoonVisibilityEstimate(date, lat, lng),
+        `${name} threw`,
+      );
+    }
+  });
+
+  it('moon phase fields stay in range across a year of dates', () => {
+    // getMoonPhase is geocentric, so it takes no observer position — sweep dates instead.
+    for (let i = 0; i < 365; i += 7) {
+      const d = new Date(Date.UTC(2026, 0, 1 + i, 12));
+      const p = getMoonPhase(d);
+      assert.ok(Number.isFinite(p.illumination), `${d.toISOString()}: illumination ${p.illumination}`);
+      assert.ok(p.illumination >= 0 && p.illumination <= 100, `illumination out of 0-100: ${p.illumination}`);
+      assert.ok(Number.isFinite(p.elongationDeg), `elongation ${p.elongationDeg}`);
+      assert.ok(p.elongationDeg >= 0 && p.elongationDeg < 360, `elongation out of range: ${p.elongationDeg}`);
+      // age is documented in HOURS since the last new moon, so one synodic month is ~708h.
+      assert.ok(p.age >= 0 && p.age < 750, `age out of a synodic month: ${p.age}h`);
+      assert.ok(typeof p.phase === 'string' && p.phase.length > 0, `phase label ${p.phase}`);
+    }
+  });
+});
