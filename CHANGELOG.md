@@ -1,3 +1,8 @@
+## 1.1.4 — 2026-08-19
+
+### Fixed
+- `MoonPhaseResult.age`, documented as "hours since last new moon", could be **negative** — as low as -120 hours — with `prevNewMoon` reporting a date in the future. `nearestNewMoon` rounds to the closest lunation, which is frequently the next one; both call sites compensated by biasing the input 15 days backwards, but the lunation number comes from a decimal-year approximation and that bias does not hold near a boundary. It reproduced on roughly 58 days a year, every year. `getMoonSightingReport` used the same biased call and is fixed with it.
+
 # Changelog
 
 ## [1.1.3] - 2026-07-11
