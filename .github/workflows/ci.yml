@@ -103,3 +103,51 @@ jobs:
           files: ./coverage/lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Hostile-timezone matrix.
+  #
+  # Three real bugs shipped in pray-calc 2.4.0's predecessor while its suite was
+  # green at 134/135. They shipped because every suite ran in exactly one
+  # timezone, on machines west of UTC. No amount of care in review substitutes
+  # for running the tests somewhere else.
+  #
+  # The zones are chosen so each catches something the others cannot:
+  #   UTC                 control
+  #   America/New_York    west of UTC, observes DST
+  #   Asia/Tokyo          east of UTC, no DST
+  #   Pacific/Kiritimati  UTC+14 — the extreme that broke a seasonal index
+  #   Etc/GMT+12          UTC-12 — the opposite extreme
+  #   Pacific/Auckland    southern-hemisphere DST, catches transition bugs
+  # ───────────────────────────────────────────────────────────────────────────
+  timezones:
+    name: Tests (TZ=${{ matrix.tz }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        tz:
+          - UTC
+          - America/New_York
+          - Asia/Tokyo
+          - Pacific/Kiritimati
+          - Etc/GMT+12
+          - Pacific/Auckland
+    env:
+      TZ: ${{ matrix.tz }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Confirm the runner is actually in the matrix zone
+        run: |
+          echo "TZ=$TZ"
+          node -e "const z=Intl.DateTimeFormat().resolvedOptions().timeZone; console.log('resolved:', z); if (z !== process.env.TZ) { console.error('runner did not adopt TZ'); process.exit(1); }"
+      - run: node --test test.mjs
+      - run: node --test test-cjs.cjs
