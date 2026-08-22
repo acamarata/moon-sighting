@@ -494,6 +494,25 @@ function previousNewMoon(jdTT: number): number {
 }
 
 /**
+ * The next full moon strictly after `jdTT`.
+ *
+ * `nearestFullMoon` returns the CLOSEST full moon, which is in the past for roughly half
+ * of every lunation. It was assigned straight to `nextFullMoon`, so that field reported a
+ * date already gone on 547 days out of a 3-year sweep — most of the time, in other words.
+ * Stepping forward a synodic month at a time until the result is strictly after the target
+ * is exact regardless of which side the estimate lands on.
+ */
+function nextFullMoonAfter(jdTT: number): number {
+  let jd = nearestFullMoon(jdTT);
+  let guard = 0;
+  while (jd <= jdTT && guard < 4) {
+    jd = nearestFullMoon(jd + SYNODIC_MONTH_DAYS);
+    guard++;
+  }
+  return jd;
+}
+
+/**
  * The next new moon strictly after `jdTT`, by the same reasoning as [previousNewMoon].
  */
 function nextNewMoonAfter(jdTT: number): number {
@@ -540,7 +559,7 @@ export function getMoonPhase(date = new Date()): MoonPhaseResult {
   const { name: phaseName, symbol: phaseSymbol } = PHASE_DISPLAY[phaseKey];
 
   const nextNewMoonJD = nextNewMoonAfter(ts.jdTT);
-  const nextFullMoonJD = nearestFullMoon(ts.jdTT);
+  const nextFullMoonJD = nextFullMoonAfter(ts.jdTT);
 
   return {
     phase: phaseKey,

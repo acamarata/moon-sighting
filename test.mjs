@@ -523,3 +523,22 @@ describe('PKG-23 — high latitudes', () => {
     }
   });
 });
+
+describe('lunation bracketing invariants', () => {
+  it('prev/next new moon and next full moon bracket the date correctly, 3 years', () => {
+    for (let i = 0; i < 1095; i++) {
+      const d = new Date(Date.UTC(2026, 0, 1 + i, 12));
+      const p = getMoonPhase(d);
+      const iso = d.toISOString().slice(0, 10);
+      assert.ok(new Date(p.prevNewMoon) <= d, `${iso}: prevNewMoon ${p.prevNewMoon} is in the future`);
+      assert.ok(new Date(p.nextNewMoon) > d, `${iso}: nextNewMoon ${p.nextNewMoon} is not in the future`);
+      // nearestFullMoon returns the CLOSEST full moon, which is in the past for about half
+      // of every lunation. Assigned straight to nextFullMoon it reported an already-past
+      // date on 547 of these 1095 days.
+      assert.ok(new Date(p.nextFullMoon) > d, `${iso}: nextFullMoon ${p.nextFullMoon} is in the past`);
+      const days = (x) => (new Date(x) - d) / 86400000;
+      assert.ok(days(p.nextFullMoon) <= 30.5, `${iso}: nextFullMoon more than a lunation away`);
+      assert.ok(days(p.nextNewMoon) <= 30.5, `${iso}: nextNewMoon more than a lunation away`);
+    }
+  });
+});
