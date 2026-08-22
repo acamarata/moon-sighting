@@ -87,7 +87,6 @@ export class SpkKernel {
 
   /** Load a kernel from a file path (Node.js only). */
   static fromFile(path: string): SpkKernel {
-     
     const fs = require("fs") as typeof import("fs");
     const buf = fs.readFileSync(path);
     const ab = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);

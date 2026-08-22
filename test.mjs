@@ -542,3 +542,46 @@ describe('lunation bracketing invariants', () => {
     }
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Calendar-day input. Two entry points answer about a DAY (getMoonSightingReport,
+// getSunMoonEvents); the rest answer about an instant and are unaffected. For the
+// day-based pair a bare Date is ambiguous: new Date(2026, 7, 22) is 2026-08-21T15:00Z
+// in Tokyo, so a Tokyo caller silently gets the previous UTC day's events.
+// ─────────────────────────────────────────────────────────────────────────────
+describe('calendar-day input', () => {
+  const OBS = { lat: 21.3891, lon: 39.8579, elevation: 0 };
+
+  it('a YYYY-MM-DD string resolves to the same day as the equivalent UTC-noon Date', async () => {
+    const viaString = await getSunMoonEvents('2026-08-22', OBS);
+    const viaNoon = await getSunMoonEvents(new Date('2026-08-22T12:00:00Z'), OBS);
+    assert.deepStrictEqual(viaString.sunsetUTC, viaNoon.sunsetUTC);
+    assert.deepStrictEqual(viaString.moonsetUTC, viaNoon.moonsetUTC);
+  });
+
+  it('the string form is unaffected by the time of day in an equivalent Date', async () => {
+    // Any instant on the UTC day must give the same events, which is what the
+    // documented "any time on the desired UTC day" contract promises.
+    const early = await getSunMoonEvents(new Date('2026-08-22T00:30:00Z'), OBS);
+    const late = await getSunMoonEvents(new Date('2026-08-22T23:30:00Z'), OBS);
+    const str = await getSunMoonEvents('2026-08-22', OBS);
+    assert.deepStrictEqual(early.sunsetUTC, str.sunsetUTC);
+    assert.deepStrictEqual(late.sunsetUTC, str.sunsetUTC);
+  });
+
+  it('rejects impossible and malformed calendar days', async () => {
+    for (const bad of ['2026-02-31', '2026-13-01', 'not-a-date', '2026-8-2']) {
+      await assert.rejects(() => getSunMoonEvents(bad, OBS), RangeError, `should reject ${bad}`);
+    }
+  });
+
+  it('still rejects an invalid Date', async () => {
+    await assert.rejects(() => getSunMoonEvents(new Date('nonsense'), OBS), RangeError);
+  });
+
+  it('getMoonSightingReport accepts the string form and echoes the resolved day', async () => {
+    const r = await getMoonSightingReport('2026-08-22', OBS);
+    assert.ok(r.date instanceof Date);
+    assert.strictEqual(r.date.toISOString().slice(0, 10), '2026-08-22');
+  });
+});

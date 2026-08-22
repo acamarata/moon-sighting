@@ -59,6 +59,52 @@ import { DEG2RAD } from "../math/index.js";
 
 // ─── Input validation ─────────────────────────────────────────────────────────
 
+/**
+ * A calendar day, for the two entry points whose answer is a day rather than a moment.
+ *
+ * `getMoonSightingReport` and `getSunMoonEvents` search a window anchored on a UTC calendar
+ * day. Everything else in this package (`getMoonPhase`, `getMoonPosition`,
+ * `getMoonIllumination`) answers about an instant, where a `Date` is exactly right and there
+ * is nothing to disambiguate.
+ *
+ * For the day-based pair a bare `Date` is ambiguous, because a `Date` carries no record of
+ * whether it was built from local or UTC parts. `new Date(2026, 7, 22)` is
+ * `2026-08-21T15:00Z` in Tokyo, so a Tokyo caller silently gets the previous UTC day's
+ * events. Passing `'YYYY-MM-DD'` names the day outright and cannot be shifted by the host.
+ */
+export type CalendarDayInput = Date | string;
+
+/** Matches a plain calendar day, with no time and no zone. */
+const DAY_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+/**
+ * Resolve a {@link CalendarDayInput} to an instant on the intended UTC day.
+ *
+ * Anchored at UTC noon rather than midnight so the value is unambiguously *inside* the day
+ * it names; the callers below re-derive midnight from its UTC components, which is what
+ * their search windows expect.
+ */
+function toCalendarDay(date: CalendarDayInput, label: string): Date {
+  if (typeof date === "string") {
+    const m = DAY_ONLY.exec(date);
+    if (!m) {
+      throw new RangeError(
+        `${label}: expected a 'YYYY-MM-DD' calendar day or a Date, got '${date}'`,
+      );
+    }
+    const [, y, mo, d] = m;
+    const at = new Date(Date.UTC(Number(y), Number(mo) - 1, Number(d), 12, 0, 0));
+    if (at.getUTCMonth() !== Number(mo) - 1 || at.getUTCDate() !== Number(d)) {
+      throw new RangeError(`${label}: '${date}' is not a real calendar day`);
+    }
+    return at;
+  }
+  if (!(date instanceof Date) || isNaN(date.getTime())) {
+    throw new RangeError(`${label}: expected a valid Date instance or a 'YYYY-MM-DD' string`);
+  }
+  return date;
+}
+
 function validateDate(date: Date, label: string): void {
   if (!(date instanceof Date) || isNaN(date.getTime())) {
     throw new RangeError(`${label}: expected a valid Date instance`);
@@ -305,20 +351,20 @@ async function resolveKernel(config?: KernelConfig): Promise<SpkKernel> {
  * ```
  */
 export async function getMoonSightingReport(
-  date: Date,
+  date: CalendarDayInput,
   observer: Observer,
   options?: SightingOptions,
 ): Promise<MoonSightingReport> {
-  validateDate(date, "getMoonSightingReport");
+  const day = toCalendarDay(date, "getMoonSightingReport");
   validateObserver(observer, "getMoonSightingReport");
   const kernel = await resolveKernel(options?.kernels);
 
   // Event times (sunset, moonset, twilight, rise)
-  const events = eventsGetSunMoonEvents(date, observer, kernel);
+  const events = eventsGetSunMoonEvents(day, observer, kernel);
   const { sunsetUTC, moonsetUTC } = events;
 
   if (!sunsetUTC || !moonsetUTC) {
-    return buildNullReport(date, observer, events, "DE442S", false);
+    return buildNullReport(day, observer, events, "DE442S", false);
   }
 
   // Best observation time
@@ -334,7 +380,7 @@ export async function getMoonSightingReport(
   }
 
   if (!bestTimeResult) {
-    return buildNullReport(date, observer, events, "DE442S", false);
+    return buildNullReport(day, observer, events, "DE442S", false);
   }
 
   const { bestTimeUTC, lagMinutes } = bestTimeResult;
@@ -402,7 +448,7 @@ export async function getMoonSightingReport(
   );
 
   return {
-    date,
+    date: day,
     observer,
     sunsetUTC,
     moonsetUTC,
@@ -895,12 +941,12 @@ function elongationToPhase(elongationDeg: number, isWaxing: boolean): MoonPhaseN
  * @returns SunMoonEvents with all times in UTC
  */
 export async function getSunMoonEvents(
-  date: Date,
+  date: CalendarDayInput,
   observer: Observer,
   options?: Pick<SightingOptions, "kernels">,
 ): Promise<SunMoonEvents> {
-  validateDate(date, "getSunMoonEvents");
+  const day = toCalendarDay(date, "getSunMoonEvents");
   validateObserver(observer, "getSunMoonEvents");
   const kernel = await resolveKernel(options?.kernels);
-  return eventsGetSunMoonEvents(date, observer, kernel);
+  return eventsGetSunMoonEvents(day, observer, kernel);
 }

@@ -1,3 +1,18 @@
+## 1.2.0 — 2026-08-22
+
+### Added
+- **`getMoonSightingReport` and `getSunMoonEvents` accept a `'YYYY-MM-DD'` string** as well as a `Date`, with the `CalendarDayInput` type exported.
+
+  These two are the only entry points whose answer is a calendar **day** rather than a moment; `getMoonPhase`, `getMoonPosition` and `getMoonIllumination` all answer about an instant, where a `Date` is exactly right and there is nothing to disambiguate.
+
+  For the day-based pair a bare `Date` was ambiguous, because a `Date` carries no record of whether it was built from local or UTC parts. `new Date(2026, 7, 22)` is `2026-08-21T15:00Z` in Tokyo, so a Tokyo caller silently received the previous UTC day's events. The string form names the day outright and no host timezone can shift it.
+
+### Changed
+- Nothing. The `Date` path behaves exactly as in 1.1.5, and the documented "any time on the desired UTC day" contract is now covered by a test.
+
+### Notes
+An earlier plan for this release proposed moving the internal search anchor from UTC midnight to UTC noon, by analogy with `pray-calc` 2.4.0. On inspection that premise was wrong: the midnight here is the deliberate start of a 28-hour search window, not a fragile day anchor, and moving it would have broken the window rather than hardened it. The anchor is unchanged.
+
 ## 1.1.5 — 2026-08-21
 
 ### Fixed
